@@ -31,28 +31,12 @@ if ($userId <= 0) {
 }
 
 /**
- * Pastikan kolom `nip` tersedia (migrasi otomatis, idempoten).
- * Berguna untuk instalasi lama agar halaman Profil langsung bisa
+ * Selaraskan kolom wajib tabel `users` (nip, api_token) — migrasi otomatis,
+ * idempoten. Berguna untuk instalasi lama agar halaman Profil langsung bisa
  * menyimpan NIP tanpa menjalankan SQL manual lebih dulu.
+ * (Implementasi terpusat di includes/functions.php: ensureUsersColumns().)
  */
-function pastikanKolomNip(PDO $pdo): void
-{
-    static $sudah = false;
-    if ($sudah) {
-        return;
-    }
-    $sudah = true;
-    try {
-        $ada = $pdo->query("SHOW COLUMNS FROM users LIKE 'nip'")->fetch();
-        if (!$ada) {
-            $pdo->exec("ALTER TABLE users ADD COLUMN nip VARCHAR(30) DEFAULT NULL AFTER nama_lengkap");
-        }
-    } catch (Throwable $e) {
-        // abaikan: bila gagal (mis. hak akses ALTER), pemakaian nip tetap dicoba
-    }
-}
-
-pastikanKolomNip($pdo);
+ensureUsersColumns($pdo);
 
 /**
  * Ambil baris user dari DB.

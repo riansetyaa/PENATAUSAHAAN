@@ -170,3 +170,57 @@ function rateLimitClear(string $key): void
         @unlink($path);
     }
 }
+
+/**
+ * Pastikan sebuah kolom ada pada tabel (idempoten & aman diulang).
+ * ---------------------------------------------------------------
+ * Dipakai untuk MENYELARASKAN SKEMA basis data lama dengan kode terbaru
+ * tanpa perlu impor SQL manual. Contoh: kolom `users.nip` (dipakai blok
+ * tanda tangan) dan `users.api_token` (token multi-tenant).
+ *
+ * Tanpa penjagaan ini, endpoint yang memilih kolom tersebut (mis. login)
+ * langsung gagal dengan PDOException "Unknown column" sehingga pengguna
+ * TIDAK BISA LOGIN sama sekali — dan halaman Profil (yang punya
+ * penambah-kolom) tidak pernah terjangkau.
+ *
+ * Kompatibel MySQL & MariaDB: cek information_schema lewat SHOW COLUMNS
+ * (tanpa ADD COLUMN IF NOT EXISTS), hanya ALTER bila kolom belum ada.
+ *
+ * @param PDO    $pdo    Koneksi basis data
+ * @param string $tabel  Nama tabel  (mis. 'users')
+ * @param string $kolom  Nama kolom  (mis. 'nip')
+ * @param string $ddl    Definisi kolom lengkap, mis. "`nip` VARCHAR(30) DEFAULT NULL AFTER `nama_lengkap`"
+ */
+function ensureColumn(PDO $pdo, string $tabel, string $kolom, string $ddl): void
+{
+    static $sudahDicek = [];
+
+    $kunci = $tabel . '.' . $kolom;
+    if (isset($sudahDicek[$kunci])) {
+        return;
+    }
+    $sudahDicek[$kunci] = true;
+
+    try {
+        $ada = $pdo->query('SHOW COLUMNS FROM `' . $tabel . '` LIKE ' . $pdo->quote($kolom))->fetch();
+        if (!$ada) {
+            $pdo->exec('ALTER TABLE `' . $tabel . '` ADD COLUMN ' . $ddl);
+        }
+    } catch (Throwable $e) {
+        // Bila gagal (mis. hak akses ALTER ditolak), cukup dicatat di log —
+        // pemanggil tetap melanjutkan agar tidak mematikan seluruh endpoint.
+        error_log('[SIM-TKD] ensureColumn ' . $kunci . ': ' . $e->getMessage());
+    }
+}
+
+/**
+ * Selaraskan kolom wajib pada tabel `users`.
+ * Dipanggil oleh endpoint yang bergantung pada kolom tersebut
+ * (login, register, profil) agar basis data lama tetap bisa dipakai.
+ */
+function ensureUsersColumns(PDO $pdo): void
+{
+    ensureColumn($pdo, 'users', 'nip', '`nip` VARCHAR(30) DEFAULT NULL AFTER `nama_lengkap`');
+    ensureColumn($pdo, 'users', 'api_token', '`api_token` VARCHAR(64) DEFAULT NULL AFTER `provinsi`');
+}
+

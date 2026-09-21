@@ -63,6 +63,10 @@ if (!in_array($peran, $allowedRoles, true)) {
 
 $pdo = db();
 
+// Selaraskan skema kolom `users` (basis data lama belum tentu punya
+// kolom `api_token`/`nip`) — lihat includes/functions.php: ensureUsersColumns().
+ensureUsersColumns($pdo);
+
 // Cek duplikasi username & email
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?");
 $stmt->execute([$username, $email]);

@@ -40,15 +40,37 @@ if (!rateLimitCheck($rlKey, 8, 300)) {
 
 $pdo = db();
 
+// ---- Selaraskan skema kolom `users` ----
+// Basis data hasil deploy lama (atau yang belum menjalankan
+// database/users_nip.sql / api_token.sql) belum punya kolom `nip`
+// dan/atau `api_token`. Query di bawah MEMILIH kolom tersebut, jadi
+// tanpa penjagaan ini login gagal total dengan PDOException
+// "Unknown column 'nip'" dan pengguna tidak bisa masuk sama sekali.
+// ensureUsersColumns() menambahkan kolom yang belum ada (idempoten).
+ensureUsersColumns($pdo);
+
 // Cari pengguna berdasarkan username ATAU email
-$stmt = $pdo->prepare("
-    SELECT id, nama_lengkap, nip, username, email, password, instansi, kota, provinsi, api_token, peran, status
-    FROM users
-    WHERE username = ? OR email = ?
-    LIMIT 1
-");
-$stmt->execute([$username, $username]);
-$user = $stmt->fetch();
+// Dibungkus try/catch agar kegagalan basis data dikembalikan sebagai JSON
+// yang jelas (bukan halaman HTML "Fatal error") — memudahkan diagnosis
+// sekaligus mencegah laman login hanya menampilkan pesan koneksi gagal.
+try {
+    $stmt = $pdo->prepare("
+        SELECT id, nama_lengkap, nip, username, email, password, instansi, kota, provinsi, api_token, peran, status
+        FROM users
+        WHERE username = ? OR email = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$username, $username]);
+    $user = $stmt->fetch();
+} catch (Throwable $e) {
+    error_log('[SIM-TKD] login query gagal: ' . $e->getMessage());
+    jsonResponse(
+        false,
+        'Server gagal membaca data pengguna. Coba lagi beberapa saat lagi; bila berlanjut hubungi administrator.',
+        [],
+        500
+    );
+}
 
 // Verifikasi password
 if (!$user || !password_verify($password, $user['password'])) {

@@ -213,6 +213,13 @@ impor SQL manual yang wajib dilakukan. Untuk menyiapkan/memeriksa skema lebih du
 `database/akuntansi_v2.sql` — sudah diuji pada DB kosong **dan** DB versi lama
 (kolom ditambahkan tanpa menghapus data).
 
+Demikian pula kolom **`users.nip`** (dipakai blok tanda tangan) dan
+**`users.api_token`** (token multi-tenant) diselaraskan otomatis oleh
+`ensureUsersColumns()` di `includes/functions.php`, yang dipanggil **login**,
+**register**, dan **profil**. Ini mencegah kegagalan login total pada basis data
+lama yang belum menjalankan `database/users_nip.sql` / `database/api_token.sql`
+(gejala: halaman login hanya menampilkan “Terjadi kesalahan koneksi ke server”).
+
 Modul **Master Akun**, **Anggaran (Pagu)**, **Buku Kas**, **Buku Kas Umum (BUD)**,
 **LPJ Bendahara PPKD**, dan **Buku Pembantu Objek** **tidak menambah tabel** —
 mereka memakai tabel yang sudah ada (`akun_master`, `anggaran_lra`, `buku_kas`,
