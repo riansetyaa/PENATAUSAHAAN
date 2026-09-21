@@ -9,3 +9,4 @@ doc.simtkd.com/config/credentials.php
 # Secret webhook deploy
 .webhook_secret
 .webhook_secret_staging
+test-db.php

@@ -70,15 +70,17 @@
   <div class="meta">
     <div><b>Dokumen</b> &nbsp;: Manual Book SIM-TKD (Edisi Mahasiswa)</div>
     <div><b>Pengguna</b> &nbsp;: Mahasiswa — Bendahara Penerimaan/Pengeluaran &amp; penyusun jurnal</div>
-    <div><b>Modul</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Penerimaan &middot; Belanja &middot; AKLAP</div>
-    <div><b>Versi</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 1.0 &middot; 2026</div>
+    <div><b>Modul</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Penerimaan &middot; Belanja &middot; AKLAP (termasuk Kas, Register, LPJ, Anggaran)</div>
+    <div><b>Versi</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 2.0 &middot; September 2026</div>
   </div>
   <div class="badges">
     <span class="badge">Modul Penerimaan</span>
     <span class="badge">Modul Belanja</span>
     <span class="badge orange">Modul Akuntansi AKLAP</span>
-    <span class="badge">40 Ilustrasi Tangkapan Layar</span>
+    <span class="badge orange">Kas &amp; Anggaran (baru)</span>
+    <span class="badge">55 Ilustrasi Tangkapan Layar</span>
   </div>
+  <p style="margin-top:22px;font-size:13.5px;color:#64748b;">Apa saja yang baru pada versi ini? Lihat <a href="manual-book-pembaruan.html" style="color:#1d4ed8;"><b>Manual Book Pembaruan v2.0</b></a>.</p>
 </div>
 
 
@@ -90,8 +92,27 @@
     <li><a href="#bag2">Memulai — Mengakses Aplikasi, Registrasi, dan Login</a></li>
     <li><a href="#bag3">Modul Penerimaan</a></li>
     <li><a href="#bag4">Modul Belanja</a></li>
-    <li><a href="#bag5">Modul Akuntansi AKLAP</a></li>
+    <li><a href="#bag5">Modul Akuntansi AKLAP</a>
+      <ol>
+        <li><a href="#s51">Jurnal Umum — manual, dari dokumen, dan cetak per jurnal</a></li>
+        <li><a href="#s52">Buku Besar &amp; Neraca Saldo</a></li>
+        <li><a href="#s53">Laporan Keuangan — LRA &amp; Neraca</a></li>
+        <li><a href="#s54">Peta menu AKLAP (ringkas)</a></li>
+        <li><a href="#s55">Master Akun (Chart of Accounts)</a></li>
+        <li><a href="#s56">Anggaran (Pagu) berbasis Master Akun</a></li>
+        <li><a href="#s57">Buku Kas Penerimaan &amp; Pengeluaran PPKD</a></li>
+        <li><a href="#s58">Buku Kas Umum (BUD)</a></li>
+        <li><a href="#s59">Laporan Posisi Kas Harian</a></li>
+        <li><a href="#s510">Rekonsiliasi Bank</a></li>
+        <li><a href="#s511">Register SPP/SPM/SP2D</a></li>
+        <li><a href="#s512">LPJ Bendahara Pengeluaran PPKD</a></li>
+        <li><a href="#s513">Buku Pembantu Objek</a></li>
+        <li><a href="#s514">Buku Jurnal Khusus &amp; Jurnal Khusus Konsolidator</a></li>
+        <li><a href="#s515">Mengirim dokumen ke Tanda Tangan</a></li>
+      </ol>
+    </li>
     <li><a href="#bag6">Troubleshooting &amp; FAQ</a></li>
+    <li><a href="manual-book-pembaruan.html">Manual Book Pembaruan v2.0 (apa yang baru)</a></li>
   </ol>
 </nav>
 <div class="info"><b>Edisi Mahasiswa.</b> Buku ini khusus untuk <b>mahasiswa</b> yang mempraktikkan penatausahaan keuangan hingga laporan akuntansi (modul Penerimaan, Belanja, dan AKLAP). Bagian yang menjadi kewenangan dosen — Pengaturan data induk dan Tanda Tangan Elektronik — tidak dibahas di sini (tersedia manual lengkap yang dapat diberikan oleh dosen).</div>
@@ -104,7 +125,7 @@
 <table class="guide">
   <tr><th style="width:30%">Komponen</th><th>Deskripsi</th></tr>
   <tr><td><b>Aplikasi Utama</b> (Penatausahaan)</td><td>Dashboard APBD, Modul <b>Penerimaan</b> (STBP, STS, SKP Daerah), dan Modul <b>Belanja</b> (Rekening Bank SKPD, Rekanan, SPD, SPP, SPM, SP2D, NPD, Pengajuan TU, LPJ) — <b>inilah lingkup kerja mahasiswa</b>.</td></tr>
-  <tr><td><b>AKLAP</b> (Laporan Akuntansi)</td><td>Aplikasi Laporan Akuntansi Pemerintahan: Jurnal Umum, Buku Besar, Neraca Saldo, LRA, dan Neraca — <b>dipakai mahasiswa</b> setelah transaksi selesai (Bagian 5); anggaran &amp; neraca awalnya disiapkan dosen.</td></tr>
+  <tr><td><b>AKLAP</b> (Laporan Akuntansi)</td><td>Aplikasi Laporan Akuntansi Pemerintahan: <b>Jurnal Umum</b> (dengan <b>cetak per jurnal</b>), <b>Buku Jurnal Khusus</b>, <b>Jurnal Khusus Konsolidator</b>, <b>Buku Besar</b>, <b>Neraca Saldo</b>, <b>Master Akun</b>, <b>Anggaran (Pagu)</b>, <b>Buku Kas</b> (Penerimaan · Pengeluaran · BKU/BUD · Laporan Kas Harian · Rekonsiliasi Bank), <b>Register SPP/SPM/SP2D</b>, <b>LPJ Bendahara PPKD</b>, <b>Buku Pembantu Objek</b>, serta <b>LRA</b> &amp; <b>Neraca</b> — <b>dipakai mahasiswa</b> setelah transaksi selesai (Bagian 5).</td></tr>
   <tr><td><b>TTE</b> (Tanda Tangan Elektronik)</td><td>Penandatanganan dokumen secara elektronik — dijalankan oleh <b>dosen</b>; dari sisi mahasiswa cukup menekan tombol <i>Kirim ke Tanda Tangan</i> pada laman cetak.</td></tr>
 </table>
 
@@ -113,7 +134,7 @@
   <tr><th style="width:34%">Kemampuan utama</th><th>Ilustrasi tugas kejuruan</th></tr>
   <tr><td>Memproses transaksi <b>penerimaan</b> &amp; <b>belanja</b> lengkap sampai laporan (BKU, register, rekap, LPJ).</td><td>Berperilaku sebagai <b>Bendahara Penerimaan/Pengeluaran</b> dan pelaksana kegiatan.</td></tr>
 </table>
-<div class="info"><b>Pembagian dengan dosen:</b> data induk (Akun Penerimaan, Anggaran &amp; Neraca) disiapkan dosen melalui menu <b>Pengaturan</b>, dan penandatanganan elektronik dokumen dilakukan dosen. Fokus mahasiswa: <b>alur transaksi</b> (Bagian 3–4) dan <b>penyusunan jurnal &amp; laporan akuntansi</b> di AKLAP (Bagian 5).</div>
+<div class="info"><b>Pembagian dengan dosen:</b> data induk pelengkap (mis. <b>Neraca Awal</b> dan <b>Akun Penerimaan</b>) disiapkan dosen melalui menu <b>Pengaturan</b>, dan penandatanganan elektronik dokumen dilakukan dosen. Sejak versi 2.0, <b>anggaran (pagu) dikelola sendiri oleh mahasiswa di AKLAP</b> (menu <i>Anggaran (Pagu)</i>) berbasis <i>Master Akun</i>. Fokus praktik: <b>alur transaksi</b> (Bagian 3–4), <b>kas &amp; anggaran</b>, dan <b>penyusunan jurnal &amp; laporan akuntansi</b> di AKLAP (Bagian 5).</div>
 <div class="info"><b>Catatan multi-dinas:</b> seluruh data dipisahkan per <i>instansi (SKPD)</i> milik akun. Dua akun dengan instansi berbeda tidak akan melihat data satu sama lain — dosen memakai fitur ini untuk membedakan data antar mahasiswa/kelompok. Pastikan Anda mendaftar dengan nama instansi yang ditentukan dosen.</div>
 
 <h2 class="sub">1.2 Istilah Penting (Glosarium Ringkas)</h2>
@@ -172,7 +193,7 @@
   <figcaption>Gambar 2.4 — Dashboard ringkasan APBD</figcaption>
 </figure>
 
-<div class="info"><b>Struktur menu utama:</b> Dashboard · Penerimaan · Belanja · Akuntansi (AKLAP) · Tanda Tangan Dokumen (TTE) · Pengaturan. Menu <b>Tanda Tangan Dokumen</b> dan <b>Pengaturan</b> terutama dipakai dosen; menu <b>Akuntansi</b> Anda gunakan setelah transaksi selesai (Bagian 5). Fokus Anda: menu <b>Penerimaan</b>, <b>Belanja</b>, dan <b>Akuntansi</b>.</div>
+<div class="info"><b>Struktur menu utama:</b> Dashboard · Penerimaan · Belanja · Akuntansi (AKLAP) · Tanda Tangan Dokumen (TTE) · Pengaturan. Menu <b>Tanda Tangan Dokumen</b> dan <b>Pengaturan</b> terutama dipakai dosen. <br><b>Di dalam AKLAP</b>, sidebar berisi: Dashboard · Jurnal Umum · Buku Jurnal Khusus · Jurnal Khusus Konsolidator · Buku Besar · Neraca Saldo · <b>Buku Kas ▾</b> (Buku Kas Penerimaan · Buku Kas Pengeluaran · Buku Kas Umum/BUD · Laporan Kas Harian · Rekonsiliasi Bank) · Register SPP/SPM/SP2D · LPJ Bendahara PPKD · Buku Pembantu Objek · Master Akun · Anggaran (Pagu) · Laporan Keuangan ▾ (Neraca · LRA).</div>
 
 <!-- ================= BAGIAN 3 ================= -->
 <h1 class="sec" id="bag3">3. Modul Penerimaan</h1>
@@ -390,42 +411,192 @@
   <figcaption>Gambar 5.1 — Beranda AKLAP setelah masuk dari menu Akuntansi</figcaption>
 </figure>
 
-<h2 class="sub">5.1 Jurnal Umum — Manual &amp; Isi dari Dokumen</h2>
+<h2 class="sub" id="s51">5.1 Jurnal Umum — Manual, Isi dari Dokumen, &amp; Cetak per Jurnal</h2>
 <p>Ada dua cara mencatat jurnal:</p>
 <div class="step"><b class="no">1</b> <b>Manual</b> — klik <b>Tambah Jurnal</b>, catat transaksi dua sisi (Debet/Kredit) dengan Master Akun sebagai daftar akun.</div>
 <div class="step"><b class="no">2</b> <b>Isi dari Dokumen</b> — tarik <b>template jurnal otomatis</b> dari dokumen yang sudah Anda buat: <b>STS</b> (penerimaan) dan <b>SP2D</b> (belanja). Nilai potongan/pajak SPP ikut membentuk baris jurnalnya.</div>
+<div class="step"><b class="no">3</b> <b>Cetak per jurnal</b> (fitur baru) — isi <b>Nama penandatangan</b> &amp; <b>NIP</b> pada isian di atas halaman (default dari Profil), lalu klik ikon <b>🖨</b> pada kolom <b>Aksi</b> baris jurnal (atau item <b>Cetak Jurnal</b> pada menu ⋯). Untuk jurnal yang masih diisi di form, gunakan tombol <b>Cetak Draft</b>.</div>
+<figure>
+  <img src="screenshots/opt/baru-12-jurnal-umum-cetak.webp" alt="Jurnal Umum dengan tombol cetak per jurnal" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.2 — Jurnal Umum: isian Nama/NIP penandatangan &amp; tombol cetak (🖨) pada setiap baris jurnal</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/baru-15-cetak-jurnal-voucher.webp" alt="Hasil cetak voucher jurnal" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.3 — Hasil cetak: voucher satu jurnal (A4 portrait) dengan kop, rincian akun, terbilang, dan tanda tangan</figcaption>
+</figure>
 <figure>
   <img src="screenshots/opt/37-aklap-akuntansi.webp" alt="Menu akuntansi AKLAP" loading="lazy" decoding="async">
-  <figcaption>Gambar 5.2 — Halaman akuntansi AKLAP</figcaption>
+  <figcaption>Gambar 5.4 — Halaman akuntansi AKLAP</figcaption>
 </figure>
 <figure>
   <img src="screenshots/opt/38-aklap-jurnal-umum.webp" alt="Jurnal Umum AKLAP" loading="lazy" decoding="async">
-  <figcaption>Gambar 5.3 — Jurnal Umum (manual) dengan filter pencarian</figcaption>
+  <figcaption>Gambar 5.5 — Jurnal Umum (manual) dengan filter pencarian</figcaption>
 </figure>
 
-<h2 class="sub">5.2 Buku Besar &amp; Neraca Saldo</h2>
+<h2 class="sub" id="s52">5.2 Buku Besar &amp; Neraca Saldo</h2>
 <p><b>Buku Besar</b> menampilkan mutasi per akun dari seluruh jurnal, sedangkan <b>Neraca Saldo</b> merangkum saldo akhir seluruh akun (debet/kredit) pada akhir periode — keduanya dihitung langsung dari jurnal yang tervalidasi.</p>
 <figure>
   <img src="screenshots/opt/39-aklap-buku-besar.webp" alt="Buku Besar" loading="lazy" decoding="async">
-  <figcaption>Gambar 5.4 — Buku Besar</figcaption>
+  <figcaption>Gambar 5.6 — Buku Besar</figcaption>
 </figure>
 <figure>
   <img src="screenshots/opt/40-aklap-neraca-saldo.webp" alt="Neraca Saldo" loading="lazy" decoding="async">
-  <figcaption>Gambar 5.5 — Neraca Saldo</figcaption>
+  <figcaption>Gambar 5.7 — Neraca Saldo</figcaption>
 </figure>
 
-<h2 class="sub">5.3 Laporan Keuangan — LRA &amp; Neraca</h2>
+<h2 class="sub" id="s53">5.3 Laporan Keuangan — LRA &amp; Neraca</h2>
 <p><b>LRA</b> (Laporan Realisasi Anggaran) membandingkan anggaran (disiapkan dosen melalui Pengaturan → Anggaran LRA) dengan realisasi per akun, sedangkan <b>Neraca</b> menyajikan posisi aset, kewajiban, dan ekuitas dari saldo akun neraca + neraca awal. Kedua laporan dapat dicetak/disajikan sebagai bukti akhir tugas kejuruan.</p>
 <figure>
   <img src="screenshots/opt/41-aklap-lra.webp" alt="LRA" loading="lazy" decoding="async">
-  <figcaption>Gambar 5.6 — Laporan Realisasi Anggaran</figcaption>
+  <figcaption>Gambar 5.8 — Laporan Realisasi Anggaran</figcaption>
 </figure>
 <figure>
   <img src="screenshots/opt/42-aklap-neraca.webp" alt="Neraca" loading="lazy" decoding="async">
-  <figcaption>Gambar 5.7 — Laporan Posisi Keuangan / Neraca</figcaption>
+  <figcaption>Gambar 5.9 — Laporan Posisi Keuangan / Neraca</figcaption>
 </figure>
 
-<div class="info"><b>Alur lengkap tugas kejuruan:</b> selesaikan transaksi Penerimaan (Bagian 3) dan Belanja (Bagian 4) sampai ada STS dan SP2D, lalu buka menu <b>Akuntansi</b> dan gunakan <b>Isi dari Dokumen</b> agar jurnal terbentuk otomatis — kemudian cukup lengkapi jurnal lain yang dibutuhkan.</div>
+<h2 class="sub" id="s54">5.4 Peta Menu AKLAP (Ringkas)</h2>
+<p>Sidebar AKLAP setelah pembaruan v2.0: <b>Dashboard · Jurnal Umum · Buku Jurnal Khusus · Jurnal Khusus Konsolidator · Buku Besar · Neraca Saldo · Buku Kas ▾ · Register SPP/SPM/SP2D · LPJ Bendahara PPKD · Buku Pembantu Objek · Master Akun · Anggaran (Pagu) · Laporan Keuangan ▾</b>. Submenu <b>Buku Kas ▾</b> berisi lima halaman kas: Penerimaan, Pengeluaran, Buku Kas Umum (BUD), Laporan Kas Harian, dan Rekonsiliasi Bank.</p>
+<figure>
+  <img src="screenshots/opt/baru-01-menu-buku-kas.webp" alt="Peta menu AKLAP dengan dropdown Buku Kas" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.10 — Peta menu AKLAP terbaru: dropdown <b>Buku Kas</b> (5 halaman) &amp; menu baru (Konsolidator, Master Akun, Anggaran)</figcaption>
+</figure>
+
+<h2 class="sub" id="s55">5.5 Master Akun (Chart of Accounts)</h2>
+<p><b>Master Akun</b> adalah daftar akun yang dipakai jurnal, buku pembantu, dan anggaran. Saat pertama dibuka, aplikasi otomatis mengisi <b>COA LRA standar</b> (177 akun pendapatan 4.x dan belanja 5.x) untuk instansi Anda.</p>
+<div class="step"><b class="no">1</b> Buka menu <b>Master Akun</b> — daftar akun tampil (kode, nama, tipe, saldo normal).</div>
+<div class="step"><b class="no">2</b> Gunakan kotak <b>Cari akun</b> untuk menyaring, mis. ketik <code class="k">5.1</code> untuk seluruh akun belanja.</div>
+<div class="step"><b class="no">3</b> Tambah akun baru (kode + nama + tipe + saldo normal) atau perbarui nama akun yang sudah ada, lalu <b>Simpan</b>.</div>
+<figure>
+  <img src="screenshots/opt/baru-02-master-akun.webp" alt="Halaman Master Akun" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.11 — Master Akun: daftar COA, pencarian, dan form tambah akun</figcaption>
+</figure>
+<div class="warn"><b>Tips:</b> jangan menghapus akun yang sudah dipakai jurnal/anggaran; cukup ubah namanya. Bila COA standar terhapus, gunakan tombol <b>Lengkapi COA Standar</b> untuk mengembalikannya tanpa mengubah nama akun yang sudah ada.</div>
+
+<h2 class="sub" id="s56">5.6 Anggaran (Pagu) Berbasis Master Akun</h2>
+<p>Sejak v2.0, <b>pagu anggaran diisi sendiri oleh mahasiswa</b> pada menu <b>Anggaran (Pagu)</b>, dengan daftar akun langsung dari <b>Master Akun</b> — tidak lagi bergantung pada menu Pengaturan aplikasi utama.</p>
+<div class="step"><b class="no">1</b> Buka <b>Anggaran (Pagu)</b>; pilih <b>tahun</b> anggaran (boleh tahun berikutnya).</div>
+<div class="step"><b class="no">2</b> Isi pagu per akun — angka otomatis berformat ribuan; tekan <b>Enter</b> untuk lanjut ke akun berikutnya. Gunakan filter <b>kelompok akun</b> dan <b>pencarian</b> bila daftarnya panjang.</div>
+<div class="step"><b class="no">3</b> Klik <b>Simpan Perubahan (n)</b>. Badge menandai status tiap akun: <i>Sudah diisi / Belum diisi / Belum disimpan</i>.</div>
+<figure>
+  <img src="screenshots/opt/baru-03-anggaran.webp" alt="Halaman Anggaran (Pagu)" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.12 — Anggaran (Pagu): ringkasan total, filter tahun/kelompok akun, dan isian pagu</figcaption>
+</figure>
+<div class="info">Pagu inilah yang dipakai kolom <b>Jumlah Anggaran</b> pada <b>LPJ Bendahara PPKD</b> dan kolom pagu pada <b>Buku Pembantu Objek</b> serta <b>LRA</b>. Pada menu <b>Pengaturan → Anggaran &amp; Neraca</b> (aplikasi utama) tersedia banner + tautan langsung ke halaman ini.</div>
+
+<h2 class="sub" id="s57">5.7 Buku Kas Penerimaan &amp; Pengeluaran PPKD</h2>
+<p>Kedua halaman ini adalah <b>pintu masuk seluruh transaksi kas</b> (dulu bernama “Buku Penerimaan PPKD” dan “Buku Pengeluaran PPKD”).</p>
+<div class="step"><b class="no">1</b> Buka menu <b>Buku Kas ▾</b> → pilih <b>Buku Kas Penerimaan</b> atau <b>Buku Kas Pengeluaran</b>.</div>
+<div class="step"><b class="no">2</b> Klik <b>Input Penerimaan/Pengeluaran</b>, isi <b>Tanggal</b>, <b>No. Bukti</b>, <b>Kode Rekening</b> (datalist Master Akun), <b>Uraian</b>, dan <b>Jumlah</b>, lalu <b>Simpan</b>.</div>
+<div class="step"><b class="no">3</b> Periksa tabel: nilai masuk/keluar dengan <b>saldo berjalan</b> dan filter periode. Gunakan tombol <b>⇄</b> untuk berpindah antarbuku, tombol <b>Cetak</b> (BKU) atau <b>Kirim ke Tanda Tangan</b>.</div>
+<figure>
+  <img src="screenshots/opt/baru-04-buku-kas-penerimaan.webp" alt="Buku Kas Penerimaan PPKD" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.13 — Buku Kas Penerimaan PPKD (nama &amp; navigasi baru)</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/baru-05-buku-kas-pengeluaran.webp" alt="Buku Kas Pengeluaran PPKD" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.14 — Buku Kas Pengeluaran PPKD — sumber data Register SPP/SPM/SP2D &amp; LPJ</figcaption>
+</figure>
+<div class="warn"><b>Konvensi uraian:</b> tulis kata kunci baku pada uraian — <code class="k">SP2D</code>, <code class="k">PPN</code>, <code class="k">PPh-21</code>, <code class="k">PPh-22</code>, <code class="k">PPh-23</code>, dan <code class="k">PFK</code> — agar pengelompokan rekonsiliasi kas pada LPJ otomatis benar.</div>
+
+
+<h2 class="sub" id="s58">5.8 Buku Kas Umum (BUD)</h2>
+<p><b>Buku Kas Umum (BUD)</b> menyajikan buku kas Bendahara Umum Daerah: satu tabel memuat <b>penerimaan dan pengeluaran sekaligus</b> dengan <b>saldo berjalan</b>, sesuai blanko <i>“Buku Kas Penerimaan dan Pengeluaran Bendahara Umum Daerah”</i>.</p>
+<div class="step"><b class="no">1</b> Tentukan <b>Tanggal Awal &amp; Akhir</b> (atau klik <b>Bulan Ini</b>) lalu <b>Tampilkan</b>; baris pertama adalah <b>Saldo</b> (saldo awal).</div>
+<div class="step"><b class="no">2</b> Kosongkan kolom <b>Saldo Awal</b> agar dihitung <b>otomatis</b>, atau isi manual sesuai kebutuhan (angka bertitik ribuan juga diterima).</div>
+<div class="step"><b class="no">3</b> Isi <b>Nama PPKD</b> &amp; <b>NIP BUD</b> (default dari Profil) — tercetak pada blok tanda tangan — lalu <b>Cetak</b> (A4 portrait) atau <b>Kirim ke Tanda Tangan</b>.</div>
+<figure>
+  <img src="screenshots/opt/baru-06-buku-kas-umum-bud.webp" alt="Buku Kas Umum BUD" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.15 — Buku Kas Umum (BUD): baris saldo awal, transaksi kronologis dengan saldo berjalan, dan baris Jumlah</figcaption>
+</figure>
+
+<h2 class="sub" id="s59">5.9 Laporan Posisi Kas Harian</h2>
+<p>Halaman ini mengikuti blanko <i>“Laporan Posisi Kas Harian”</i>: <b>HARI</b>, <b>TANGGAL</b>, dan <b>PERIODE</b> terisi otomatis dari tanggal (dapat diubah), diikuti tabel <b>isi manual</b> berkepala <i>Transaksi (SP2D · STS · Lain-lain) · Uraian · Penerimaan · Pengeluaran</i>.</p>
+<div class="step"><b class="no">1</b> Pilih <b>tanggal laporan</b>; <b>Posisi Kas (H-1)</b> otomatis mengambil posisi kas hari sebelumnya (boleh ditimpa manual).</div>
+<div class="step"><b class="no">2</b> Isi baris transaksi harian; tekan <b>Enter</b> untuk pindah kolom/baris. Gunakan <b>Tambah Baris</b> atau <b>Hapus Baris Kosong</b> bila perlu.</div>
+<div class="step"><b class="no">3</b> Blok penutup dihitung otomatis: <i>Jumlah → Perubahan Posisi Kas Hari ini → Posisi Kas (H-1) → Posisi Kas (H)</i>, dilengkapi <b>Rekapitulasi Posisi Kas di BUD</b> (Bank 1, Bank 2, Total Saldo Kas).</div>
+<div class="step"><b class="no">4</b> <b>Simpan Laporan</b> → <b>Cetak</b> (A4 portrait) atau <b>Kirim ke Tanda Tangan</b>. Riwayat laporan dapat dibuka kembali dari dropdown tanggal.</div>
+<figure>
+  <img src="screenshots/opt/baru-07-laporan-kas-harian.webp" alt="Laporan Posisi Kas Harian" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.16 — Laporan Posisi Kas Harian: identitas hari/tanggal/periode, tabel isian, blok posisi kas, dan rekap bank</figcaption>
+</figure>
+
+<h2 class="sub" id="s510">5.10 Rekonsiliasi Bank</h2>
+<p><b>Rekonsiliasi Bank</b> disusun per bulan: baris <b>1. Saldo Kas menurut Buku</b>, baris <b>2. Saldo menurut Bank</b>, <b>Selisih</b> (otomatis), dan <b>Keterangan Selisih</b> pada bagian <b>A–D</b>.</p>
+<table class="guide">
+  <tr><th style="width:18%">Bagian</th><th>Isi</th></tr>
+  <tr><td>A</td><td>Penerimaan yang telah dicatat buku, <b>belum dicatat bank</b> (huruf otomatis a., b., c., …)</td></tr>
+  <tr><td>B</td><td>Pengeluaran yang telah dicatat buku, belum dicatat bank</td></tr>
+  <tr><td>C</td><td>Penerimaan yang telah dicatat bank, belum dicatat buku</td></tr>
+  <tr><td>D</td><td>Pengeluaran yang telah dicatat bank, belum dicatat buku — huruf melanjutkan dari <b>e.</b> sesuai blanko</td></tr>
+</table>
+<div class="step"><b class="no">1</b> Pilih <b>Bulan &amp; Tahun</b> (riwayat periode tersimpan tersedia pada daftar).</div>
+<div class="step"><b class="no">2</b> Klik <b>Pakai Saran Buku Kas</b> untuk mengisi <i>Saldo menurut Buku</i> dari saldo kumulatif Buku Kas, lalu isi <i>Saldo menurut Bank</i>. Selisih terhitung otomatis.</div>
+<div class="step"><b class="no">3</b> Isi baris keterangan selisih A–D (uraian + nilai); subtotal per bagian dihitung langsung dan baris kosong tetap dicetak <code class="k">0,-</code>.</div>
+<div class="step"><b class="no">4</b> <b>Simpan</b> → <b>Cetak</b> (A4 portrait) / <b>Kirim ke Tanda Tangan</b>; lengkapi <b>Nama &amp; NIP</b> BUD pada isian di atas dokumen.</div>
+<figure>
+  <img src="screenshots/opt/baru-08-rekonsiliasi-bank.webp" alt="Rekonsiliasi Bank" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.17 — Rekonsiliasi Bank: saldo buku vs bank, selisih, dan keterangan selisih A–D</figcaption>
+</figure>
+
+<h2 class="sub" id="s511">5.11 Register SPP/SPM/SP2D</h2>
+<p>Halaman <b>Register SPP/SPM/SP2D</b> mengubah transaksi <b>Buku Kas Pengeluaran</b> menjadi register resmi (blanko <i>Modul-3E-LK Output Penata SKPKD</i>). Kolom <b>kode rekening, tanggal, uraian, dan jumlah terisi otomatis</b> — Anda hanya mengisi <b>tanggal &amp; nomor SPP, SPM, dan SP2D</b>.</p>
+<div class="step"><b class="no">1</b> Buka menu <b>Register SPP/SPM/SP2D</b>; setiap baris diberi badge <b>Lengkap / Sebagian</b>.</div>
+<div class="step"><b class="no">2</b> Isi <b>Tgl &amp; No. SPP</b>, <b>Tgl &amp; No. SPM</b>, <b>Tgl &amp; No. SP2D</b> (baris belum lengkap ditandai kuning).</div>
+<div class="step"><b class="no">3</b> Klik <b>Simpan</b> per baris atau <b>Simpan Perubahan (n)</b>; gunakan filter periode, lalu <b>Cetak</b> (A4 landscape) atau <b>Kirim ke Tanda Tangan</b>.</div>
+<figure>
+  <img src="screenshots/opt/baru-09-register-spp-spm-sp2d.webp" alt="Register SPP/SPM/SP2D" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.18 — Register SPP/SPM/SP2D: baris otomatis dari Buku Kas Pengeluaran, isian hanya nomor SPP/SPM/SP2D</figcaption>
+</figure>
+
+<h2 class="sub" id="s512">5.12 LPJ Bendahara Pengeluaran PPKD</h2>
+<p><b>LPJ Bendahara Pengeluaran PPKD</b> disusun per <b>bulan &amp; tahun</b> dari Buku Kas Penerimaan dan Pengeluaran, mengikuti blanko <i>Modul-3E-LK Output Penata SKPKD</i>.</p>
+<table class="guide">
+  <tr><th style="width:34%">Bagian laporan</th><th>Perhitungan</th></tr>
+  <tr><td>Kolom 1–2 (Kode Rekening, Uraian)</td><td>Hanya kode rekening yang <b>sudah ada realisasinya</b>; uraian dari Master Akun.</td></tr>
+  <tr><td>Kolom 3 Jumlah Anggaran</td><td>Pagu dari halaman <b>Anggaran (Pagu)</b>; bila kode rinci tidak ada pagunya, otomatis naik ke <b>kode induk</b>.</td></tr>
+  <tr><td>Kolom 4 s.d. bulan lalu · Kolom 5 Bulan ini</td><td>Akumulasi pengeluaran Januari s.d. bulan sebelum laporan, dan realisasi bulan terpilih.</td></tr>
+  <tr><td>Kolom 6 = (4+5) · Kolom 7 = (3−6)</td><td>Realisasi s.d. bulan ini dan <b>sisa pagu</b>.</td></tr>
+  <tr><td>Blok Penerimaan &amp; Pengeluaran</td><td>Rekonsiliasi kas: SP2D, potongan pajak (PPN, PPh-21/22/23), lain-lain PFK; dan sisi pengeluaran: SPJ (LS), penyetoran pajak, lain-lain PFK.</td></tr>
+  <tr><td>Saldo Kas</td><td>Jumlah Penerimaan − Jumlah Pengeluaran (bulan ini &amp; s.d. bulan ini).</td></tr>
+</table>
+<div class="step"><b class="no">1</b> Pilih <b>Bulan &amp; Tahun</b> (tombol <b>Bulan Ini</b> untuk bulan berjalan) dan periksa kartu ringkasan.</div>
+<div class="step"><b class="no">2</b> Isi <b>Nama PPKD</b>, <b>NIP PPKD</b>, dan <b>NIP Bendahara</b> pada isian di atas dokumen (NIP bendahara otomatis dari Profil).</div>
+<div class="step"><b class="no">3</b> <b>Cetak</b> (A4 landscape) atau <b>Kirim ke Tanda Tangan</b> (Bendahara Pengeluaran PPKD, disetujui PPKD).</div>
+<figure>
+  <img src="screenshots/opt/baru-10-lpj-bendahara-ppkd.webp" alt="LPJ Bendahara Pengeluaran PPKD" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.19 — LPJ Bendahara Pengeluaran PPKD: kolom anggaran/realisasi/sisa dan blok rekonsiliasi kas</figcaption>
+</figure>
+
+<h2 class="sub" id="s513">5.13 Buku Pembantu Objek</h2>
+<p><b>Buku Pembantu Objek</b> memperlihatkan <b>pagu</b>, <b>realisasi</b>, dan <b>sisa</b> per akun/objek — berguna untuk memantau serapan anggaran sebelum menyusun laporan akhir.</p>
+<figure>
+  <img src="screenshots/opt/baru-11-buku-pembantu-objek.webp" alt="Buku Pembantu Objek" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.20 — Buku Pembantu Objek: pagu, realisasi, dan sisa per akun/objek</figcaption>
+</figure>
+
+<h2 class="sub" id="s514">5.14 Buku Jurnal Khusus &amp; Jurnal Khusus Konsolidator</h2>
+<p><b>Buku Jurnal Khusus</b> menyediakan lima blanko (Pendapatan- LO, Penerimaan Kas–LO, Pendapatan LRA, Belanja Pemda, Beban Pemda) yang dipilih dari dropdown; kolom tabel &amp; blanko mengikuti jenisnya. <b>Semua kolom kode akun diisi manual</b> — kode pada blanko hanya menjadi petunjuk.</p>
+<div class="step"><b class="no">1</b> Pilih <b>Jenis Jurnal (blanko)</b> + <b>Bulan</b> + <b>Tahun</b>; klik <b>Isi Kode Blanko</b> (mengisi semua kolom kode sesuai blanko) atau <b>Kosongkan Kode</b> untuk mengisi dari nol.</div>
+<div class="step"><b class="no">2</b> Isi baris jurnal (Tgl, Nomor, Uraian/Keterangan, nilai tiap kolom). Baris <b>Jumlah</b> dan badge <b>Seimbang</b> menghitung otomatis.</div>
+<div class="step"><b class="no">3</b> <b>Simpan Jurnal</b> → <b>Cetak</b> (A4 landscape) / <b>Kirim ke Tanda Tangan</b>; isi <b>Nama/NIP</b> penandatangan pada isian di atas dokumen.</div>
+<div class="step"><b class="no">4</b> Untuk blanko <b>Konsolidator</b>: buka menu <b>Jurnal Khusus Konsolidator</b>, isi <b>SKPKD</b> secara manual (mis. <code class="k">1.20.05 BPKD</code>), lalu isi baris dengan kolom <b>Tgl · No BKU · Keterangan · Debet (1.1.1.1) · Kredit (3.1.4.01.01 RK SKPD)</b>; cetak A4 portrait.</div>
+<figure>
+  <img src="screenshots/opt/baru-13-jurnal-khusus.webp" alt="Buku Jurnal Khusus" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.21 — Buku Jurnal Khusus: pemilih blanko, kolom kode manual, tabel isian, dan pratinjau blanko</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/baru-14-jurnal-khusus-konsolidator.webp" alt="Jurnal Khusus Konsolidator" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.22 — Jurnal Khusus Konsolidator: isian SKPKD manual dan kolom sesuai blanko konsolidator</figcaption>
+</figure>
+
+<h2 class="sub" id="s515">5.15 Mengirim Dokumen ke Tanda Tangan</h2>
+<p>Hampir semua dokumen AKLAP (BKU, Buku Kas Umum/BUD, Kas Harian, Rekonsiliasi Bank, Register, LPJ, Jurnal Khusus, Konsolidator, dan voucher Jurnal Umum) memiliki tombol <b>Kirim ke Tanda Tangan</b>.</p>
+<div class="step"><b class="no">1</b> Lengkapi isian <b>Nama</b> &amp; <b>NIP</b> penandatangan (bila tersedia pada halaman tersebut) agar tercetak pada dokumen.</div>
+<div class="step"><b class="no">2</b> Klik <b>Kirim ke Tanda Tangan</b> — dokumen masuk antrean TTE dan akan ditandatangani <b>dosen</b> (lihat Bagian 7 manual edisi lengkap).</div>
+<div class="step"><b class="no">3</b> Bila dokumen perlu diperbaiki, cukup perbaiki isinya dan <b>kirim ulang</b> — antrean akan diperbarui, tidak membuat duplikat.</div>
+
+<div class="info"><b>Alur lengkap tugas kejuruan (versi 2.0):</b> (1) selesaikan transaksi Penerimaan &amp; Belanja (Bagian 3–4) sampai ada <b>STS</b> dan <b>SP2D</b> cair; (2) isi <b>Anggaran (Pagu)</b> dari Master Akun; (3) catat kas di <b>Buku Kas Penerimaan/Pengeluaran</b> → periksa di <b>Buku Kas Umum (BUD)</b>; (4) lengkapi <b>Register SPP/SPM/SP2D</b> (nomor &amp; tanggal saja); (5) susun <b>LPJ Bendahara PPKD</b>, <b>Laporan Kas Harian</b>, dan <b>Rekonsiliasi Bank</b>; (6) catat <b>Jurnal Umum</b> (manual / <i>Isi dari Dokumen</i>) serta <b>Buku Jurnal Khusus</b> &amp; <b>Konsolidator</b> — gunakan <b>cetak per jurnal</b> untuk voucher; (7) periksa <b>Buku Pembantu Objek</b>, <b>Buku Besar</b>, <b>Neraca Saldo</b>, lalu sajikan <b>LRA</b> dan <b>Neraca</b>. Rincian tiap pembaruan ada di <a href="manual-book-pembaruan.html">Manual Book Pembaruan v2.0</a>.</div>
 
 <!-- ================= BAGIAN 6 ================= -->
 <h1 class="sec" id="bag6">6. Troubleshooting &amp; FAQ</h1>
@@ -443,6 +614,13 @@
   <tr><td><i>"Ada STBP yang belum divalidasi…"</i></td><td>STS hanya menerima STBP yang sudah melewati <b>tahap validasi (tahap 3)</b> dan belum pernah dipakai STS lain.</td></tr>
   <tr><td>Cetakan PDF tidak muncul</td><td>Izinkan pop-up pada browser, atau gunakan menu cetak (Ctrl/Cmd+P) pada laman cetak.</td></tr>
   <tr><td>Halaman AKLAP terputus / diminta masuk kembali</td><td>Sesi berakhir. Buka kembali aplikasi utama lalu masuk melalui menu <b>Akuntansi</b> — jangan mengetik alamat AKLAP secara manual.</td></tr>
+  <tr><td>Kolom <b>Jumlah Anggaran</b> pada LPJ bernilai 0 padahal akun jelas ada</td><td>Pagu belum diisi untuk kode rekening tersebut. Buka <b>Anggaran (Pagu)</b>, isi pagu kode itu <i>atau</i> kode induknya (LPJ otomatis naik ke kode induk bila rinci tidak ada).</td></tr>
+  <tr><td>Menu <b>Pengaturan → Anggaran &amp; Neraca</b> kini hanya menampilkan banner</td><td>Sejak versi 2.0 pagu dikelola di AKLAP. Klik tautan pada banner untuk masuk langsung (token terbawa), atau pakai form lama hanya untuk impor massal.</td></tr>
+  <tr><td>Kolom kode akun pada <b>Buku Jurnal Khusus</b> kosong</td><td>Kode akun memang <b>diisi manual</b>. Gunakan tombol <b>Isi Kode Blanko</b> untuk mengisi semua kolom sesuai blanko, lalu ubah sesuai kebutuhan.</td></tr>
+  <tr><td>Baris jurnal pada <b>Register SPP/SPM/SP2D</b> tidak muncul</td><td>Baris register berasal dari <b>Buku Kas Pengeluaran PPKD</b>. Pastikan transaksi sudah dicatat di sana (tanggal, uraian, jumlah).</td></tr>
+  <tr><td>Baris rekonsiliasi kas pada LPJ tidak terkelompok (semua masuk SPJ/SP2D)</td><td>Perbaiki <b>uraian</b> transaksi di buku kas agar memakai kata kunci baku: <code class="k">SP2D</code>, <code class="k">PPN</code>, <code class="k">PPh-21</code>/<code class="k">22</code>/<code class="k">23</code>, atau <code class="k">PFK</code>.</td></tr>
+  <tr><td><b>Posisi Kas (H-1)</b> pada Laporan Kas Harian tidak terisi</td><td>Belum ada laporan tersimpan pada hari sebelumnya (mis. hari pertama praktik). Isi manual pada kolom tersebut.</td></tr>
+  <tr><td>Tombol cetak per jurnal (<b>🖨</b>) tidak terlihat</td><td>Pastikan halaman dimuat ulang (<b>Cmd/Ctrl+Shift+R</b>) agar berkas terbaru terpakai; kolom Aksi berada di ujung kanan tabel daftar jurnal.</td></tr>
 </table>
 
 <h2 class="sub">6.2 FAQ</h2>
@@ -457,12 +635,21 @@
   <dd>Menu tersebut merupakan kewenangan <b>dosen</b> (data induk dan penandatanganan). Fokus praktik mahasiswa adalah Penerimaan, Belanja, dan AKLAP.</dd>
   <dt>Dari mana jurnal di AKLAP berasal?</dt>
   <dd>Dari input manual (Tambah Jurnal) atau otomatis via <b>Isi dari Dokumen</b> yang menarik template dari STS (penerimaan) dan SP2D (belanja) yang telah Anda buat.</dd>
-  <dt>Bagaimana cara mendapatkan buku manual ini dalam bentuk PDF?</dt>
+  <dt>Di mana saya mengisi pagu anggaran?</dt>
+  <dd>Di AKLAP: menu <b>Anggaran (Pagu)</b>, dengan daftar akun dari <b>Master Akun</b>. Pagu ini otomatis dipakai LPJ (kolom Jumlah Anggaran), Buku Pembantu Objek, dan LRA.</dd>
+  <dt>Bisakah satu jurnal dicetak sendiri saja?</dt>
+  <dd>Ya. Pada daftar <b>Jurnal Umum</b>, klik ikon <b>🖨</b> di kolom Aksi (atau item <i>Cetak Jurnal</i> pada menu ⋯) untuk mencetak <b>voucher jurnal</b> itu saja. Jurnal yang masih diisi di form dapat dicetak dengan tombol <b>Cetak Draft</b>.</dd>
+  <dt>Apa bedanya Jurnal Umum dengan Buku Jurnal Khusus?</dt>
+  <dd><b>Jurnal Umum</b> untuk transaksi dua sisi bebas (bisa ditarik dari dokumen STS/SP2D). <b>Buku Jurnal Khusus</b> memakai blanko resmi per jenis transaksi (Pendapatan LO, Penerimaan Kas–LO, Pendapatan LRA, Belanja Pemda, Beban Pemda) dengan kolom kode akun yang <b>diisi manual</b>.</dd>
+  <dt>Apa maksud isian SKPKD pada Jurnal Khusus Konsolidator?</dt>
+  <dd>Itu identitas SKPKD pada blanko (contoh <code class="k">1.20.05 BPKD</code>) yang Anda isi manual. Nilainya tersimpan per periode sehingga tidak perlu diketik ulang, dan ikut tercetak pada dokumen.</dd>
+  <dt>Apakah modul baru mengubah data yang sudah saya buat?</dt>
+  <dd>Tidak. Modul baru membaca/menulis ke tabel yang sama (<code class="k">buku_kas</code>, <code class="k">anggaran_lra</code>, jurnal) tanpa mengubah strukturnya, sehingga data dan laporan lama tetap utuh. Rincian perubahan ada di <a href="manual-book-pembaruan.html">Manual Book Pembaruan v2.0</a>.</dd>
   <dd>Buka buku ini di browser lalu pilih <b>Print → Save as PDF</b> (tata letak sudah disiapkan untuk cetak), atau minta berkas PDF kepada dosen.</dd>
 </dl>
 
 <footer class="foot">
-  Manual Book SIM-TKD (Edisi Mahasiswa) v1.0 — disusun otomatis dengan tangkapan layar aplikasi · Politeknik Negeri Bandung, Jurusan Akuntansi · 2026
+  Manual Book SIM-TKD (Edisi Mahasiswa) v2.0 — disusun dengan tangkapan layar aplikasi · Politeknik Negeri Bandung, Jurusan Akuntansi · September 2026 · Lihat juga <a href="manual-book-pembaruan.html">Manual Book Pembaruan v2.0</a>
 </footer>
 
 </div>

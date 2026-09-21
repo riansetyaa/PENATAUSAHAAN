@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anggaran (Pagu) - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #16305a; --navy-dark: #0e2140; --navy-mid: #1d3a6e;
+            --blue: #1f6feb; --green: #16a34a; --green-dark: #15803d;
+            --bg: #eef1f6; --card: #ffffff; --border: #d8dee9;
+            --text: #1f2937; --muted: #6b7280;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 58px; box-shadow: 0 2px 6px rgba(0,0,0,.2); position: relative; z-index: 20; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .sidebar { width: 236px; background: var(--navy-dark); color: #cbd5e1; flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px; transition: margin-left .25s ease; }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: #7d8db1; padding: 14px 18px 6px; }
+        .side-link { display: flex; align-items: center; gap: 11px; padding: 10px 18px; color: #cbd5e1; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .side-group .side-link { cursor: pointer; }
+        .side-arrow { margin-left: auto; font-size: 11px; transition: transform .2s; color: #7d8db1; }
+        .side-group.open .side-arrow { transform: rotate(90deg); }
+        .side-sub { display: none; padding-left: 10px; }
+        .side-sub.open { display: block; }
+        .side-sub .side-link { padding: 8px 16px; font-size: 13px; color: #9fb0d3; }
+        .side-sub .side-link i { font-size: 12px; }
+        .side-sub .side-link:hover { color: #fff; }
+        .side-sub .side-link.active { color: #fff; background: var(--navy-mid); border-left-color: #4c9aff; }
+        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back { background: var(--navy); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+        .btn-back:hover { background: var(--navy-mid); }
+        .footer { text-align: center; padding: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; max-width: 700px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 18px; }
+        .card-head { padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 16px 18px; }
+        .filter-grid { display: grid; gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select, .filter-field input { height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%; }
+        .filter-field input:focus, .filter-field select:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .filter-actions { display: flex; gap: 10px; }
+        .btn { border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; height: 36px; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: var(--green-dark); }
+        .btn-dark { background: var(--navy-mid); color: #fff; }
+        .btn-dark:hover { background: var(--navy); }
+        .btn-muted { background: #e2e8f0; color: var(--text); }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+        .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(16,24,40,.06); }
+        .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; }
+        .stat .val { font-size: 17px; font-weight: 700; color: var(--navy); margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .stat.income .val { color: #15803d; }
+        .stat.expense .val { color: #b45309; }
+        .table-wrap { overflow-x: auto; max-height: 68vh; overflow-y: auto; }
+        table.grid { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        table.grid thead th { position: sticky; top: 0; background: #f1f5f9; color: #334155; text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; z-index: 2; }
+        table.grid tbody td { padding: 6px 10px; border-bottom: 1px solid #edf0f5; vertical-align: middle; }
+        table.grid tbody tr:hover td { background: #f8fafc; }
+        table.grid tbody tr.dirty td { background: #fffbeb; }
+        table.grid input.pagu { width: 100%; height: 32px; text-align: right; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; font-size: 12.5px; font-variant-numeric: tabular-nums; background: #fff; color: var(--text); font-family: inherit; }
+        table.grid input.pagu:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        table.grid td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        table.grid td.c { text-align: center; }
+        table.grid tr.lv1 td { font-weight: 700; background: #f8fafc; }
+        table.grid tr.lv2 td { font-weight: 600; }
+        .kode { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; white-space: nowrap; }
+        .indent1 { padding-left: 6px; }
+        .indent2 { padding-left: 18px; }
+        .indent3 { padding-left: 30px; }
+        .indent4 { padding-left: 42px; }
+        .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+        .badge-ok { background: #dcfce7; color: #15803d; }
+        .badge-warn { background: #fef3c7; color: #b45309; }
+        .badge-netral { background: #e2e8f0; color: #475569; }
+        .badge-tipe { background: #e0e7ff; color: #3730a3; }
+        .notif { display: flex; align-items: flex-start; gap: 12px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 13px; }
+        .notif.ok { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+        .notif i { margin-top: 2px; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99; background: var(--navy-dark); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        @media (max-width: 1024px) { .filter-grid { grid-template-columns: repeat(2, 1fr) !important; } .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; } .filter-grid { grid-template-columns: 1fr !important; } .stat-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand"><b>AKLAP · SIM-TKD</b><span>Aplikasi Laporan Akuntansi Pemerintahan</span></div>
+        </div>
+        <div class="topbar-right">
+            <div class="region"><b id="regionProvinsi">-</b><span id="regionKota">-</span></div>
+            <div class="topbar-user"><div class="avatar" id="regionAvatar">?</div><span id="regionNama" style="font-size:13px;">-</span></div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb"><i class="fas fa-house"></i> <a href="index.html">Home</a><i class="fas fa-chevron-right"></i><span class="current">Anggaran (Pagu)</span></div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>Anggaran (Pagu)</h1>
+                        <p>Pagu anggaran LRA per akun, <strong>berbasis Master Akun</strong> (COA LRA standar). Data ini dipakai laporan LRA, dashboard AKLAP, dan Buku Pembantu.</p>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <a class="btn btn-muted" href="master-akun.html"><i class="fas fa-sitemap"></i> Master Akun</a>
+                        <button class="btn btn-success" id="btnSimpan" disabled><i class="fas fa-floppy-disk"></i> Simpan Perubahan</button>
+                    </div>
+                </div>
+
+                <div id="notifLuarMaster" style="display:none;"></div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-filter"></i> Filter</div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="filter-field"><label>Tahun Anggaran</label><select id="fTahun"></select></div>
+                            <div class="filter-field">
+                                <label>Kelompok Akun</label>
+                                <select id="fTipe">
+                                    <option value="lra">Pendapatan &amp; Belanja (LRA)</option>
+                                    <option value="">Semua Akun</option>
+                                    <option value="pendapatan">Pendapatan</option>
+                                    <option value="belanja">Belanja</option>
+                                    <option value="aset">Aset</option>
+                                    <option value="liabilitas">Liabilitas</option>
+                                    <option value="ekuitas">Ekuitas</option>
+                                </select>
+                            </div>
+                            <div class="filter-field"><label>Cari Kode / Nama Akun</label><input type="text" id="fCari" placeholder="cth: 5.1.2 atau Bunga" autocomplete="off"></div>
+                            <div class="filter-field">
+                                <label>&nbsp;</label>
+                                <div class="filter-actions">
+                                    <button class="btn btn-primary" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                                    <button class="btn btn-muted" id="btnReset"><i class="fas fa-eraser"></i> Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat"><div class="lbl">Akun Ditampilkan</div><div class="val" id="statAkun">0</div></div>
+                    <div class="stat"><div class="lbl">Sudah Berpagu</div><div class="val" id="statTerisi">0</div></div>
+                    <div class="stat income"><div class="lbl">Total Pagu Pendapatan</div><div class="val" id="statPendapatan">Rp 0</div></div>
+                    <div class="stat expense"><div class="lbl">Total Pagu Belanja</div><div class="val" id="statBelanja">Rp 0</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-table"></i> Pagu per Akun (sumber: Master Akun)
+                        <span id="infoJumlah" style="margin-left:auto;font-weight:500;font-size:12px;color:var(--muted);"></span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="grid">
+                            <thead>
+                                <tr>
+                                    <th style="width:52px;" class="c">No</th>
+                                    <th style="width:150px;">Kode Akun</th>
+                                    <th>Nama Akun</th>
+                                    <th style="width:120px;">Kelompok</th>
+                                    <th style="width:200px;" class="c">Anggaran / Pagu (Rp)</th>
+                                    <th style="width:130px;" class="c">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyAnggaran"></tbody>
+                        </table>
+                    </div>
+                    <div class="card-body" id="footerAnggaran" style="border-top:1px solid var(--border);"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-circle-info"></i> Keterangan &amp; Pemeliharaan</div>
+                    <div class="card-body" style="font-size:13px;color:var(--muted);line-height:1.75;">
+                        <p>&bull; Daftar akun mengikuti <strong>Master Akun</strong> &mdash; <span id="infoCoa">COA LRA standar</span>. Tambah/kurangi akun di halaman <a href="master-akun.html" style="color:var(--blue);">Master Akun</a>.</p>
+                        <p>&bull; Pagu disimpan per <strong>tahun</strong> + <strong>akun</strong> (tabel <code>anggaran_lra</code>) sehingga LRA, rekap dashboard AKLAP, dan Buku Pembantu tetap konsisten.</p>
+                        <p>&bull; Tulis angka saja &mdash; titik ribuan terformat otomatis. Kosongkan isian lalu simpan untuk menjadikan pagu 0.</p>
+                        <p>&bull; Bila ada kode akun data anggaran lama yang belum ada di Master Akun, akan muncul peringatan + tombol sinkronisasi.
+                           <button class="btn btn-muted" id="btnSeedCoa" style="height:30px;padding:0 12px;font-size:12px;margin-left:6px;"><i class="fas fa-wand-magic-sparkles"></i> Lengkapi COA Standar</button>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <footer class="footer">&copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+
+    <script>
+        // Profil ringkas di topbar
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = nama.trim().charAt(0).toUpperCase() || '?';
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+(function () {
+    'use strict';
+
+    var API = 'api/akuntansi.php';
+    var DATA = [];    // baris akun (sumber: Master Akun) + pagu tahun terpilih
+    var LUAR = [];    // baris pagu lama yang belum ada di Master Akun
+    var META = { tahun: '', total_pendapatan: 0, total_belanja: 0, coa_jumlah: 0, terisi: 0 };
+    var dirty = {};   // kode_akun -> true bila isian berbeda dari nilai tersimpan
+
+    var LABEL_TIPE = { pendapatan: 'Pendapatan', belanja: 'Belanja', aset: 'Aset', liabilitas: 'Liabilitas', ekuitas: 'Ekuitas' };
+    var tbody = document.getElementById('tbodyAnggaran');
+
+    function esc(t) { var d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+    function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2800); }
+    function urlAksi(action) { return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action; }
+    function fmtRp(v) { return 'Rp ' + Number(v || 0).toLocaleString('id-ID'); }
+    function angkaMentah(teks) {
+        var s = String(teks == null ? '' : teks).replace(/[^\d-]/g, '');
+        if (s === '' || s === '-') return 0;
+        var n = parseInt(s, 10);
+        return isNaN(n) ? NaN : n;
+    }
+    function cariBaris(kode) {
+        for (var i = 0; i < DATA.length; i++) { if (DATA[i].kode_akun === kode) return DATA[i]; }
+        return null;
+    }
+    function idDirty() { var a = [], k; for (k in dirty) { if (dirty[k]) a.push(k); } return a; }
+    function sinkronTombol() {
+        var n = idDirty().length;
+        var b = document.getElementById('btnSimpan');
+        b.disabled = n === 0;
+        b.innerHTML = '<i class="fas fa-floppy-disk"></i> ' + (n > 0 ? 'Simpan Perubahan (' + n + ')' : 'Simpan Perubahan');
+    }
+    function urlList() {
+        var sel = document.getElementById('fTahun');
+        var tahun = sel.value || META.tahun || new Date().getFullYear();
+        var q = urlAksi('anggaran_list') + '&tahun=' + encodeURIComponent(tahun);
+        var tipe = document.getElementById('fTipe').value;
+        var cari = document.getElementById('fCari').value.trim();
+        if (tipe) q += '&tipe=' + encodeURIComponent(tipe);
+        if (cari) q += '&q=' + encodeURIComponent(cari);
+        return q;
+    }
+
+    function renderPilihanTahun(daftar, tahunAktif) {
+        var sel = document.getElementById('fTahun');
+        var isi = {};
+        (daftar || []).forEach(function (t) { isi[String(t)] = 1; });
+        var sekarang = new Date().getFullYear();
+        isi[String(sekarang)] = 1;
+        isi[String(sekarang + 1)] = 1;   // siapkan pagu tahun berikutnya lebih awal
+        if (tahunAktif) isi[String(tahunAktif)] = 1;
+        var urut = Object.keys(isi).sort(function (a, b) { return Number(b) - Number(a); });
+        sel.innerHTML = urut.map(function (t) {
+            return '<option value="' + esc(t) + '"' + (String(t) === String(tahunAktif) ? ' selected' : '') + '>' + esc(t) + '</option>';
+        }).join('');
+    }
+
+    function loadData() {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9aa4b2;padding:24px;">Memuat data anggaran...</td></tr>';
+        fetch(urlList())
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (!(d && d.success)) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#b91c1c;padding:24px;">' + esc((d && d.message) || 'Gagal memuat data anggaran.') + '</td></tr>';
+                    document.getElementById('footerAnggaran').innerHTML = '';
+                    return;
+                }
+                DATA = (d.data || []).map(function (r) {
+                    return {
+                        kode_akun: String(r.kode_akun),
+                        nama_akun: String(r.nama_akun || ''),
+                        tipe: String(r.tipe || ''),
+                        level: Number(r.level || 1),
+                        pagu: Number(r.pagu || 0),
+                        tersimpan: Number(r.id_anggaran || 0) > 0
+                    };
+                });
+                LUAR = (d.luar_master || []).map(function (r) {
+                    return {
+                        kode_akun: String(r.kode_akun),
+                        nama_akun: String(r.nama_akun || ''),
+                        tipe: String(r.tipe || ''),
+                        level: Number(r.level || 1),
+                        pagu: Number(r.pagu || 0)
+                    };
+                });
+                META.tahun = String(d.tahun || '');
+                META.total_pendapatan = Number(d.total_pendapatan || 0);
+                META.total_belanja = Number(d.total_belanja || 0);
+                META.coa_jumlah = Number(d.coa_jumlah || 0);
+                META.terisi = Number(d.jumlah_terisi || 0);
+                dirty = {};
+                renderPilihanTahun(d.daftar_tahun, META.tahun);
+                renderTabel();
+                renderNotif();
+                renderStat();
+                sinkronTombol();
+            })
+            .catch(function (err) {
+                if (window.console && console.error) console.error('Anggaran: gagal memuat', err);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#b91c1c;padding:24px;">Gagal memuat data. (' + esc((err && err.message) || 'unknown') + ')</td></tr>';
+                document.getElementById('footerAnggaran').innerHTML = '';
+            });
+    }
+    function barisStatus(r) {
+        if (dirty[r.kode_akun]) return '<span class="badge badge-warn"><i class="fas fa-pen"></i> Belum disimpan</span>';
+        if (r.tersimpan) return '<span class="badge badge-ok"><i class="fas fa-check"></i> Sudah diisi</span>';
+        if (Number(r.pagu) > 0) return '<span class="badge badge-warn">Belum disimpan</span>';
+        return '<span class="badge badge-netral">Belum diisi</span>';
+    }
+
+    function renderTabel() {
+        if (!DATA.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9aa4b2;padding:26px;">Tidak ada akun pada filter ini.<br>Ubah filter, atau tambahkan akun di halaman <strong>Master Akun</strong>.</td></tr>';
+        } else {
+            tbody.innerHTML = DATA.map(function (r, i) {
+                var ind = Math.min(4, Math.max(0, r.level - 1));
+                var kelas = 'lv' + Math.min(2, r.level) + (dirty[r.kode_akun] ? ' dirty' : '');
+                return '<tr data-kode="' + esc(r.kode_akun) + '" class="' + kelas + '">' +
+                    '<td class="c">' + (i + 1) + '</td>' +
+                    '<td class="kode"><span class="indent' + ind + '">' + esc(r.kode_akun) + '</span></td>' +
+                    '<td>' + esc(r.nama_akun) + '</td>' +
+                    '<td><span class="badge badge-tipe">' + esc(LABEL_TIPE[r.tipe] || r.tipe) + '</span></td>' +
+                    '<td><input type="text" class="pagu" data-kode="' + esc(r.kode_akun) + '" inputmode="numeric" autocomplete="off" value="' +
+                        (Number(r.pagu) > 0 ? esc(Number(r.pagu).toLocaleString('id-ID')) : '') + '"></td>' +
+                    '<td class="c">' + barisStatus(r) + '</td>' +
+                '</tr>';
+            }).join('');
+        }
+        document.getElementById('infoJumlah').textContent = DATA.length + ' akun · tahun ' + (META.tahun || '-');
+        renderFooter();
+    }
+
+    function totalTampil() {
+        var t = 0;
+        DATA.forEach(function (r) { t += Number(r.pagu) || 0; });
+        return t;
+    }
+
+    function hitungTerisi() {
+        var n = 0;
+        DATA.forEach(function (r) { if (r.tersimpan || Number(r.pagu) > 0) n++; });
+        return n;
+    }
+
+    function renderFooter() {
+        var n = idDirty().length;
+        document.getElementById('footerAnggaran').innerHTML =
+            '<p style="font-size:13px;"><strong>Total pagu baris yang tampil</strong> ' + fmtRp(totalTampil()) +
+            ' &nbsp;·&nbsp; <span style="color:#6b7280;">' + DATA.length + ' akun (' + hitungTerisi() + ' akun sudah punya baris pagu di tahun ' + esc(META.tahun || '-') + ')</span></p>' +
+            (n > 0
+                ? '<p style="font-size:12.5px;color:#b45309;"><i class="fas fa-triangle-exclamation"></i> ' + n + ' akun belum disimpan &mdash; klik <strong>Simpan Perubahan</strong>.</p>'
+                : '<p style="font-size:12.5px;color:#15803d;"><i class="fas fa-circle-check"></i> Semua perubahan sudah tersimpan.</p>');
+    }
+
+    function renderStat() {
+        var dPendapatan = 0, dBelanja = 0;
+        idDirty().forEach(function (k) {
+            var r = cariBaris(k);
+            if (!r) return;
+            var el = tbody.querySelector('input.pagu[data-kode="' + cssEscape(k) + '"]');
+            var baru = el ? angkaMentah(el.value) : Number(r.pagu);
+            if (isNaN(baru)) baru = 0;
+            var delta = baru - Number(r.pagu);
+            if (r.tipe === 'pendapatan') dPendapatan += delta; else dBelanja += delta;
+        });
+        var terisi = hitungTerisi();
+        document.getElementById('statAkun').textContent = DATA.length;
+        document.getElementById('statTerisi').textContent = terisi;
+        document.getElementById('statPendapatan').textContent = fmtRp(META.total_pendapatan + dPendapatan);
+        document.getElementById('statBelanja').textContent = fmtRp(META.total_belanja + dBelanja);
+    }
+
+    function renderNotif() {
+        var el = document.getElementById('notifLuarMaster');
+        if (!LUAR.length) {
+            el.style.display = 'none';
+            el.innerHTML = '';
+        } else {
+            var daftar = LUAR.slice(0, 8).map(function (r) { return r.kode_akun; }).join(', ');
+            el.style.display = '';
+            el.innerHTML = '<div class="notif" style="margin-bottom:18px;">' +
+                '<i class="fas fa-triangle-exclamation"></i>' +
+                '<div><strong>' + LUAR.length + ' kode akun pagu belum ada di Master Akun</strong> (total ' + fmtRp(totalLuar()) + ').<br>' +
+                'Contoh: ' + esc(daftar) + (LUAR.length > 8 ? ' …' : '') + '<br>' +
+                'Agar dapat diisi lewat halaman ini, tambahkan kode tersebut ke Master Akun.' +
+                '<div style="margin-top:8px;"><button class="btn btn-dark" id="btnSinkron" style="height:32px;padding:0 14px;font-size:12.5px;">' +
+                '<i class="fas fa-right-left"></i> Tambahkan ke Master Akun</button></div></div></div>';
+        }
+        var span = document.getElementById('infoCoa');
+        if (span) span.textContent = (META.coa_jumlah ? META.coa_jumlah + ' kode COA LRA standar' : 'COA LRA standar');
+    }
+
+    function totalLuar() {
+        var t = 0;
+        LUAR.forEach(function (r) { t += Number(r.pagu) || 0; });
+        return t;
+    }
+
+    function cssEscape(s) { return String(s).replace(/["\\]/g, '\\$&'); }
+    function prosesIsian(el) {
+        var kode = el.getAttribute ? el.getAttribute('data-kode') : '';
+        if (!kode) return;
+        var r = cariBaris(kode);
+        if (!r) return;
+        var n = angkaMentah(el.value);
+        var beda = isNaN(n) ? true : (n !== Number(r.pagu));
+        dirty[kode] = beda;
+        var tr = el.closest ? el.closest('tr') : null;
+        if (tr) {
+            tr.classList.toggle('dirty', beda);
+            if (tr.children[5]) tr.children[5].innerHTML = barisStatus(r);
+        }
+        renderFooter();
+        renderStat();
+        sinkronTombol();
+    }
+
+    function simpan() {
+        var kunci = idDirty();
+        if (!kunci.length) { toast('Tidak ada perubahan untuk disimpan.'); return; }
+        var rows = [];
+        var tolak = '';
+        kunci.forEach(function (k) {
+            var el = tbody.querySelector('input.pagu[data-kode="' + cssEscape(k) + '"]');
+            var n = el ? angkaMentah(el.value) : 0;
+            if (isNaN(n) || n < 0) { if (!tolak) tolak = k; return; }
+            rows.push({ kode_akun: k, anggaran: n });
+        });
+        if (tolak) { toast('Nilai pagu akun ' + tolak + ' tidak valid (harus angka, tidak negatif).'); return; }
+
+        // Hitung penyesuaian total pendapatan/belanja yang akan diterapkan,
+        // supaya kartu ringkasan ikut benar setelah simpan (tanpa muat ulang).
+        var dPendapatan = 0, dBelanja = 0;
+        rows.forEach(function (x) {
+            var r = cariBaris(x.kode_akun);
+            if (!r) return;
+            var delta = Number(x.anggaran) - Number(r.pagu);
+            if (r.tipe === 'pendapatan') dPendapatan += delta; else dBelanja += delta;
+        });
+
+        var btn = document.getElementById('btnSimpan');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        var body = new URLSearchParams({
+            tahun: document.getElementById('fTahun').value || META.tahun,
+            rows: JSON.stringify(rows)
+        });
+
+        fetch(urlAksi('anggaran_simpan'), { method: 'POST', body: body })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (d && d.success) {
+                    rows.forEach(function (x) {
+                        var r = cariBaris(x.kode_akun);
+                        if (r) { r.pagu = Number(x.anggaran); r.tersimpan = true; }
+                        dirty[x.kode_akun] = false;
+                    });
+                    META.total_pendapatan = Number(META.total_pendapatan) + dPendapatan;
+                    META.total_belanja = Number(META.total_belanja) + dBelanja;
+                    META.terisi = hitungTerisi();
+                    renderTabel();
+                    renderStat();
+                    sinkronTombol();
+                    toast(d.message || 'Anggaran tersimpan.');
+                } else {
+                    sinkronTombol();
+                    toast((d && d.message) || 'Gagal menyimpan anggaran.');
+                }
+            })
+            .catch(function () { sinkronTombol(); toast('Gagal terhubung ke server API.'); });
+    }
+    tbody.addEventListener('input', function (e) {
+        var el = e.target;
+        if (el && el.classList && el.classList.contains('pagu')) prosesIsian(el);
+    });
+
+    // Rapikan format ribuan saat fokus keluar (blur tidak bubbling -> capture).
+    tbody.addEventListener('blur', function (e) {
+        var el = e.target;
+        if (!el || !el.classList || !el.classList.contains('pagu')) return;
+        var n = angkaMentah(el.value);
+        if (isNaN(n)) n = 0;
+        el.value = n > 0 ? n.toLocaleString('id-ID') : '';
+        prosesIsian(el);
+    }, true);
+
+    // Enter pada isian pagu -> pindah ke isian berikutnya (input cepat).
+    tbody.addEventListener('keydown', function (e) {
+        var el = e.target;
+        if (e.key !== 'Enter' || !el || !el.classList || !el.classList.contains('pagu')) return;
+        e.preventDefault();
+        var semua = Array.prototype.slice.call(tbody.querySelectorAll('input.pagu'));
+        var i = semua.indexOf(el);
+        if (i > -1 && semua[i + 1]) { semua[i + 1].focus(); semua[i + 1].select(); }
+        else simpan();
+    });
+
+    function konfirmasiUlang(action) {
+        var n = idDirty().length;
+        if (n && !confirm('Ada ' + n + ' perubahan pagu yang belum disimpan. ' + action + ' sekarang? (perubahan akan hilang)')) return false;
+        return true;
+    }
+
+    document.getElementById('btnSimpan').addEventListener('click', simpan);
+
+    document.getElementById('btnTampilkan').addEventListener('click', function () {
+        if (konfirmasiUlang('Muat ulang data')) loadData();
+    });
+
+    document.getElementById('btnReset').addEventListener('click', function () {
+        if (!konfirmasiUlang('Reset filter')) return;
+        document.getElementById('fTipe').value = 'lra';
+        document.getElementById('fCari').value = '';
+        loadData();
+    });
+
+    document.getElementById('fTahun').addEventListener('change', function () {
+        if (konfirmasiUlang('Ganti tahun anggaran')) loadData();
+    });
+
+    document.getElementById('fTipe').addEventListener('change', function () {
+        if (konfirmasiUlang('Ganti kelompok akun')) loadData();
+    });
+
+    document.getElementById('fCari').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (konfirmasiUlang('Cari akun')) loadData();
+        }
+    });
+
+    // Tambah kode pagu lama ke Master Akun (tombol di dalam notifikasi).
+    document.getElementById('notifLuarMaster').addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest('#btnSinkron') : null;
+        if (!btn) return;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menambahkan...';
+        fetch(urlAksi('anggaran_sinkron_master'), { method: 'POST', body: new URLSearchParams({}) })
+            .then(function (res) { return res.json(); })
+            .then(function (d) { toast((d && d.message) || 'Selesai.'); loadData(); })
+            .catch(function () { btn.disabled = false; toast('Gagal terhubung ke server API.'); });
+    });
+
+    // Lengkapi COA LRA standar ke Master Akun (idempoten).
+    document.getElementById('btnSeedCoa').addEventListener('click', function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        fetch(urlAksi('akun_seed_coa'), { method: 'POST', body: new URLSearchParams({}) })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Lengkapi COA Standar';
+                toast((d && d.message) || 'Selesai.');
+                loadData();
+            })
+            .catch(function () {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Lengkapi COA Standar';
+                toast('Gagal terhubung ke server API.');
+            });
+    });
+
+    sinkronTombol();
+    loadData();
+})();
+    </script>
+</body>
+</html>

@@ -33,6 +33,32 @@ function jsonOut(bool $success, string $message, array $extra = [], int $code = 
     exit;
 }
 
+/**
+ * NIP pengguna dari profil (Pengaturan > Profil) untuk blok tanda tangan.
+ * Kolom `nip` dibuat otomatis bila belum ada; kegagalan -> string kosong.
+ */
+function docNipUser(PDO $pdo, int $userId): string
+{
+    static $kolomAda = null;
+    if ($userId <= 0) {
+        return '';
+    }
+    try {
+        if ($kolomAda === null) {
+            $kolomAda = (bool) $pdo->query("SHOW COLUMNS FROM users LIKE 'nip'")->fetch();
+            if (!$kolomAda) {
+                $pdo->exec("ALTER TABLE users ADD COLUMN nip VARCHAR(30) DEFAULT NULL AFTER nama_lengkap");
+                $kolomAda = true;
+            }
+        }
+        $st = $pdo->prepare("SELECT nip FROM users WHERE id = ? LIMIT 1");
+        $st->execute([$userId]);
+        return trim((string) ($st->fetchColumn() ?: ''));
+    } catch (Throwable $e) {
+        return '';
+    }
+}
+
 /** Rate limit sederhana berbasis file: maks $max permintaan per $windowDetik. */
 function docRateLimit(string $key, int $max, int $windowDetik): bool
 {
@@ -146,7 +172,7 @@ if ($action === 'verify') {
     $stmt = $pdo->prepare(
         "SELECT d.jenis, d.nomor, d.judul, d.tanggal, d.skpd, d.status, d.hash_signed,
                 d.konten_html_signed, d.signed_at,
-                t.nama AS ttd_nama, t.jabatan AS ttd_jabatan
+                t.nama AS ttd_nama, t.jabatan AS ttd_jabatan, t.nip AS ttd_nip
          FROM dokumen d
          LEFT JOIN dokumen_ttd t ON t.dokumen_id = d.id AND t.urutan = 1
          WHERE d.kode_verifikasi = ? LIMIT 1"
@@ -176,6 +202,7 @@ if ($action === 'verify') {
         'penandatangan' => [
             'nama'    => (string) ($d['ttd_nama'] ?? ''),
             'jabatan' => (string) ($d['ttd_jabatan'] ?? ''),
+            'nip'     => trim((string) ($d['ttd_nip'] ?? '')),
         ],
     ]);
 }
@@ -260,7 +287,7 @@ if ($action === 'detail') {
     $stmt = $pdo->prepare(
         "SELECT d.id, d.jenis, d.nomor, d.judul, d.tanggal, d.status, d.kode_verifikasi,
                 d.hash_original, d.hash_signed, d.signed_at, d.created_at,
-                t.nama AS ttd_nama, t.jabatan AS ttd_jabatan, t.status AS ttd_status,
+                t.nama AS ttd_nama, t.jabatan AS ttd_jabatan, t.nip AS ttd_nip, t.status AS ttd_status,
                 t.signed_at AS ttd_signed_at
          FROM dokumen d
          LEFT JOIN dokumen_ttd t ON t.dokumen_id = d.id AND t.urutan = 1
@@ -443,28 +470,29 @@ if ($action === 'ttd') {
         $hashSigned = hash('sha256', $html);
         $waktuSql   = date('Y-m-d H:i:s');
 
-        // Tandai slot penandatangan milik user ini
+        // Tandai slot penandatangan milik user ini (NIP diambil dari profil penandatangan)
+        $nipTtd = docNipUser($pdo, $userId);
         if ($ptRow) {
             $up2 = $pdo->prepare(
                 "UPDATE dokumen_ttd
-                 SET status = 'ditandatangani', nama = ?, jabatan = ?, signed_at = ?, ip = ?, user_agent = ?
+                 SET status = 'ditandatangani', nama = ?, jabatan = ?, nip = ?, signed_at = ?, ip = ?, user_agent = ?
                  WHERE id = ?"
             );
-            $up2->execute([$user['nama_lengkap'], (string) $user['peran'], $waktuSql, $ip, $ua, (int) $ptRow['id']]);
+            $up2->execute([$user['nama_lengkap'], (string) $user['peran'], $nipTtd, $waktuSql, $ip, $ua, (int) $ptRow['id']]);
         } else {
             $up2 = $pdo->prepare(
                 "UPDATE dokumen_ttd
-                 SET status = 'ditandatangani', nama = ?, jabatan = ?, signed_at = ?, ip = ?, user_agent = ?
+                 SET status = 'ditandatangani', nama = ?, jabatan = ?, nip = ?, signed_at = ?, ip = ?, user_agent = ?
                  WHERE dokumen_id = ? AND urutan = 1"
             );
-            $up2->execute([$user['nama_lengkap'], (string) $user['peran'], $waktuSql, $ip, $ua, $id]);
+            $up2->execute([$user['nama_lengkap'], (string) $user['peran'], $nipTtd, $waktuSql, $ip, $ua, $id]);
             if ($up2->rowCount() === 0) {
                 // Baris penandatangan belum ada (keadaan luar biasa) -> buat
                 $in2 = $pdo->prepare(
-                    "INSERT INTO dokumen_ttd (dokumen_id, user_id, urutan, jabatan, nama, status, signed_at, ip, user_agent)
-                     VALUES (?, ?, 1, ?, ?, 'ditandatangani', ?, ?, ?)"
+                    "INSERT INTO dokumen_ttd (dokumen_id, user_id, urutan, jabatan, nama, nip, status, signed_at, ip, user_agent)
+                     VALUES (?, ?, 1, ?, ?, ?, 'ditandatangani', ?, ?, ?)"
                 );
-                $in2->execute([$id, $userId, (string) $user['peran'], (string) $user['nama_lengkap'], $waktuSql, $ip, $ua]);
+                $in2->execute([$id, $userId, (string) $user['peran'], (string) $user['nama_lengkap'], $nipTtd, $waktuSql, $ip, $ua]);
             }
         }
 

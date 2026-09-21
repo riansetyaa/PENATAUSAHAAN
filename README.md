@@ -156,6 +156,17 @@ Semua endpoint mengembalikan JSON:
 | Penerimaan → STBP (Pembuatan) | `stbp-pembuatan.html` · `stbp-tambah.html` | `api/stbp.php` | `stbp`, `stbp_pembayaran`, `stbp_pendapatan` |
 | Penerimaan → Buku Pembantu Penerimaan | `buku-pembantu-penerimaan.html` | `api/laporan.php` (`action=buku_pembantu`, `action=obyek_penerimaan`) | `sts_detail` + `sts` + `anggaran_lra` (read-only) |
 | AKLAP → Jurnal Umum (Manual) | `peta.simtkd.com/jurnal-umum.html` | `peta.simtkd.com/api/akuntansi.php` | `jurnal_umum`, `jurnal_umum_detail`, `akun_master` |
+| AKLAP → Master Akun (COA LRA) | `peta.simtkd.com/master-akun.html` | `peta.simtkd.com/api/akuntansi.php` (`akun_list`, `akun_simpan`, `akun_hapus`, `akun_seed_coa`) | `akun_master` + `config/coa_lra.json` |
+| AKLAP → Anggaran (Pagu) | `peta.simtkd.com/anggaran.html` | `peta.simtkd.com/api/akuntansi.php` (`anggaran_list`, `anggaran_simpan`, `anggaran_hapus`, `anggaran_sinkron_master`) | `anggaran_lra` (JOIN `akun_master`) |
+| AKLAP → Buku Kas (Penerimaan/Pengeluaran PPKD) | `peta.simtkd.com/buku-penerimaan-ppkd.html` · `buku-pengeluaran-ppkd.html` | `peta.simtkd.com/api/akuntansi.php` (`buku_kas_list`, `buku_kas_simpan`, `buku_kas_hapus`) | `buku_kas` |
+| AKLAP → Buku Kas Umum (BUD) | `peta.simtkd.com/buku-kas-bud.html` | `peta.simtkd.com/api/akuntansi.php` (`buku_kas_umum`) | `buku_kas` |
+| AKLAP → Laporan Kas Harian | `peta.simtkd.com/laporan-kas-harian.html` | `peta.simtkd.com/api/akuntansi.php` (`kas_harian*`) | `kas_harian`, `kas_harian_item` |
+| AKLAP → Rekonsiliasi Bank | `peta.simtkd.com/rekonsiliasi-bank.html` | `peta.simtkd.com/api/akuntansi.php` (`rekonsiliasi_bank*`) | `rekonsiliasi_bank`, `rekonsiliasi_bank_item` |
+| AKLAP → Register SPP/SPM/SP2D | `peta.simtkd.com/register-ppkd.html` | `peta.simtkd.com/api/akuntansi.php` (`register_ppkd_list`, `register_ppkd_simpan`) | `register_ppkd` + `buku_kas` |
+| AKLAP → LPJ Bendahara PPKD | `peta.simtkd.com/lpj-ppkd.html` | `peta.simtkd.com/api/akuntansi.php` (`lpj_ppkd`) | `buku_kas` + `anggaran_lra` + `akun_master` |
+| AKLAP → Buku Pembantu Objek | `peta.simtkd.com/buku-pembantu.html` | `peta.simtkd.com/api/akuntansi.php` (`buku_pembantu_list`) | `buku_kas` + `anggaran_lra` |
+| AKLAP → Buku Jurnal Khusus | `peta.simtkd.com/jurnal-khusus.html` | `peta.simtkd.com/api/akuntansi.php` (`jurnal_khusus*`) | `jurnal_khusus`, `jurnal_khusus_baris` |
+| AKLAP → Jurnal Khusus Konsolidator | `peta.simtkd.com/jurnal-khusus-konsolidator.html` | `peta.simtkd.com/api/akuntansi.php` (`jurnal_khusus*`, jenis `penerimaan_konsolidator`) | `jurnal_khusus` (kolom `skp_label`), `jurnal_khusus_baris` |
 | AKLAP → Buku Besar | `peta.simtkd.com/buku-besar.html` | `peta.simtkd.com/api/akuntansi.php` | `jurnal_umum_detail` (posting on-the-fly) |
 | AKLAP → Neraca Saldo | `peta.simtkd.com/neraca-saldo.html` | `peta.simtkd.com/api/akuntansi.php` | `jurnal_umum_detail`, `akun_master` |
 
@@ -180,6 +191,41 @@ dua sisi (Debet/Kredit) sesuai lembar kerja **Modul 3 AKLAP SKPKD**:
 
 Skema database: `database/akuntansi_manual.sql` (idempoten, kompatibel
 MySQL & MariaDB; tabel juga dibuat otomatis oleh API).
+
+#### 🆕 AKLAP v2.0 — tambahan basis data (modul Kas, Register, LPJ, Jurnal Khusus)
+
+| Tabel baru | Dipakai oleh | Keterangan |
+|------------|--------------|------------|
+| `register_ppkd` | Register SPP/SPM/SP2D | 1 baris per transaksi Buku Kas Pengeluaran (unik per SKPD + `buku_kas_id`) |
+| `kas_harian`, `kas_harian_item` | Laporan Posisi Kas Harian | Dokumen per tanggal + baris transaksi |
+| `rekonsiliasi_bank`, `rekonsiliasi_bank_item` | Rekonsiliasi Bank | Dokumen per bulan + baris keterangan selisih A/B/C/D |
+| `jurnal_khusus`, `jurnal_khusus_baris` | Buku Jurnal Khusus & Konsolidator | Dokumen per jenis/periode + nilai per posisi kolom |
+
+| Kolom baru | Tabel | Keterangan |
+|------------|-------|------------|
+| `skp_label` | `jurnal_khusus` | Isian SKPKD manual (blanko Konsolidator) |
+| `debet_7..debet_10`, `kredit_7..kredit_10` | `jurnal_khusus_baris` | Slot kolom 7–10 (blanko Belanja/Beban Pemda berkolom 8 debet) |
+
+Tabel pada baris di atas **dibuat otomatis oleh API** (`CREATE TABLE IF NOT EXISTS`
++ `pastikan_kolom()` di `peta.simtkd.com/api/akuntansi.php`), sehingga tidak ada
+impor SQL manual yang wajib dilakukan. Untuk menyiapkan/memeriksa skema lebih dulu
+(mis. deploy ke produksi), gunakan berkas idempoten
+`database/akuntansi_v2.sql` — sudah diuji pada DB kosong **dan** DB versi lama
+(kolom ditambahkan tanpa menghapus data).
+
+Modul **Master Akun**, **Anggaran (Pagu)**, **Buku Kas**, **Buku Kas Umum (BUD)**,
+**LPJ Bendahara PPKD**, dan **Buku Pembantu Objek** **tidak menambah tabel** —
+mereka memakai tabel yang sudah ada (`akun_master`, `anggaran_lra`, `buku_kas`,
+`jurnal_umum`, `neraca_awal`) sehingga data & laporan lama tetap utuh.
+
+#### 📚 Manual book
+
+| Dokumen | Isi |
+|---------|-----|
+| `docs/manual-book.html` | Manual lengkap (mahasiswa + dosen/TTE), versi 2.0 |
+| `docs/manual-book-mahasiswa.html` | Edisi mahasiswa (Bagian 5 memuat seluruh modul AKLAP terbaru) |
+| `docs/manual-book-pembaruan.html` | **Manual Book Pembaruan v2.0** — daftar modul baru, perbaikan bug, catatan teknis (endpoint/tabel baru), alur kerja, dan langkah verifikasi |
+| `docs/screenshots/opt/baru-*.webp` | 15 tangkapan layar modul baru (Master Akun, Anggaran, Buku Kas, BUD, Kas Harian, Rekonsiliasi, Register, LPJ, Jurnal Khusus, Konsolidator, cetak per jurnal) |
 
 
 ---

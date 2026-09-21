@@ -31,149 +31,7 @@
 <body>
 
     <!-- ================= SIDEBAR ================= -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <img src="../img/Logo Polban.png" alt="Logo POLBAN">
-                <div class="sidebar-title">
-                    <span class="title-main">SIM-TKD</span>
-                    <span class="title-sub">Modul Edukasi</span>
-                </div>
-            </div>
-            <button class="sidebar-toggle" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        <div class="sidebar-user">
-            <div class="user-avatar">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <div class="user-info">
-                <span class="user-name" id="sidebarUserName">Admin Dinas</span>
-                <span class="user-role" id="sidebarUserRole">Dinas Kepemudaan dan Olahraga</span>
-            </div>
-        </div>
-
-        <nav class="sidebar-menu">
-            <span class="menu-label">MENU UTAMA</span>
-
-            <a href="../dashboard/dashboard.html" class="menu-item">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </a>
-
-            <!-- Penerimaan (dropdown utama) -->
-            <div class="menu-group" data-menu="penerimaan">
-                <a href="#" class="menu-item has-submenu">
-                    <i class="fas fa-arrow-down"></i>
-                    <span>Penerimaan</span>
-                    <i class="fas fa-chevron-down submenu-arrow"></i>
-                </a>
-                <div class="submenu">
-                    <!-- Rekening -->
-                    <div class="menu-group" data-menu="rekening">
-                        <a href="#" class="menu-item has-submenu">
-                            <i class="fas fa-university"></i>
-                            <span>Rekening</span>
-                            <i class="fas fa-chevron-down submenu-arrow"></i>
-                        </a>
-                        <div class="submenu">
-                            <a href="../penerimaan/permohonan.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>Permohonan</span></a>
-                        </div>
-                    </div>
-
-            <div class="menu-group" data-menu="stbp">
-                <a href="#" class="menu-item has-submenu">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>STBP</span>
-                    <i class="fas fa-chevron-down submenu-arrow"></i>
-                </a>
-                <div class="submenu">
-                    <a href="../penerimaan/stbp-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-plus-circle"></i><span>Pembuatan</span></a>
-                    <a href="../penerimaan/stbp-pembuatan.html?tahap=sudah_diverifikasi" class="menu-item submenu-item"><i class="fas fa-check"></i><span>Verifikasi</span></a>
-                    <a href="../penerimaan/stbp-pembuatan.html?tahap=sudah_diotorisasi" class="menu-item submenu-item"><i class="fas fa-signature"></i><span>Otorisasi</span></a>
-                    <a href="../penerimaan/stbp-pembuatan.html?tahap=sudah_divalidasi" class="menu-item submenu-item"><i class="fas fa-stamp"></i><span>Validasi</span></a>
-                </div>
-            </div>
-
-            <a href="../penerimaan/sts-pembuatan.html" class="menu-item">
-                <i class="fas fa-file-invoice-dollar"></i>
-                <span>STS</span>
-            </a>
-
-                    <!-- Laporan -->
-                    <div class="menu-group" data-menu="laporan">
-                        <a href="#" class="menu-item has-submenu">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Laporan</span>
-                            <i class="fas fa-chevron-down submenu-arrow"></i>
-                        </a>
-                        <div class="submenu">
-                            <a href="../penerimaan/bku-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Penerimaan</span></a>
-                            <a href="#" class="menu-item submenu-item"><i class="fas fa-clipboard-list"></i><span>Register</span></a>
-                            <a href="#" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>LPJ</span></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="menu-group" data-menu="belanja">
-                <a href="#" class="menu-item has-submenu">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>Belanja</span>
-                    <i class="fas fa-chevron-down submenu-arrow"></i>
-                </a>
-                <div class="submenu">
-                    <a href="../belanja/index.html" class="menu-item submenu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-                    <a href="../belanja/rekanan.html" class="menu-item submenu-item"><i class="fas fa-handshake"></i><span>Daftar Rekanan</span></a>
-                    <a href="../belanja/rekening.html" class="menu-item submenu-item"><i class="fas fa-university"></i><span>Rekening Bank SKPD</span></a>
-                    <a href="../belanja/spd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>SPD</span></a>
-                    <a href="../belanja/spp.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>SPP</span></a>
-                    <a href="../belanja/spm.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>SPM</span></a>
-                    <a href="../belanja/sp2d.html" class="menu-item submenu-item"><i class="fas fa-money-check-alt"></i><span>SP2D</span></a>
-                    <a href="../belanja/lpj.html" class="menu-item submenu-item"><i class="fas fa-clipboard-check"></i><span>LPJ</span></a>
-                    <a href="../belanja/pengajuan-tu.html" class="menu-item submenu-item"><i class="fas fa-paper-plane"></i><span>Pengajuan TU</span></a>
-                    <a href="../belanja/npd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>NPD</span></a>
-                    <a href="../belanja/besaran-up.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Besaran UP</span></a>
-                    <a href="../belanja/kebijakan-spd.html" class="menu-item submenu-item"><i class="fas fa-gavel"></i><span>Kebijakan SPD</span></a>
-                    <a href="../belanja/bku-belanja.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Belanja</span></a>
-                </div>
-            </div>
-            <a href="../api/aklap_go.php" class="menu-item">
-                <i class="fas fa-book"></i>
-                <span>Akuntansi</span>
-            </a>
-            <a href="../api/dokumen_go.php" class="menu-item">
-                <i class="fas fa-pen-nib"></i>
-                <span>Tanda Tangan Dokumen</span>
-            </a>
-
-            <!-- Pengaturan (dropdown, aktif) -->
-            <div class="menu-group open" data-menu="pengaturan">
-                <a href="#" class="menu-item has-submenu active">
-                    <i class="fas fa-cog"></i>
-                    <span>Pengaturan</span>
-                    <i class="fas fa-chevron-down submenu-arrow"></i>
-                </a>
-                <div class="submenu">
-                    <a href="profil.html" class="menu-item submenu-item active"><i class="fas fa-user"></i><span>Profil</span></a>
-                    <a href="akun-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Akun Penerimaan</span></a>
-                    <a href="anggaran-neraca.html" class="menu-item submenu-item"><i class="fas fa-chart-line"></i><span>Anggaran &amp; Neraca</span></a>
-                </div>
-            </div>
-
-            <span class="menu-label">AKUN</span>
-            <a href="../api/logout.php" class="menu-item menu-logout" id="logoutLink">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Keluar</span>
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <span>&copy; 2026 SIM-TKD POLBAN</span>
-        </div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
 
     <!-- ================= OVERLAY (mobile) ================= -->
     <div class="overlay" id="overlay"></div>
@@ -232,6 +90,7 @@
                         <span class="profil-instansi" id="ringkasanInstansi">Memuat data...</span>
                         <div class="profil-meta">
                             <span class="profil-badge"><i class="fas fa-id-badge"></i> <span id="ringkasanUsername">—</span></span>
+                            <span class="profil-badge"><i class="fas fa-id-card"></i> NIP <span id="ringkasanNip">—</span></span>
                             <span class="profil-badge"><i class="fas fa-user-shield"></i> <span id="ringkasanPeran">—</span></span>
                             <span class="profil-badge"><i class="fas fa-calendar-check"></i> Bergabung <span id="ringkasanDibuat">—</span></span>
                         </div>
@@ -251,6 +110,11 @@
                         <div class="form-field">
                             <label for="inpNama">Nama Lengkap</label>
                             <input type="text" id="inpNama" name="nama_lengkap" maxlength="100" placeholder="Nama lengkap sesuai identitas" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpNip">NIP</label>
+                            <input type="text" id="inpNip" name="nip" maxlength="30" placeholder="cth: 19900315 201001 1 001" autocomplete="off">
+                            <span class="hint">Dipakai otomatis pada NIP di semua blok tanda tangan dokumen (BKU, Buku Pembantu, SKP, STS, STBP, SPP/SPM/SP2D, dst).</span>
                         </div>
                         <div class="form-field">
                             <label for="inpEmail">Email</label>
@@ -317,6 +181,7 @@
         </footer>
     </div>
 
+    <script src="../js/sidebar-menu.js"></script>
     <script src="../js/dashboard.js"></script>
     <script>
             (function () {
@@ -376,11 +241,13 @@
                     const p = d.profil || {};
                     instansiAwal = p.instansi || '';
                     document.getElementById('ringkasanNama').textContent = p.nama_lengkap || '-';
+                    document.getElementById('ringkasanNip').textContent = p.nip || 'belum diisi';
                     document.getElementById('ringkasanInstansi').textContent = p.instansi || '-';
                     document.getElementById('ringkasanUsername').textContent = p.username || '-';
                     document.getElementById('ringkasanPeran').textContent = p.peran || '-';
                     document.getElementById('ringkasanDibuat').textContent = fmtTgl(p.dibuat);
                     document.getElementById('inpNama').value = p.nama_lengkap || '';
+                    document.getElementById('inpNip').value = p.nip || '';
                     document.getElementById('inpEmail').value = p.email || '';
                     document.getElementById('inpInstansi').value = p.instansi || '';
                     document.getElementById('inpUsername').value = p.username || '-';
@@ -392,6 +259,7 @@
             document.getElementById('formProfil').addEventListener('submit', function (e) {
                 e.preventDefault();
                 const nama = document.getElementById('inpNama').value.trim();
+                const nip = document.getElementById('inpNip').value.trim();
                 const email = document.getElementById('inpEmail').value.trim();
                 const instansi = document.getElementById('inpInstansi').value.trim();
 
@@ -415,7 +283,7 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
-                const body = new URLSearchParams({ action: 'simpan', nama_lengkap: nama, email: email, instansi: instansi });
+                const body = new URLSearchParams({ action: 'simpan', nama_lengkap: nama, nip: nip, email: email, instansi: instansi });
                 fetch('../api/profil.php', { method: 'POST', body: body })
                     .then(function (r) { return r.json(); })
                     .then(function (d) {
@@ -425,6 +293,7 @@
                             setInstansiSidebar(d.profil.instansi);
                             instansiAwal = d.profil.instansi;
                             document.getElementById('ringkasanNama').textContent = d.profil.nama_lengkap;
+                            document.getElementById('ringkasanNip').textContent = d.profil.nip || 'belum diisi';
                             document.getElementById('ringkasanInstansi').textContent = d.profil.instansi || '-';
                         } else {
                             showToast(d.message || 'Gagal memperbarui profil.', 'error');

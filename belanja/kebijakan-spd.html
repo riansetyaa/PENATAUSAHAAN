@@ -18,53 +18,7 @@
     </style>
 </head>
 <body>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-logo"><img src="../img/Logo Polban.png" alt="Logo POLBAN"><div class="sidebar-title"><span class="title-main">SIM-TKD</span><span class="title-sub">Modul Edukasi</span></div></div><button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button></div>
-        <div class="sidebar-user"><div class="user-avatar"><i class="fas fa-user-tie"></i></div><div class="user-info"><span class="user-name" id="sidebarUserName">Admin Dinas</span><span class="user-role" id="sidebarUserRole">Dinas Kepemudaan dan Olahraga</span></div></div>
-        <nav class="sidebar-menu">
-            <span class="menu-label">MENU UTAMA</span>
-            <a href="../dashboard/dashboard.html" class="menu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-            <div class="menu-group" data-menu="penerimaan">
-                <a href="#" class="menu-item has-submenu"><i class="fas fa-arrow-down"></i><span>Penerimaan</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="../penerimaan/permohonan.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>Permohonan</span></a>
-                    <a href="../penerimaan/stbp-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>STBP</span></a>
-                    <a href="../penerimaan/sts-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>STS</span></a>
-                    <a href="../penerimaan/bku-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Penerimaan</span></a>
-                </div>
-            </div>
-            <div class="menu-group open" data-menu="belanja">
-                <a href="#" class="menu-item has-submenu active"><i class="fas fa-arrow-up"></i><span>Belanja</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="index.html" class="menu-item submenu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-                    <a href="rekanan.html" class="menu-item submenu-item"><i class="fas fa-handshake"></i><span>Daftar Rekanan</span></a>
-                    <a href="rekening.html" class="menu-item submenu-item"><i class="fas fa-university"></i><span>Rekening Bank SKPD</span></a>
-                    <a href="spd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>SPD</span></a>
-                    <a href="spp.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>SPP</span></a>
-                    <a href="spm.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>SPM</span></a>
-                    <a href="sp2d.html" class="menu-item submenu-item"><i class="fas fa-money-check-alt"></i><span>SP2D</span></a>
-                    <a href="lpj.html" class="menu-item submenu-item"><i class="fas fa-clipboard-check"></i><span>LPJ</span></a>
-                    <a href="pengajuan-tu.html" class="menu-item submenu-item"><i class="fas fa-paper-plane"></i><span>Pengajuan TU</span></a>
-                    <a href="npd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>NPD</span></a>
-                    <a href="besaran-up.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Besaran UP</span></a>
-                    <a href="kebijakan-spd.html" class="menu-item submenu-item active"><i class="fas fa-gavel"></i><span>Kebijakan SPD</span></a>
-                    <a href="bku-belanja.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Belanja</span></a>
-                </div>
-            </div>
-            <a href="../api/aklap_go.php" class="menu-item"><i class="fas fa-book"></i><span>Akuntansi</span></a>
-            <a href="../api/dokumen_go.php" class="menu-item"><i class="fas fa-pen-nib"></i><span>Tanda Tangan Dokumen</span></a>
-            <div class="menu-group" data-menu="pengaturan">
-                <a href="#" class="menu-item has-submenu"><i class="fas fa-cog"></i><span>Pengaturan</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="../pengaturan/profil.html" class="menu-item submenu-item"><i class="fas fa-user"></i><span>Profil</span></a><a href="../pengaturan/akun-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Akun Penerimaan</span></a>
-                    <a href="../pengaturan/anggaran-neraca.html" class="menu-item submenu-item"><i class="fas fa-chart-line"></i><span>Anggaran &amp; Neraca</span></a>
-                </div>
-            </div>
-            <span class="menu-label">AKUN</span>
-            <a href="../api/logout.php" class="menu-item menu-logout"><i class="fas fa-sign-out-alt"></i><span>Keluar</span></a>
-        </nav>
-        <div class="sidebar-footer"><span>&copy; 2026 SIM-TKD POLBAN</span></div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
     <div class="overlay" id="overlay"></div>
     <div class="main-wrapper">
         <header class="topbar">
@@ -105,6 +59,7 @@
         <footer class="footer"><span>&copy; 2026 SIM-TKD - Modul Edukasi | Politeknik Negeri Bandung</span></footer>
     </div>
     <div id="toast" class="toast"></div>
+    <script src="../js/sidebar-menu.js"></script>
     <script src="../js/dashboard.js"></script>
     <script>
         (function () {

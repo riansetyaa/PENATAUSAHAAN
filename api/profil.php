@@ -31,12 +31,36 @@ if ($userId <= 0) {
 }
 
 /**
+ * Pastikan kolom `nip` tersedia (migrasi otomatis, idempoten).
+ * Berguna untuk instalasi lama agar halaman Profil langsung bisa
+ * menyimpan NIP tanpa menjalankan SQL manual lebih dulu.
+ */
+function pastikanKolomNip(PDO $pdo): void
+{
+    static $sudah = false;
+    if ($sudah) {
+        return;
+    }
+    $sudah = true;
+    try {
+        $ada = $pdo->query("SHOW COLUMNS FROM users LIKE 'nip'")->fetch();
+        if (!$ada) {
+            $pdo->exec("ALTER TABLE users ADD COLUMN nip VARCHAR(30) DEFAULT NULL AFTER nama_lengkap");
+        }
+    } catch (Throwable $e) {
+        // abaikan: bila gagal (mis. hak akses ALTER), pemakaian nip tetap dicoba
+    }
+}
+
+pastikanKolomNip($pdo);
+
+/**
  * Ambil baris user dari DB.
  */
 function ambilUserProfil(PDO $pdo, int $id): ?array
 {
     $st = $pdo->prepare(
-        "SELECT id, nama_lengkap, username, email, instansi, peran, status, created_at
+        "SELECT id, nama_lengkap, nip, username, email, instansi, peran, status, created_at
          FROM users WHERE id = ? LIMIT 1"
     );
     $st->execute([$id]);
@@ -56,6 +80,7 @@ if ($method === 'GET') {
     jsonResponse(true, 'Data profil.', [
         'profil' => [
             'nama_lengkap' => (string) $u['nama_lengkap'],
+            'nip'          => (string) ($u['nip'] ?? ''),
             'username'     => (string) $u['username'],
             'email'        => (string) $u['email'],
             'instansi'     => (string) ($u['instansi'] ?? ''),
@@ -83,6 +108,8 @@ if ($action === 'simpan') {
     $nama     = input('nama_lengkap');
     $email    = strtolower(input('email'));
     $instansi = input('instansi');
+    $nip      = preg_replace('/[^0-9A-Za-z.\-\/ ]/', '', input('nip'));
+    $nip      = trim(preg_replace('/\s+/', ' ', (string) $nip));
 
     if (!isValidNama($nama)) {
         jsonResponse(false, 'Nama lengkap tidak valid (3-100 karakter huruf).', [], 422);
@@ -93,6 +120,9 @@ if ($action === 'simpan') {
     if (mb_strlen($instansi) > 150) {
         jsonResponse(false, 'Nama instansi maksimal 150 karakter.', [], 422);
     }
+    if (mb_strlen($nip) > 30) {
+        jsonResponse(false, 'NIP maksimal 30 karakter.', [], 422);
+    }
 
     // Email harus unik (kecuali milik sendiri)
     $st = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id <> ? LIMIT 1");
@@ -101,11 +131,12 @@ if ($action === 'simpan') {
         jsonResponse(false, 'Email sudah dipakai oleh akun lain.', [], 409);
     }
 
-    $st = $pdo->prepare("UPDATE users SET nama_lengkap = ?, email = ?, instansi = ? WHERE id = ?");
+    $st = $pdo->prepare("UPDATE users SET nama_lengkap = ?, email = ?, instansi = ?, nip = ? WHERE id = ?");
     $st->execute([
         $nama,
         $email,
         $instansi !== '' ? $instansi : null,
+        $nip !== '' ? $nip : null,
         $userId,
     ]);
 
@@ -113,10 +144,12 @@ if ($action === 'simpan') {
     $_SESSION['nama']     = $nama;
     $_SESSION['email']    = $email;
     $_SESSION['instansi'] = $instansi;
+    $_SESSION['nip']      = $nip;
 
     jsonResponse(true, 'Profil berhasil diperbarui.', [
         'profil' => [
             'nama_lengkap' => $nama,
+            'nip'          => $nip,
             'email'        => $email,
             'instansi'     => $instansi,
         ],

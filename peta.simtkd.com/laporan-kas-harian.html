@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Posisi Kas Harian (BUD) - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #16305a; --navy-dark: #0e2140; --navy-mid: #1d3a6e;
+            --blue: #1f6feb; --green: #16a34a; --green-dark: #15803d;
+            --bg: #eef1f6; --card: #ffffff; --border: #d8dee9;
+            --text: #1f2937; --muted: #6b7280;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 58px; box-shadow: 0 2px 6px rgba(0,0,0,.2); position: relative; z-index: 20; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .sidebar { width: 236px; background: var(--navy-dark); color: #cbd5e1; flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px; transition: margin-left .25s ease; }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: #7d8db1; padding: 14px 18px 6px; }
+        .side-link { display: flex; align-items: center; gap: 11px; padding: 10px 18px; color: #cbd5e1; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .side-group .side-link { cursor: pointer; }
+        .side-arrow { margin-left: auto; font-size: 11px; transition: transform .2s; color: #7d8db1; }
+        .side-group.open .side-arrow { transform: rotate(90deg); }
+        .side-sub { display: none; padding-left: 10px; }
+        .side-sub.open { display: block; }
+        .side-sub .side-link { padding: 8px 16px; font-size: 13px; color: #9fb0d3; }
+        .side-sub .side-link i { font-size: 12px; }
+        .side-sub .side-link:hover { color: #fff; }
+        .side-sub .side-link.active { color: #fff; background: var(--navy-mid); border-left-color: #4c9aff; }
+        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back { background: var(--navy); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+        .btn-back:hover { background: var(--navy-mid); }
+        .footer { text-align: center; padding: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+    </style>
+    <style>
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; max-width: 700px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 18px; }
+        .card-head { padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 16px 18px; }
+        .filter-grid { display: grid; gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select, .filter-field input { height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%; }
+        .filter-field select:focus, .filter-field input:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .filter-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; height: 36px; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: var(--green-dark); }
+        .btn-dark { background: var(--navy-mid); color: #fff; }
+        .btn-dark:hover { background: var(--navy); }
+        .btn-muted { background: #e2e8f0; color: var(--text); }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+        .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(16,24,40,.06); }
+        .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; }
+        .stat .val { font-size: 17px; font-weight: 700; color: var(--navy); margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .stat.income .val { color: #15803d; }
+        .stat.expense .val { color: #b45309; }
+        .preview-label { font-weight: 700; color: var(--navy); font-size: 13.5px; margin: 6px 0 10px; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99; background: var(--navy-dark); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        @media (max-width: 1024px) { .filter-grid { grid-template-columns: repeat(2, 1fr) !important; } .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; } .filter-grid { grid-template-columns: 1fr !important; } .stat-grid { grid-template-columns: 1fr; } }
+    </style>
+    <style>
+        /* ===== Blanko Laporan Posisi Kas Harian (BUD) ===== */
+        #khDoc { width: 100%; max-width: 940px; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 26px 28px; margin: 0 auto 18px; color: #000; font-family: "Times New Roman", Times, serif; font-size: 12px; line-height: 1.35; overflow-x: auto; }
+        #khDoc .kh-head { text-align: center; margin-bottom: 12px; }
+        #khDoc .kh-head .pem { font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+        #khDoc .kh-head .title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+        #khDoc .kh-ident { margin-bottom: 2px; }
+        #khDoc .kh-ident .kh-line { display: flex; }
+        #khDoc .kh-ident .kh-lbl { width: 78px; }
+        #khDoc .kh-ident .kh-sep { width: 12px; }
+        #khDoc .kh-rp { text-align: right; font-size: 11.5px; margin: 0 4px 2px 0; }
+        #khDoc table.kh { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        #khDoc table.kh th, #khDoc table.kh td { border: 1px solid #000; padding: 3px 5px; font-size: 10.5px; vertical-align: top; }
+        #khDoc table.kh th { text-align: center; font-weight: 700; }
+        #khDoc table.kh tr.kh-kolom td { text-align: center; font-weight: 600; }
+        #khDoc table.kh td.c { text-align: center; }
+        #khDoc table.kh td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        #khDoc table.kh tr.kh-tebal td { font-weight: 700; }
+        #khDoc .kh-rekap { margin-top: 16px; }
+        #khDoc .kh-rekap .judul { font-weight: 700; margin-bottom: 4px; }
+        #khDoc table.kh-rekap { border-collapse: collapse; }
+        #khDoc table.kh-rekap td { padding: 1px 0; }
+        #khDoc table.kh-rekap td.rlabel { width: 190px; }
+        #khDoc table.kh-rekap td.rrp { width: 34px; }
+        #khDoc table.kh-rekap td.rnum { width: 190px; text-align: right; border-bottom: 1px dotted #444; font-variant-numeric: tabular-nums; }
+        #khDoc table.kh-rekap tr.kh-tebal td { font-weight: 700; }
+        #khDoc .kh-signs { margin-top: 30px; display: flex; justify-content: flex-end; }
+        #khDoc .kh-sign { text-align: center; min-width: 270px; }
+        #khDoc .kh-sign p { margin: 0; line-height: 1.6; }
+        #khDoc .kh-sign .sig { height: 66px; }
+        #khDoc .kh-sign .name { font-weight: 700; }
+        #khDoc .kh-sign .nip { font-size: 11px; }
+        /* ===== Tabel isian manual di layar ===== */
+        .table-wrap { overflow-x: auto; padding: 2px; }
+        #tblKas { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 880px; border: 1px solid #aab8cc; }
+        #tblKas th, #tblKas td { border: 1px solid #ccd6e4; }
+        #tblKas thead th { background: #eef2f7; color: #24384f; text-align: center; padding: 7px 8px; border-color: #b9c6d9; font-size: 11px; text-transform: uppercase; letter-spacing: .3px; }
+        #tblKas thead tr:nth-child(2) th { background: #f5f8fc; }
+        #tblKas tr.kolom-no td { background: #f6f8fb; color: #55647c; font-size: 10.5px; padding: 3px 8px; text-align: center; border-color: #d3dce9; }
+        #tblKas tbody td { padding: 2px 3px; }
+        #tblKas tbody tr:hover td { background: #f8fafc; }
+        #tblKas tbody tr.dirty td { background: #fffbeb; border-color: #efd7a0; }
+        /* Garis pemisah kolom utama: No | Transaksi | Uraian | Penerimaan | Pengeluaran | Aksi */
+        #tblKas thead tr:nth-child(1) > th:nth-child(n+2),
+        #tblKas tr.kolom-no > td:nth-child(n+2),
+        #tblKas tbody > tr > td:nth-child(2),
+        #tblKas tbody > tr > td:nth-child(5),
+        #tblKas tbody > tr > td:nth-child(6),
+        #tblKas tbody > tr > td:nth-child(7),
+        #tblKas tbody > tr > td:nth-child(8),
+        #tblKas thead tr:nth-child(2) > th:first-child { border-left: 1px solid #aab8cc; }
+        #tblKas input { width: 100%; border: 1px solid transparent; background: transparent; padding: 6px; font-size: 13px; font-family: inherit; color: var(--text); border-radius: 4px; }
+        #tblKas input:hover { border-color: #93a8c6; background: #fff; }
+        #tblKas input:focus { outline: none; border-color: var(--blue); background: #fff; box-shadow: 0 0 0 2px #dbeafe; }
+        #tblKas input.num { text-align: right; font-variant-numeric: tabular-nums; }
+        #tblKas input.kode { text-align: center; }
+        @media print {
+            @page { size: A4 portrait; margin: 12mm; }
+            body { background: #fff !important; display: block; }
+            .topbar, .breadcrumb-bar, .sidebar, .footer, #toast, .page-head, .card, .stat-grid, .preview-label { display: none !important; }
+            .content { padding: 0 !important; }
+            #khDoc { display: block !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; max-width: none !important; overflow: visible !important; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand"><b>AKLAP · SIM-TKD</b><span>Aplikasi Laporan Akuntansi Pemerintahan</span></div>
+        </div>
+        <div class="topbar-right">
+            <div class="region"><b id="regionProvinsi">-</b><span id="regionKota">-</span></div>
+            <div class="topbar-user"><div class="avatar" id="regionAvatar">?</div><span id="regionNama" style="font-size:13px;">-</span></div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb"><i class="fas fa-house"></i> <a href="index.html">Home</a><i class="fas fa-chevron-right"></i><span>Buku Kas</span><i class="fas fa-chevron-right"></i><span class="current">Laporan Posisi Kas Harian</span></div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>Laporan Posisi Kas Harian</h1>
+                        <p>Laporan posisi kas harian <strong>Bendahara Umum Daerah</strong> — <strong>diisi manual</strong>: nomor SP2D / STS / Lain-lain, uraian, penerimaan, dan pengeluaran. Posisi Kas (H-1) terisi otomatis dari laporan hari sebelumnya dan dapat ditimpa manual. Lihat juga <a href="buku-kas-bud.html" style="color:var(--blue);">Buku Kas Umum (BUD)</a>.</p>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <input type="text" id="fNamaBud" placeholder="Nama BUD (dari Profil)" title="Nama Bendahara Umum Daerah pada blok tanda tangan (manual)"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:210px;background:#fff;color:var(--text);">
+                        <input type="text" id="fNip" placeholder="NIP BUD (dari Profil)" title="NIP Bendahara Umum Daerah — otomatis dari Profil, dapat ditimpa manual"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:190px;background:#fff;color:var(--text);">
+                        <button class="btn btn-muted" id="btnCetak"><i class="fas fa-print"></i> Cetak</button>
+                        <button class="btn btn-dark" id="btnKirimTtd"><i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-calendar-day"></i> Identitas Laporan
+                        <span id="statusSimpan" style="margin-left:auto;font-weight:500;font-size:12px;color:#6b7280;">Belum dimuat</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="filter-field"><label>Tanggal *</label><input type="date" id="fTanggal"></div>
+                            <div class="filter-field"><label>Hari</label><input type="text" id="fHari" placeholder="cth: Selasa" autocomplete="off"></div>
+                            <div class="filter-field"><label>Periode</label><input type="text" id="fPeriode" placeholder="cth: Januari" autocomplete="off"></div>
+                            <div class="filter-field"><label>Posisi Kas (H-1) (Rp)</label><input type="text" id="fPosisiH1" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+                            <div class="filter-field" style="grid-column: span 2;"><label>Riwayat laporan tersimpan</label><select id="fRiwayat"><option value="">— Tanggal baru (belum ada laporan) —</option></select></div>
+                            <div class="filter-field" style="grid-column: span 2;">
+                                <label>&nbsp;</label>
+                                <div class="filter-actions">
+                                    <button class="btn btn-success" id="btnSimpan"><i class="fas fa-floppy-disk"></i> Simpan Laporan</button>
+                                    <button class="btn btn-muted" id="btnHariIni"><i class="fas fa-calendar-day"></i> Hari Ini</button>
+                                    <button class="btn btn-muted" id="btnHapus"><i class="fas fa-trash"></i> Hapus</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="hintPosisi" style="font-size:11.5px;color:#6b7280;margin-top:10px;"></p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-pen-to-square"></i> Transaksi Kas (isi manual)
+                        <span id="rowCount" style="margin-left:auto;font-weight:500;font-size:12px;color:#6b7280;">0 baris</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table id="tblKas">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="width:44px;">No</th>
+                                    <th colspan="3">Transaksi</th>
+                                    <th rowspan="2">Uraian</th>
+                                    <th rowspan="2" style="width:150px;">Penerimaan</th>
+                                    <th rowspan="2" style="width:150px;">Pengeluaran</th>
+                                    <th rowspan="2" style="width:54px;">Aksi</th>
+                                </tr>
+                                <tr>
+                                    <th style="width:82px;">SP2D</th>
+                                    <th style="width:82px;">STS</th>
+                                    <th style="width:88px;">Lain-lain</th>
+                                </tr>
+                                <tr class="kolom-no">
+                                    <td title="Kolom 1: nomor urut">1</td>
+                                    <td colspan="3" title="Kolom 2: nomor transaksi (SP2D / STS / Lain-lain)">2</td>
+                                    <td title="Kolom 3: uraian">3</td>
+                                    <td title="Kolom 4: penerimaan">4</td>
+                                    <td title="Kolom 5: pengeluaran">5</td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyKas"></tbody>
+                        </table>
+                    </div>
+                    <div class="card-body" style="border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn btn-primary" id="btnTambahBaris"><i class="fas fa-plus"></i> Tambah Baris</button>
+                        <button class="btn btn-muted" id="btnBersihBaris"><i class="fas fa-broom"></i> Hapus Baris Kosong</button>
+                        <button class="btn btn-success" id="btnSimpan2"><i class="fas fa-floppy-disk"></i> Simpan Laporan</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-building-columns"></i> Rekapitulasi Posisi Kas di BUD</div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="filter-field"><label>Label Bank 1</label><input type="text" id="fBank1Nama" autocomplete="off"></div>
+                            <div class="filter-field"><label>Saldo di Bank 1 (Rp)</label><input type="text" id="fBank1Saldo" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+                            <div class="filter-field"><label>Label Bank 2</label><input type="text" id="fBank2Nama" autocomplete="off"></div>
+                            <div class="filter-field"><label>Saldo di Bank 2 (Rp)</label><input type="text" id="fBank2Saldo" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+                            <div class="filter-field" style="grid-column: span 2;"><label>Catatan (opsional)</label><input type="text" id="fCatatan" autocomplete="off"></div>
+                            <div class="filter-field" style="grid-column: span 2;"><label>Total Saldo Kas (&Sigma; Bank 1 + Bank 2)</label><div id="totalSaldo" style="height:36px;display:flex;align-items:center;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;">Rp 0</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat income"><div class="lbl">Jumlah Penerimaan</div><div class="val" id="statPenerimaan">Rp 0</div></div>
+                    <div class="stat expense"><div class="lbl">Jumlah Pengeluaran</div><div class="val" id="statPengeluaran">Rp 0</div></div>
+                    <div class="stat"><div class="lbl">Perubahan Posisi Kas</div><div class="val" id="statPerubahan">Rp 0</div></div>
+                    <div class="stat"><div class="lbl">Posisi Kas (H)</div><div class="val" id="statPosisiH">Rp 0</div></div>
+                </div>
+
+                <div class="preview-label"><i class="fas fa-file-invoice"></i> Pratinjau Dokumen Laporan (hasil cetak)</div>
+                <div class="kas-doc" id="khDoc"></div>
+            </div>
+
+            <footer class="footer">&copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+
+    <script>
+        // Profil ringkas di topbar
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = nama.trim().charAt(0).toUpperCase() || '?';
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+(function () {
+    'use strict';
+
+    var API = 'api/akuntansi.php';
+    var HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    var BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+                 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    var KOLOM = ['no_sp2d', 'no_sts', 'no_lain', 'uraian', 'penerimaan', 'pengeluaran'];
+    var META = { kota: '', bendahara: '', instansi: '', nipProfil: '' };
+    var tersimpan = false;
+    var disentuh = {};
+
+    function el(id) { return document.getElementById(id); }
+    function esc(t) { var d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+    function toast(msg) { var t = el('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 3000); }
+    function urlAksi(action) { return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action; }
+    function fmtAngka(v) { return Number(v || 0).toLocaleString('id-ID'); }
+    function fmtRp(v) { return 'Rp ' + fmtAngka(v); }
+    function angkaNol(v) { var n = Number(v || 0); return n === 0 ? '-' : fmtAngka(n); }
+    function angkaMentah(teks) {
+        var s = String(teks == null ? '' : teks).replace(/[^\d-]/g, '');
+        if (s === '' || s === '-') return 0;
+        var n = parseInt(s, 10);
+        return isNaN(n) ? 0 : n;
+    }
+    function fmtTglPanjang(s) {
+        if (!s) return '-';
+        var p = String(s).split('-');
+        if (p.length !== 3) return String(s);
+        return parseInt(p[2], 10) + ' ' + BULAN[parseInt(p[1], 10)] + ' ' + p[0];
+    }
+    function hariDariTanggal(s) {
+        var p = String(s || '').split('-');
+        if (p.length !== 3) return '';
+        var d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+        return isNaN(d.getTime()) ? '' : HARI[d.getDay()];
+    }
+    function bulanDariTanggal(s) {
+        var p = String(s || '').split('-');
+        return p.length === 3 ? (BULAN[parseInt(p[1], 10)] || '') : '';
+    }
+    function tanggalHariIni() {
+        var n = new Date();
+        return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
+    }
+
+    // ---- Isian manual di atas dokumen: Nama & NIP Bendahara Umum Daerah ----
+    function bacaSimpanan(kunci) { try { return (localStorage.getItem(kunci) || '').trim(); } catch (e) { return ''; } }
+    function tulisSimpanan(kunci, nilai) { try { if (nilai === '') localStorage.removeItem(kunci); else localStorage.setItem(kunci, nilai); } catch (e) {} }
+    function sinkronIsianManual() {
+        var eNama = el('fNamaBud'), eNip = el('fNip');
+        if (!disentuh.fNamaBud && eNama.value.trim() === '') eNama.value = bacaSimpanan('simtkd_nama_bud') || (META.bendahara || '');
+        if (!disentuh.fNip && eNip.value.trim() === '') eNip.value = bacaSimpanan('simtkd_nip') || (META.nipProfil || '');
+    }
+    function pasangIsianManual() {
+        [['fNamaBud', 'simtkd_nama_bud'], ['fNip', 'simtkd_nip']].forEach(function (pasangan) {
+            var e = el(pasangan[0]);
+            if (!e) return;
+            e.addEventListener('input', function () {
+                disentuh[pasangan[0]] = true;
+                tulisSimpanan(pasangan[1], e.value.trim());
+                renderDoc();
+            });
+        });
+    }
+
+    // ---- Baris transaksi (input manual di dalam tabel) ----
+    function barisKosong() { return { no_sp2d: '', no_sts: '', no_lain: '', uraian: '', penerimaan: 0, pengeluaran: 0 }; }
+
+    function setBaris(tr, data) {
+        KOLOM.forEach(function (k) {
+            var inp = tr.querySelector('input[data-kolom="' + k + '"]');
+            if (!inp) return;
+            if (k === 'penerimaan' || k === 'pengeluaran') {
+                var n = Number(data[k] || 0);
+                inp.value = n !== 0 ? fmtAngka(n) : '';
+            } else {
+                inp.value = data[k] == null ? '' : String(data[k]);
+            }
+        });
+        tr.classList.remove('dirty');
+    }
+
+    function tambahBaris(data, fokus) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td class="no"></td>' +
+            '<td><input type="text" class="kode" data-kolom="no_sp2d" autocomplete="off"></td>' +
+            '<td><input type="text" class="kode" data-kolom="no_sts" autocomplete="off"></td>' +
+            '<td><input type="text" class="kode" data-kolom="no_lain" autocomplete="off"></td>' +
+            '<td><input type="text" data-kolom="uraian" autocomplete="off"></td>' +
+            '<td><input type="text" class="num" data-kolom="penerimaan" inputmode="numeric" autocomplete="off"></td>' +
+            '<td><input type="text" class="num" data-kolom="pengeluaran" inputmode="numeric" autocomplete="off"></td>' +
+            '<td style="text-align:center;"><button type="button" class="btn-mini danger" data-hapus="1" title="Hapus baris ini"><i class="fas fa-xmark"></i></button></td>';
+        el('tbodyKas').appendChild(tr);
+        setBaris(tr, data || barisKosong());
+        if (fokus) { var i = tr.querySelector('input[data-kolom="no_sp2d"]'); if (i) i.focus(); }
+        return tr;
+    }
+
+    function getBaris(tr) {
+        var o = {};
+        KOLOM.forEach(function (k) {
+            var inp = tr.querySelector('input[data-kolom="' + k + '"]');
+            var v = inp ? inp.value.trim() : '';
+            o[k] = (k === 'penerimaan' || k === 'pengeluaran') ? angkaMentah(v) : v;
+        });
+        return o;
+    }
+
+    function isiKosong(o) {
+        return o.no_sp2d === '' && o.no_sts === '' && o.no_lain === '' && o.uraian === '' &&
+               o.penerimaan === 0 && o.pengeluaran === 0;
+    }
+
+    function semuaBaris() {
+        return Array.prototype.map.call(el('tbodyKas').querySelectorAll('tr'), getBaris)
+            .filter(function (o) { return !isiKosong(o); });
+    }
+
+    function nomoriBaris() {
+        Array.prototype.forEach.call(el('tbodyKas').querySelectorAll('tr'), function (tr, i) {
+            var td = tr.querySelector('td.no');
+            if (td) td.textContent = String(i + 1);
+        });
+        el('rowCount').textContent = semuaBaris().length + ' baris';
+    }
+
+    function kotor() {
+        el('statusSimpan').textContent = tersimpan ? 'Ada perubahan belum disimpan' : 'Belum disimpan';
+    }
+
+    // ---- Perhitungan & statistik (live saat mengetik) ----
+    function hitung() {
+        var tp = 0, tk = 0;
+        semuaBaris().forEach(function (o) { tp += o.penerimaan; tk += o.pengeluaran; });
+        var h1 = angkaMentah(el('fPosisiH1').value);
+        var b1 = angkaMentah(el('fBank1Saldo').value);
+        var b2 = angkaMentah(el('fBank2Saldo').value);
+        return { tp: tp, tk: tk, perubahan: tp - tk, h1: h1, h: h1 + tp - tk, bank1: b1, bank2: b2 };
+    }
+
+    function renderStat() {
+        var x = hitung();
+        el('statPenerimaan').textContent = fmtRp(x.tp);
+        el('statPengeluaran').textContent = fmtRp(x.tk);
+        el('statPerubahan').textContent = fmtRp(x.perubahan);
+        el('statPosisiH').textContent = fmtRp(x.h);
+        el('totalSaldo').textContent = 'Rp ' + fmtAngka(x.bank1 + x.bank2);
+    }
+
+    function kopDaerah() {
+        var kota = String(META.kota || '').trim();
+        return kota !== '' ? kota.toUpperCase() : 'PEMERINTAH DAERAH';
+    }
+
+    // ---- Pratinjau dokumen (persis blanko Laporan Posisi Kas Harian) ----
+    function renderDoc() {
+        var doc = el('khDoc');
+        if (!doc) return;
+
+        var x   = hitung();
+        var tgl = el('fTanggal').value;
+        var baris = semuaBaris();
+
+        var isi = baris.map(function (o, i) {
+            return '<tr>' +
+                '<td class="c">' + (i + 1) + '</td>' +
+                '<td class="c">' + esc(o.no_sp2d || '-') + '</td>' +
+                '<td class="c">' + esc(o.no_sts || '-') + '</td>' +
+                '<td class="c">' + esc(o.no_lain || '-') + '</td>' +
+                '<td>' + esc(o.uraian || '-') + '</td>' +
+                '<td class="num">' + angkaNol(o.penerimaan) + '</td>' +
+                '<td class="num">' + angkaNol(o.pengeluaran) + '</td>' +
+            '</tr>';
+        }).join('');
+        if (!isi) isi = '<tr><td colspan="7" class="c" style="padding:10px;">Belum ada baris transaksi.</td></tr>';
+
+        doc.innerHTML =
+            '<div class="kh-head">' +
+              '<div class="pem">' + esc(kopDaerah()) + '</div>' +
+              '<div class="title">LAPORAN POSISI KAS HARIAN</div>' +
+            '</div>' +
+            '<div class="kh-ident">' +
+              '<div class="kh-line"><span class="kh-lbl">HARI</span><span class="kh-sep">:</span><span>' + esc(el('fHari').value || '-') + '</span></div>' +
+              '<div class="kh-line"><span class="kh-lbl">TANGGAL</span><span class="kh-sep">:</span><span>' + esc(fmtTglPanjang(tgl)) + '</span></div>' +
+              '<div class="kh-line"><span class="kh-lbl">PERIODE</span><span class="kh-sep">:</span><span>' + esc(el('fPeriode').value || '-') + '</span></div>' +
+            '</div>' +
+            '<div class="kh-rp">(Rp)</div>' +
+            '<table class="kh">' +
+              '<thead>' +
+                '<tr>' +
+                  '<th rowspan="2" style="width:7%;">No</th>' +
+                  '<th colspan="3">Transaksi</th>' +
+                  '<th rowspan="2">Uraian</th>' +
+                  '<th rowspan="2" style="width:15%;">Penerimaan</th>' +
+                  '<th rowspan="2" style="width:15%;">Pengeluaran</th>' +
+                '</tr>' +
+                '<tr><th style="width:8%;">SP2D</th><th style="width:8%;">STS</th><th style="width:9%;">Lain-lain</th></tr>' +
+                '<tr class="kh-kolom">' +
+                  '<td title="Kolom 1: nomor urut">1</td>' +
+                  '<td colspan="3" title="Kolom 2: nomor transaksi (SP2D / STS / Lain-lain)">2</td>' +
+                  '<td title="Kolom 3: uraian">3</td>' +
+                  '<td title="Kolom 4: penerimaan">4</td>' +
+                  '<td title="Kolom 5: pengeluaran">5</td>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' + isi + '</tbody>' +
+              '<tfoot>' +
+                '<tr class="kh-tebal"><td colspan="5" class="num">Jumlah</td><td class="num">' + angkaNol(x.tp) + '</td><td class="num">' + angkaNol(x.tk) + '</td></tr>' +
+                '<tr class="kh-tebal"><td colspan="5" class="num">Perubahan Posisi Kas Hari ini</td><td class="num">' + angkaNol(x.perubahan) + '</td><td class="num">-</td></tr>' +
+                '<tr class="kh-tebal"><td colspan="6" class="num">Posisi Kas (H-1)</td><td class="num">' + fmtAngka(x.h1) + '</td></tr>' +
+                '<tr class="kh-tebal"><td colspan="6" class="num">Posisi Kas (H)</td><td class="num">' + fmtAngka(x.h) + '</td></tr>' +
+              '</tfoot>' +
+            '</table>' +
+            '<div class="kh-rekap">' +
+              '<div class="judul">Rekapitulasi Posisi Kas di BUD</div>' +
+              '<table class="kh-rekap">' +
+                '<tr><td class="rlabel">' + esc(el('fBank1Nama').value || 'Saldo di Bank 1') + '</td><td class="rrp">Rp</td><td class="rnum">' + fmtAngka(x.bank1) + ',-</td></tr>' +
+                '<tr><td class="rlabel">' + esc(el('fBank2Nama').value || 'Saldo di Bank 2') + '</td><td class="rrp">Rp</td><td class="rnum">' + fmtAngka(x.bank2) + ',-</td></tr>' +
+                '<tr class="kh-tebal"><td class="rlabel">Total Saldo Kas*</td><td class="rrp">Rp</td><td class="rnum">' + fmtAngka(x.bank1 + x.bank2) + ',-</td></tr>' +
+              '</table>' +
+            '</div>' +
+            '<div class="kh-signs">' +
+              '<div class="kh-sign">' +
+                '<p>' + esc((META.kota || '........................') + ', ' + fmtTglPanjang(tgl)) + '</p>' +
+                '<p>Bendahara Umum Daerah,</p>' +
+                '<div class="sig"></div>' +
+                '<p class="name">' + esc(el('fNamaBud').value.trim() || '............................') + '</p>' +
+                (el('fNip').value.trim() ? '<p class="nip">NIP : ' + esc(el('fNip').value.trim()) + '</p>' : '') +
+              '</div>' +
+            '</div>';
+    }
+
+    // ---- Muat dokumen & daftar laporan tersimpan ----
+    function hintPosisi(d) {
+        var h = el('hintPosisi');
+        if (d.sumber_posisi_h1 === 'hari_sebelumnya') {
+            h.innerHTML = '<i class="fas fa-circle-info"></i> Posisi Kas (H-1) terisi otomatis dari <strong>Posisi Kas (H)</strong> laporan ' +
+                esc(fmtTglPanjang(d.posisi_h1_dari)) + ' — silakan ubah bila berbeda.';
+        } else if (d.sumber_posisi_h1 === 'tersimpan') {
+            h.innerHTML = '<i class="fas fa-circle-info"></i> Posisi Kas (H-1) tersimpan untuk tanggal ini (masih dapat diubah).';
+        } else {
+            h.innerHTML = '<i class="fas fa-circle-info"></i> Belum ada laporan sebelumnya — isi Posisi Kas (H-1) secara manual (boleh 0).';
+        }
+    }
+
+    function muat(tanggal) {
+        var tgl = tanggal || el('fTanggal').value || tanggalHariIni();
+        el('fTanggal').value = tgl;
+        el('statusSimpan').textContent = 'Memuat...';
+        fetch(urlAksi('kas_harian') + '&tanggal=' + encodeURIComponent(tgl))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!(d && d.success)) {
+                    el('statusSimpan').textContent = 'Gagal dimuat';
+                    toast((d && d.message) || 'Gagal memuat laporan.');
+                    return;
+                }
+                META.kota       = d.kota || '';
+                META.bendahara  = d.bendahara || '';
+                META.instansi   = d.instansi || '';
+                META.nipProfil  = d.nip || '';
+                tersimpan       = (d.tersimpan === true);
+
+                el('fHari').value    = d.hari || hariDariTanggal(tgl);
+                el('fPeriode').value = d.periode || bulanDariTanggal(tgl);
+                el('fPosisiH1').value = Number(d.posisi_h1 || 0) !== 0 ? fmtAngka(d.posisi_h1) : '0';
+                el('fBank1Nama').value  = d.bank1_nama || 'Saldo di Bank 1';
+                el('fBank2Nama').value  = d.bank2_nama || 'Saldo di Bank 2';
+                el('fBank1Saldo').value = Number(d.bank1_saldo || 0) !== 0 ? fmtAngka(d.bank1_saldo) : '';
+                el('fBank2Saldo').value = Number(d.bank2_saldo || 0) !== 0 ? fmtAngka(d.bank2_saldo) : '';
+                el('fCatatan').value    = d.catatan || '';
+
+                var tb = el('tbodyKas');
+                tb.innerHTML = '';
+                (d.items || []).forEach(function (it) { tambahBaris(it, false); });
+                if (!tb.querySelectorAll('tr').length) tambahBaris();
+
+                sinkronIsianManual();
+                el('statusSimpan').textContent = tersimpan
+                    ? ('Tersimpan' + (d.updated_at ? ' · ' + String(d.updated_at).slice(0, 16) : ''))
+                    : 'Belum disimpan';
+                el('fRiwayat').value = tersimpan ? tgl : '';
+                hintPosisi(d);
+                renderDoc();
+                renderStat();
+                nomoriBaris();
+            })
+            .catch(function (err) {
+                if (window.console && console.error) console.error('Kas Harian: gagal memuat', err);
+                el('statusSimpan').textContent = 'Gagal dimuat';
+                toast('Gagal terhubung ke server API.');
+            });
+    }
+
+    function muatDaftar() {
+        fetch(urlAksi('kas_harian_daftar'))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!(d && d.success)) return;
+                var sel = el('fRiwayat');
+                var nilai = sel.value;
+                var opts = ['<option value="">— Tanggal baru (belum ada laporan) —</option>'];
+                (d.data || []).forEach(function (r) {
+                    opts.push('<option value="' + esc(r.tanggal) + '">' + esc(fmtTglPanjang(r.tanggal) + ' (' + (r.hari || '-') + ') — ' +
+                        r.baris + ' baris · Posisi Kas Rp ' + fmtAngka(r.posisi_h)) + '</option>');
+                });
+                sel.innerHTML = opts.join('');
+                if (nilai !== '') sel.value = nilai;
+            })
+            .catch(function () {});
+    }
+
+    // ---- Simpan / hapus ----
+    function simpan(btn) {
+        var tgl = el('fTanggal').value;
+        if (!tgl) { toast('Tanggal laporan wajib diisi.'); return; }
+
+        var body = new URLSearchParams({
+            tanggal: tgl,
+            hari: el('fHari').value.trim(),
+            periode: el('fPeriode').value.trim(),
+            posisi_h1: String(angkaMentah(el('fPosisiH1').value)),
+            bank1_nama: el('fBank1Nama').value.trim(),
+            bank2_nama: el('fBank2Nama').value.trim(),
+            bank1_saldo: String(angkaMentah(el('fBank1Saldo').value)),
+            bank2_saldo: String(angkaMentah(el('fBank2Saldo').value)),
+            catatan: el('fCatatan').value.trim(),
+            items: JSON.stringify(semuaBaris())
+        });
+
+        var teks = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
+
+        fetch(urlAksi('kas_harian_simpan'), { method: 'POST', body: body })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (btn) { btn.disabled = false; btn.innerHTML = teks; }
+                toast((d && d.message) || (d && d.success ? 'Tersimpan.' : 'Gagal menyimpan.'));
+                if (d && d.success) { muat(tgl); muatDaftar(); }
+            })
+            .catch(function () {
+                if (btn) { btn.disabled = false; btn.innerHTML = teks; }
+                toast('Gagal terhubung ke server API.');
+            });
+    }
+
+    // ---- Event tabel isian manual ----
+    el('tbodyKas').addEventListener('input', function (e) {
+        var inp = e.target;
+        var kolom = (inp && inp.getAttribute) ? inp.getAttribute('data-kolom') : '';
+        if (!kolom) return;
+        var tr = inp.closest('tr');
+        if (tr) tr.classList.add('dirty');
+        kotor();
+        renderDoc(); renderStat(); nomoriBaris();
+    });
+
+    el('tbodyKas').addEventListener('change', function (e) {
+        var inp = e.target;
+        var kolom = (inp && inp.getAttribute) ? inp.getAttribute('data-kolom') : '';
+        if (kolom === 'penerimaan' || kolom === 'pengeluaran') {
+            var n = angkaMentah(inp.value);
+            inp.value = n !== 0 ? fmtAngka(n) : '';
+            renderDoc(); renderStat(); nomoriBaris();
+        }
+    });
+
+    el('tbodyKas').addEventListener('keydown', function (e) {
+        var inp = e.target;
+        if (!inp || !inp.getAttribute || e.key !== 'Enter') return;
+        var kolom = inp.getAttribute('data-kolom');
+        if (!kolom) return;
+        e.preventDefault();
+        var tr = inp.closest('tr');
+        var trs = Array.prototype.slice.call(el('tbodyKas').querySelectorAll('tr'));
+        var idx = KOLOM.indexOf(kolom);
+        if (idx >= 0 && idx < KOLOM.length - 1) {
+            var lanjut = tr.querySelector('input[data-kolom="' + KOLOM[idx + 1] + '"]');
+            if (lanjut) lanjut.focus();
+        } else if (trs.indexOf(tr) === trs.length - 1) {
+            tambahBaris(null, true); kotor(); renderDoc(); nomoriBaris();
+        } else {
+            var tr2 = trs[trs.indexOf(tr) + 1];
+            var inp2 = tr2 ? tr2.querySelector('input[data-kolom="no_sp2d"]') : null;
+            if (inp2) inp2.focus();
+        }
+    });
+
+    el('tbodyKas').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-hapus]');
+        if (!btn) return;
+        var tr = btn.closest('tr');
+        if (tr) tr.remove();
+        if (!el('tbodyKas').querySelectorAll('tr').length) tambahBaris();
+        kotor(); renderDoc(); renderStat(); nomoriBaris();
+    });
+
+    el('btnTambahBaris').addEventListener('click', function () {
+        tambahBaris(null, true); kotor(); renderDoc(); nomoriBaris();
+    });
+
+    el('btnBersihBaris').addEventListener('click', function () {
+        var tb = el('tbodyKas');
+        var trs = Array.prototype.slice.call(tb.querySelectorAll('tr'));
+        var adaKosong = false;
+        trs.forEach(function (tr) {
+            if (isiKosong(getBaris(tr))) {
+                if (adaKosong) tr.remove();
+                else { adaKosong = true; setBaris(tr, barisKosong()); }
+            }
+        });
+        if (!tb.querySelectorAll('tr').length) tambahBaris();
+        if (trs.length !== tb.querySelectorAll('tr').length) kotor();
+        renderDoc(); renderStat(); nomoriBaris();
+        toast('Baris kosong dirapikan.');
+    });
+
+    el('btnSimpan').addEventListener('click', function () { simpan(this); });
+    el('btnSimpan2').addEventListener('click', function () { simpan(this); });
+
+    el('btnHapus').addEventListener('click', function () {
+        var tgl = el('fTanggal').value;
+        if (!tgl) { toast('Tanggal laporan belum dipilih.'); return; }
+        if (!confirm('Hapus laporan tanggal ' + fmtTglPanjang(tgl) + '?')) return;
+        var body = new URLSearchParams({ tanggal: tgl });
+        fetch(urlAksi('kas_harian_hapus'), { method: 'POST', body: body })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                toast((d && d.message) || (d && d.success ? 'Laporan dihapus.' : 'Gagal menghapus.'));
+                if (d && d.success) { muat(tgl); muatDaftar(); }
+            })
+            .catch(function () { toast('Gagal terhubung ke server API.'); });
+    });
+
+    el('fTanggal').addEventListener('change', function () {
+        var t = this.value;
+        if (!t) return;
+        el('fHari').value = hariDariTanggal(t);
+        el('fPeriode').value = bulanDariTanggal(t);
+        muat(t); muatDaftar();
+    });
+
+    el('fRiwayat').addEventListener('change', function () {
+        if (this.value) muat(this.value);
+    });
+
+    el('btnHariIni').addEventListener('click', function () {
+        var t = tanggalHariIni();
+        el('fTanggal').value = t;
+        el('fHari').value = hariDariTanggal(t);
+        el('fPeriode').value = bulanDariTanggal(t);
+        muat(t); muatDaftar();
+    });
+
+    el('fPosisiH1').addEventListener('input', function () { kotor(); renderDoc(); renderStat(); });
+    el('fPosisiH1').addEventListener('change', function () {
+        var n = angkaMentah(this.value);
+        this.value = n !== 0 ? fmtAngka(n) : '0';
+        renderDoc(); renderStat();
+    });
+    ['fBank1Saldo', 'fBank2Saldo'].forEach(function (id) {
+        el(id).addEventListener('input', function () { kotor(); renderDoc(); renderStat(); });
+        el(id).addEventListener('change', function () {
+            var n = angkaMentah(this.value);
+            this.value = n !== 0 ? fmtAngka(n) : '';
+            renderDoc(); renderStat();
+        });
+    });
+    ['fHari', 'fPeriode', 'fBank1Nama', 'fBank2Nama', 'fCatatan'].forEach(function (id) {
+        el(id).addEventListener('input', function () { kotor(); renderDoc(); });
+    });
+
+    // ---- Cetak & kirim tanda tangan ----
+    function cssCetak() {
+        return '*{margin:0;padding:0;box-sizing:border-box;font-family:"Times New Roman",Times,serif;}' +
+            'body{background:#fff;color:#000;font-size:11pt;}' +
+            '.kas-doc{width:100%;padding:8px;color:#000;}' +
+            '.kas-doc .kh-head{text-align:center;margin-bottom:10px;}' +
+            '.kas-doc .kh-head .pem{font-size:12.5pt;font-weight:bold;text-transform:uppercase;}' +
+            '.kas-doc .kh-head .title{font-size:13pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;}' +
+            '.kas-doc .kh-ident{margin-bottom:2px;} .kas-doc .kh-ident .kh-line{display:flex;} .kas-doc .kh-ident .kh-lbl{width:74px;} .kas-doc .kh-ident .kh-sep{width:12px;}' +
+            '.kas-doc .kh-rp{text-align:right;font-size:10.5pt;margin:0 4px 2px 0;}' +
+            '.kas-doc table.kh{width:100%;border-collapse:collapse;table-layout:fixed;}' +
+            '.kas-doc table.kh th,.kas-doc table.kh td{border:1px solid #000;padding:2px 4px;font-size:9.5pt;vertical-align:top;}' +
+            '.kas-doc table.kh th{text-align:center;font-weight:bold;} .kas-doc table.kh tr.kh-kolom td{text-align:center;font-weight:bold;}' +
+            '.kas-doc table.kh td.c{text-align:center;} .kas-doc table.kh td.num{text-align:right;white-space:nowrap;}' +
+            '.kas-doc table.kh tr.kh-tebal td{font-weight:bold;}' +
+            '.kas-doc .kh-rekap{margin-top:14px;} .kas-doc .kh-rekap .judul{font-weight:bold;margin-bottom:3px;}' +
+            '.kas-doc table.kh-rekap{border-collapse:collapse;} .kas-doc table.kh-rekap td{padding:1px 0;}' +
+            '.kas-doc table.kh-rekap td.rlabel{width:190px;} .kas-doc table.kh-rekap td.rrp{width:34px;}' +
+            '.kas-doc table.kh-rekap td.rnum{width:190px;text-align:right;border-bottom:1px dotted #444;}' +
+            '.kas-doc table.kh-rekap tr.kh-tebal td{font-weight:bold;}' +
+            '.kas-doc .kh-signs{margin-top:28px;display:flex;justify-content:flex-end;}' +
+            '.kas-doc .kh-sign{text-align:center;min-width:270px;} .kas-doc .kh-sign p{margin:0;line-height:1.6;}' +
+            '.kas-doc .kh-sign .sig{height:66px;} .kas-doc .kh-sign .name{font-weight:bold;} .kas-doc .kh-sign .nip{font-size:10pt;}' +
+            '@page{size:A4 portrait;margin:12mm;}';
+    }
+
+    el('btnCetak').addEventListener('click', function () {
+        renderDoc();
+        setTimeout(function () { window.print(); }, 60);
+    });
+
+    el('btnKirimTtd').addEventListener('click', function () {
+        var btn = this;
+        var tgl = el('fTanggal').value;
+        if (!tgl) { toast('Tanggal laporan belum diisi.'); return; }
+        if (!semuaBaris().length) { toast('Belum ada baris transaksi untuk dikirim.'); return; }
+
+        renderDoc();
+        var judul = 'Laporan Posisi Kas Harian - ' + fmtTglPanjang(tgl);
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+        var body = new URLSearchParams({
+            jenis: 'Laporan Posisi Kas Harian',
+            nomor: '',
+            judul: judul,
+            tanggal: tgl,
+            konten_html: '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(judul) + '</title><style>' +
+                cssCetak() + '</style></head><body style="margin:0;background:#fff;">' + el('khDoc').innerHTML + '</body></html>'
+        });
+        body.append('penandatangan', JSON.stringify([
+            { user: 'self', urutan: 1, jabatan: 'Bendahara Umum Daerah', nama: el('fNamaBud').value.trim() || META.bendahara || '' }
+        ]));
+
+        fetch(urlAksi('dokumen_kirim'), { method: 'POST', body: body })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d && d.success) {
+                    toast(d.message || 'Dokumen terkirim ke antrean tanda tangan.');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                    setTimeout(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                    }, 3000);
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                    toast((d && d.message) || 'Gagal mengirim dokumen.');
+                }
+            })
+            .catch(function () {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                toast('Gagal terhubung ke server API.');
+            });
+    });
+
+    // ---- Inisialisasi ----
+    pasangIsianManual();
+    el('fTanggal').value = tanggalHariIni();
+    el('fHari').value = hariDariTanggal(el('fTanggal').value);
+    el('fPeriode').value = bulanDariTanggal(el('fTanggal').value);
+    renderDoc();
+    muat(el('fTanggal').value);
+    muatDaftar();
+})();
+
+
+
+
+
+    </script>
+
+</body>
+</html>
+
+

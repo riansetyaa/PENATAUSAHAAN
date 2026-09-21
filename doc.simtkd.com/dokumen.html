@@ -37,13 +37,7 @@
 
     <div class="body-wrap">
         <!-- ================= SIDEBAR (senada AKLAP) ================= -->
-        <aside class="sidebar">
-            <div class="side-title">Menu</div>
-            <a href="index.html" class="side-link"><i class="fas fa-file-lines"></i> Daftar Dokumen</a>
-            <a href="verify.html" class="side-link"><i class="fas fa-shield-halved"></i> Verifikasi Dokumen</a>
-            <div class="side-title">Lainnya</div>
-            <a href="https://simtkd.com/dashboard.html" data-back-main class="side-link"><i class="fas fa-arrow-left"></i> Kembali ke SIM-TKD</a>
-        </aside>
+        <aside class="sidebar"></aside>
 
         <!-- ================= MAIN ================= -->
         <main class="main">
@@ -143,6 +137,7 @@
                     <h3><i class="fas fa-circle-check ok"></i> Dokumen Ditandatangani</h3>
                     <div class="info-row"><span class="k">Penandatangan</span><span class="v" id="sNama">—</span></div>
                     <div class="info-row"><span class="k">Jabatan</span><span class="v" id="sJabatan">—</span></div>
+                    <div class="info-row"><span class="k">NIP</span><span class="v" id="sNip">—</span></div>
                     <div class="info-row"><span class="k">Waktu</span><span class="v" id="sWaktu">—</span></div>
                     <div class="btn-row mt">
                         <button type="button" class="btn btn-sm" id="btnCetak"><i class="fas fa-print"></i> Cetak / Simpan PDF</button>
@@ -160,6 +155,7 @@
     <div id="toast" class="toast"></div>
 
     <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
     <script src="js/sidebar.js"></script>
     <script>
     (function () {
@@ -228,6 +224,7 @@
                 document.getElementById('iTtd').textContent = d.signed_at_fmt || '-';
                 document.getElementById('sNama').textContent = d.ttd_nama || '-';
                 document.getElementById('sJabatan').textContent = d.ttd_jabatan || '-';
+                document.getElementById('sNip').textContent = d.ttd_nip || '-';
                 document.getElementById('sWaktu').textContent = d.waktu_ttd || '-';
                 document.getElementById('btnVerifPublik').href = 'verify.html?kode=' + encodeURIComponent(d.kode_verifikasi || '');
             } else {

@@ -41,6 +41,7 @@ jsonResponse(true, 'Autentikasi valid.', [
     'user' => [
         'id'       => $_SESSION['user_id'] ?? null,
         'nama'     => $_SESSION['nama'] ?? '',
+        'nip'      => $_SESSION['nip'] ?? '',
         'username' => $_SESSION['username'] ?? '',
         'email'    => $_SESSION['email'] ?? '',
         'instansi' => $_SESSION['instansi'] ?? '',

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPJ Bendahara Pengeluaran PPKD - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #16305a; --navy-dark: #0e2140; --navy-mid: #1d3a6e;
+            --blue: #1f6feb; --green: #16a34a; --green-dark: #15803d;
+            --bg: #eef1f6; --card: #ffffff; --border: #d8dee9;
+            --text: #1f2937; --muted: #6b7280;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 58px; box-shadow: 0 2px 6px rgba(0,0,0,.2); position: relative; z-index: 20; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .sidebar { width: 236px; background: var(--navy-dark); color: #cbd5e1; flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px; transition: margin-left .25s ease; }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: #7d8db1; padding: 14px 18px 6px; }
+        .side-link { display: flex; align-items: center; gap: 11px; padding: 10px 18px; color: #cbd5e1; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .side-group .side-link { cursor: pointer; }
+        .side-arrow { margin-left: auto; font-size: 11px; transition: transform .2s; color: #7d8db1; }
+        .side-group.open .side-arrow { transform: rotate(90deg); }
+        .side-sub { display: none; padding-left: 10px; }
+        .side-sub.open { display: block; }
+        .side-sub .side-link { padding: 8px 16px; font-size: 13px; color: #9fb0d3; }
+        .side-sub .side-link i { font-size: 12px; }
+        .side-sub .side-link:hover { color: #fff; }
+        .side-sub .side-link.active { color: #fff; background: var(--navy-mid); border-left-color: #4c9aff; }
+        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back { background: var(--navy); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+        .btn-back:hover { background: var(--navy-mid); }
+        .footer { text-align: center; padding: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+    </style>
+    <style>
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; max-width: 720px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 18px; }
+        .card-head { padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 16px 18px; }
+        .filter-grid { display: grid; gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select, .filter-field input { height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%; }
+        .filter-field select:focus, .filter-field input:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .filter-actions { display: flex; gap: 10px; }
+        .btn { border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; height: 36px; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-dark { background: var(--navy-mid); color: #fff; }
+        .btn-dark:hover { background: var(--navy); }
+        .btn-muted { background: #e2e8f0; color: var(--text); }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+        .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(16,24,40,.06); }
+        .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; }
+        .stat .val { font-size: 17px; font-weight: 700; color: var(--navy); margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .stat.income .val { color: #15803d; }
+        .stat.expense .val { color: #b45309; }
+        .preview-label { font-weight: 700; color: var(--navy); font-size: 13.5px; margin: 6px 0 10px; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99; background: var(--navy-dark); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        @media (max-width: 1024px) { .filter-grid { grid-template-columns: repeat(2, 1fr) !important; } .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; } .filter-grid { grid-template-columns: 1fr !important; } .stat-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand"><b>AKLAP · SIM-TKD</b><span>Aplikasi Laporan Akuntansi Pemerintahan</span></div>
+        </div>
+        <div class="topbar-right">
+            <div class="region"><b id="regionProvinsi">-</b><span id="regionKota">-</span></div>
+            <div class="topbar-user"><div class="avatar" id="regionAvatar">?</div><span id="regionNama" style="font-size:13px;">-</span></div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb"><i class="fas fa-house"></i> <a href="index.html">Home</a><i class="fas fa-chevron-right"></i><span class="current">LPJ Bendahara Pengeluaran PPKD</span></div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>LPJ Bendahara Pengeluaran PPKD</h1>
+                        <p>Laporan Pertanggungjawaban Bendahara Pengeluaran PPKD (blanko Modul-3E-LK). Rincian diambil dari <a href="buku-pengeluaran-ppkd.html" style="color:var(--blue);">Buku Kas Pengeluaran PPKD</a> (hanya kode rekening yang sudah ada realisasinya) dengan pagu dari Anggaran; baris rekonsiliasi Penerimaan/Pengeluaran diambil dari <a href="buku-penerimaan-ppkd.html" style="color:var(--blue);">Buku Kas Penerimaan PPKD</a>.</p>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <input type="text" id="fNamaPpkd" placeholder="Nama PPKD (manual)" title="Nama pejabat PPKD yang mengentahui/menyetujui (blok tanda tangan kiri)"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:210px;background:#fff;color:var(--text);">
+                        <input type="text" id="fNipPpkd" placeholder="NIP PPKD (opsional)" title="NIP pejabat PPKD (opsional)"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:170px;background:#fff;color:var(--text);">
+                        <input type="text" id="fNip" placeholder="NIP Bendahara (dari Profil)" title="NIP Bendahara Pengeluaran PPKD — otomatis dari Profil, dapat ditimpa manual"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:200px;background:#fff;color:var(--text);">
+                        <button class="btn btn-muted" id="btnCetak"><i class="fas fa-print"></i> Cetak</button>
+                        <button class="btn btn-dark" id="btnKirimTtd"><i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-filter"></i> Periode Laporan</div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr); max-width:820px;">
+                            <div class="filter-field"><label>Bulan</label><select id="fBulan"></select></div>
+                            <div class="filter-field"><label>Tahun Anggaran</label><select id="fTahun"></select></div>
+                            <div class="filter-field">
+                                <label>&nbsp;</label>
+                                <div class="filter-actions">
+                                    <button class="btn btn-primary" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                                    <button class="btn btn-muted" id="btnBulanIni"><i class="fas fa-calendar-day"></i> Bulan Ini</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat"><div class="lbl">Baris Rincian</div><div class="val" id="statBaris">0</div></div>
+                    <div class="stat expense"><div class="lbl">SPJ - LS Bulan Ini</div><div class="val" id="statBulanIni">Rp 0</div></div>
+                    <div class="stat"><div class="lbl">SPJ - LS s.d. Bulan Ini</div><div class="val" id="statSdIni">Rp 0</div></div>
+                    <div class="stat"><div class="lbl">Saldo Kas s.d. Bulan Ini</div><div class="val" id="statSaldo">Rp 0</div></div>
+                </div>
+
+                <div class="preview-label"><i class="fas fa-file-invoice"></i> Pratinjau Dokumen LPJ (hasil cetak)</div>
+                <div class="lpj-doc" id="lpjDoc"></div>
+            </div>
+
+            <footer class="footer">&copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+    <style>
+        /* ===== Blanko LPJ Bendahara Pengeluaran PPKD (pratinjau & cetak) ===== */
+        #lpjDoc { width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 24px 26px; margin: 0 auto 18px; color: #000; font-family: "Times New Roman", Times, serif; font-size: 12px; line-height: 1.4; overflow-x: auto; }
+        #lpjDoc .lpj-head { text-align: center; margin-bottom: 8px; }
+        #lpjDoc .lpj-head .modul { font-size: 10.5px; }
+        #lpjDoc .lpj-head .pem { font-size: 13px; font-weight: 700; text-transform: uppercase; }
+        #lpjDoc .lpj-head .title { font-size: 14px; font-weight: 700; text-transform: uppercase; }
+        #lpjDoc .lpj-info { font-size: 11.5px; margin: 0 0 4px; }
+        #lpjDoc .lpj-info div { display: flex; }
+        #lpjDoc .lpj-info .k { width: 190px; }
+        #lpjDoc .lpj-info .s { width: 12px; }
+        #lpjDoc .lpj-rp { text-align: right; font-size: 11.5px; margin: 0 2px 2px 0; }
+        #lpjDoc table.lpj { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        #lpjDoc table.lpj th, #lpjDoc table.lpj td { border: 1px solid #000; padding: 3px 5px; font-size: 10.5px; vertical-align: top; }
+        #lpjDoc table.lpj th { text-align: center; font-weight: 700; }
+        #lpjDoc table.lpj th.garis { text-decoration: underline; }
+        #lpjDoc table.lpj td.num { text-align: right; white-space: nowrap; }
+        #lpjDoc table.lpj td.c { text-align: center; }
+        #lpjDoc table.lpj tr.baris-tebal td { font-weight: 700; }
+        #lpjDoc table.lpj tr.baris-grup td { font-weight: 700; }
+        #lpjDoc table.lpj tbody tr.fill td { height: 19px; border-bottom-style: dotted; }
+        #lpjDoc .lpj-signs { margin-top: 24px; display: flex; justify-content: space-between; gap: 40px; font-size: 11.5px; }
+        #lpjDoc .lpj-sign { flex: 1; text-align: center; }
+        #lpjDoc .lpj-sign p { margin: 0; line-height: 1.6; }
+        #lpjDoc .lpj-sign .sig { height: 74px; }
+        #lpjDoc .lpj-sign .name { font-weight: 700; }
+        #lpjDoc .lpj-sign .nip { font-size: 10.5px; }
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            body { background: #fff !important; display: block; }
+            .topbar, .breadcrumb-bar, .sidebar, .footer, #toast, .page-head, .card, .stat-grid, .preview-label { display: none !important; }
+            .content { padding: 0 !important; }
+            #lpjDoc { display: block !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+        }
+    </style>
+
+    <script>
+        // Profil ringkas di topbar
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = nama.trim().charAt(0).toUpperCase() || '?';
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+(function () {
+    'use strict';
+
+    var API = 'api/akuntansi.php';
+    var BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+                 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    var DATA = null;      // respons lpj_ppkd
+    var disentuh = {};    // isian manual yang sudah diisi/diubah pengguna sesi ini
+    var META = { kota: '', bendahara: '', instansi: '', tahun: '', bulan: '', bulan_nama: '', tgl_laporan: '',
+                 nip: '', nipProfil: '', namaPpkd: '', nipPpkd: '' };
+
+    function esc(t) { var d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+    function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2800); }
+    function urlAksi(action) { return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action; }
+    function fmtAngka(v) { return Number(v || 0).toLocaleString('id-ID'); }
+    function fmtRp(v) { return 'Rp ' + fmtAngka(v); }
+    // Blanko resmi: nilai nol ditulis "-" (kolom 4,5,6,7)
+    function angkaNol(v) { var n = Number(v || 0); return n === 0 ? '-' : fmtAngka(n); }
+    function angka(v) { return fmtAngka(v); }
+    function fmtTglPanjang(s) {
+        if (!s) return '-';
+        var p = String(s).split('-');
+        if (p.length !== 3) return String(s);
+        return parseInt(p[2], 10) + ' ' + BULAN[parseInt(p[1], 10)] + ' ' + p[0];
+    }
+
+    function isiPilihanPeriode() {
+        var sekarang = new Date();
+        var selB = document.getElementById('fBulan');
+        var opsi = '';
+        for (var i = 1; i <= 12; i++) {
+            opsi += '<option value="' + i + '"' + (i === (sekarang.getMonth() + 1) ? ' selected' : '') + '>' + BULAN[i] + '</option>';
+        }
+        selB.innerHTML = opsi;
+
+        var tahunIni = sekarang.getFullYear();
+        var selT = document.getElementById('fTahun');
+        var daftar = [];
+        for (var t = tahunIni + 1; t >= tahunIni - 4; t--) daftar.push(t);
+        selT.innerHTML = daftar.map(function (x) {
+            return '<option value="' + x + '"' + (x === tahunIni ? ' selected' : '') + '>' + x + '</option>';
+        }).join('');
+    }
+
+    function urlList() {
+        return urlAksi('lpj_ppkd')
+            + '&tahun=' + encodeURIComponent(document.getElementById('fTahun').value)
+            + '&bulan=' + encodeURIComponent(document.getElementById('fBulan').value);
+    }
+
+    function loadData() {
+        var doc = document.getElementById('lpjDoc');
+        doc.innerHTML = '<div style="padding:24px;text-align:center;color:#9aa4b2;">Memuat data LPJ...</div>';
+        fetch(urlList())
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (!(d && d.success)) {
+                    doc.innerHTML = '<div style="padding:24px;text-align:center;color:#b91c1c;">' + esc((d && d.message) || 'Gagal memuat data LPJ.') + '</div>';
+                    return;
+                }
+                DATA = d;
+                META.kota = d.kota || '';
+                META.bendahara = d.bendahara || '';
+                META.instansi = d.instansi || '';
+                META.tahun = String(d.tahun || '');
+                META.bulan = String(d.bulan || '');
+                META.bulan_nama = d.bulan_nama || '';
+                META.tgl_laporan = d.tgl_laporan || '';
+                META.nipProfil = d.nip || '';
+                sinkronIsianManual();
+                renderDoc();
+                renderStat();
+            })
+            .catch(function (err) {
+                if (window.console && console.error) console.error('LPJ: gagal memuat', err);
+                doc.innerHTML = '<div style="padding:24px;text-align:center;color:#b91c1c;">Gagal memuat data. (' + esc((err && err.message) || 'unknown') + ')</div>';
+            });
+    }
+
+    function renderStat() {
+        if (!DATA) return;
+        document.getElementById('statBaris').textContent = (DATA.jumlah_baris || 0);
+        document.getElementById('statBulanIni').textContent = fmtRp(DATA.jumlah_rincian ? DATA.jumlah_rincian.bulan_ini : 0);
+        document.getElementById('statSdIni').textContent = fmtRp(DATA.jumlah_rincian ? DATA.jumlah_rincian.sd_ini : 0);
+        document.getElementById('statSaldo').textContent = fmtRp(DATA.saldo_kas ? DATA.saldo_kas.sd_ini : 0);
+    }
+    // ---- Isian manual di atas dokumen: Nama PPKD, NIP PPKD, NIP Bendahara ----
+    // NIP bendahara otomatis dari Profil (dapat ditimpa manual); semuanya
+    // tersimpan di localStorage agar tidak perlu diketik ulang.
+    function bacaSimpanan(kunci) {
+        try { return (localStorage.getItem(kunci) || '').trim(); } catch (e) { return ''; }
+    }
+    function tulisSimpanan(kunci, nilai) {
+        try {
+            if (nilai === '') localStorage.removeItem(kunci);
+            else localStorage.setItem(kunci, nilai);
+        } catch (e) { /* localStorage tidak tersedia */ }
+    }
+    function sinkronIsianManual() {
+        var elNama = document.getElementById('fNamaPpkd');
+        var elNipP = document.getElementById('fNipPpkd');
+        var elNip  = document.getElementById('fNip');
+        // Nilai awal hanya diambil dari localStorage/Profil selama isian belum
+        // disentuh pengguna pada sesi ini -> isian tetap bisa dikosongkan.
+        if (!disentuh.fNamaPpkd && elNama.value.trim() === '') elNama.value = bacaSimpanan('simtkd_nama_ppkd');
+        if (!disentuh.fNipPpkd && elNipP.value.trim() === '') elNipP.value = bacaSimpanan('simtkd_nip_ppkd');
+        if (!disentuh.fNip && elNip.value.trim() === '') elNip.value = bacaSimpanan('simtkd_nip') || (META.nipProfil || '');
+        META.namaPpkd = elNama.value.trim();
+        META.nipPpkd  = elNipP.value.trim();
+        META.nip      = elNip.value.trim();
+    }
+
+    function pasangIsianManual() {
+        [['fNamaPpkd', 'simtkd_nama_ppkd'], ['fNipPpkd', 'simtkd_nip_ppkd'], ['fNip', 'simtkd_nip']].forEach(function (pasangan) {
+            var el = document.getElementById(pasangan[0]);
+            if (!el) return;
+            el.addEventListener('input', function () {
+                disentuh[pasangan[0]] = true;
+                tulisSimpanan(pasangan[1], el.value.trim());
+                sinkronIsianManual();
+                renderDoc();
+            });
+        });
+    }
+
+    function kopPemerintah() {
+        var kota = String(META.kota || '').trim();
+        return kota ? ('PEMERINTAH ' + kota.toUpperCase()) : 'PEMERINTAH DAERAH';
+    }
+
+    function barisRincian(r) {
+        return '<tr>' +
+            '<td class="c">' + esc(r.kode_rekening) + '</td>' +
+            '<td>' + esc(r.uraian || '-') + '</td>' +
+            '<td class="num">' + angka(r.anggaran) + '</td>' +
+            '<td class="num">' + angkaNol(r.sd_lalu) + '</td>' +
+            '<td class="num">' + angkaNol(r.bulan_ini) + '</td>' +
+            '<td class="num">' + angkaNol(r.sd_ini) + '</td>' +
+            '<td class="num">' + angkaNol(r.sisa) + '</td>' +
+        '</tr>';
+    }
+
+    // Baris blok rekonsiliasi: nilai pada kolom 4 / 5 / 6 (nol -> '-')
+    function barisBlok(label, d, tebal) {
+        var c4 = '-', c5 = '-', c6 = '-';
+        if (d) { c4 = angkaNol(d.sd_lalu); c5 = angkaNol(d.bulan_ini); c6 = angkaNol(d.sd_ini); }
+        return '<tr class="' + (tebal ? 'baris-tebal' : '') + '">' +
+            '<td></td><td>' + label + '</td><td></td>' +
+            '<td class="num">' + c4 + '</td><td class="num">' + c5 + '</td><td class="num">' + c6 + '</td><td></td>' +
+        '</tr>';
+    }
+
+    function barisGrup(label) {
+        return '<tr class="baris-grup"><td></td><td>' + label + '</td><td></td><td></td><td></td><td></td><td></td></tr>';
+    }
+
+    // Gabungan baris "Potongan Pajak"/"Penyetoran Pajak" (PPN + PPh) atau null
+    function gabungPajak(b) {
+        if (!b) return null;
+        var kunci = ['ppn', 'pph21', 'pph22', 'pph23'];
+        var d = { sd_lalu: 0, bulan_ini: 0, sd_ini: 0 };
+        var ada = false;
+        kunci.forEach(function (k) {
+            if (!b[k]) return;
+            d.sd_lalu += Number(b[k].sd_lalu || 0);
+            d.bulan_ini += Number(b[k].bulan_ini || 0);
+            d.sd_ini += Number(b[k].sd_ini || 0);
+        });
+        ada = d.sd_ini !== 0 || d.bulan_ini !== 0 || d.sd_lalu !== 0;
+        return ada ? d : null;
+    }
+
+    function renderDoc() {
+        var doc = document.getElementById('lpjDoc');
+        if (!doc) return;
+        if (!DATA) { doc.innerHTML = ''; return; }
+
+        var jr = DATA.jumlah_rincian || { anggaran: 0, sd_lalu: 0, bulan_ini: 0, sd_ini: 0, sisa: 0 };
+        var pn = DATA.penerimaan || {};
+        var pg = DATA.pengeluaran || {};
+        var saldo = DATA.saldo_kas || { bulan_ini: 0, sd_ini: 0 };
+
+        var detail = (DATA.rincian || []).map(barisRincian).join('');
+        if (!detail) {
+            detail = '<tr><td colspan="7" class="c" style="padding:10px;">Belum ada pengeluaran pada periode ini (rincian kosong).</td></tr>';
+        }
+        doc.innerHTML =
+            '<div class="lpj-head">' +
+              '<div class="modul">Modul-3E-LK Output Penata SKPKD-Pemda</div>' +
+              '<div class="pem">' + esc(kopPemerintah()) + '</div>' +
+              '<div class="title">LAPORAN PERTANGGUNGJAWABAN BENDAHARA PENGELUARAN PPKD</div>' +
+            '</div>' +
+            '<div class="lpj-info">' +
+              '<div><span class="k">Bendahara Pengeluaran PPKD</span><span class="s">:</span><span>' + esc(META.bendahara || '............................') + '</span></div>' +
+              '<div><span class="k">Tahun Anggaran</span><span class="s">:</span><span>' + esc(META.tahun || '-') + '</span></div>' +
+              '<div><span class="k">Bulan</span><span class="s">:</span><span>' + esc(META.bulan_nama || '-') + '</span></div>' +
+            '</div>' +
+            '<div class="lpj-rp">(Rp)</div>' +
+            '<table class="lpj">' +
+              '<thead>' +
+                '<tr>' +
+                  '<th rowspan="2">Kode<br>Rekening</th>' +
+                  '<th rowspan="2" class="garis">Uraian</th>' +
+                  '<th rowspan="2" class="garis">Jumlah<br>Anggaran</th>' +
+                  '<th colspan="3" class="garis">SPJ - LS PPKD *)</th>' +
+                  '<th rowspan="2">Sisa Pagu<br>Anggaran</th>' +
+                '</tr>' +
+                '<tr>' +
+                  '<th class="garis">s.d Bulan lalu</th>' +
+                  '<th class="garis">Bulan ini</th>' +
+                  '<th class="garis">s.d. Bulan ini</th>' +
+                '</tr>' +
+                '<tr>' +
+                  '<td class="c">1</td><td class="c">2</td><td class="c">3</td>' +
+                  '<td class="c">4</td><td class="c">5</td><td class="c">6=(4+5)</td><td class="c">7=(3-6)</td>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' +
+                detail +
+                '<tr class="baris-tebal">' +
+                  '<td class="c">JUMLAH</td><td></td>' +
+                  '<td class="num">' + angka(jr.anggaran) + '</td>' +
+                  '<td class="num">' + angkaNol(jr.sd_lalu) + '</td>' +
+                  '<td class="num">' + angkaNol(jr.bulan_ini) + '</td>' +
+                  '<td class="num">' + angkaNol(jr.sd_ini) + '</td>' +
+                  '<td class="num">' + angkaNol(jr.sisa) + '</td>' +
+                '</tr>' +
+                barisGrup('Penerimaan') +
+                barisBlok('- SP2D', pn.sp2d) +
+                barisBlok('- Potongan Pajak', gabungPajak(pn)) +
+                barisBlok('a. PPN', pn.ppn) +
+                barisBlok('b. PPh-21', pn.pph21) +
+                barisBlok('c. PPh-22', pn.pph22) +
+                barisBlok('d. PPh-23', pn.pph23) +
+                barisBlok('- Lain-lain dari PFK', pn.pfk) +
+                barisBlok('Jumlah Penerimaan', pn.jumlah, true) +
+                barisGrup('Pengeluaran') +
+                barisBlok('- SPJ (LS)', pg.spj) +
+                barisBlok('- Penyetoran Pajak', gabungPajak(pg)) +
+                barisBlok('a. PPN', pg.ppn) +
+                barisBlok('b. PPh-21', pg.pph21) +
+                barisBlok('c. PPh-22', pg.pph22) +
+                barisBlok('d. PPh-23', pg.pph23) +
+                barisBlok('- Lain-lain Pengeluaran PFK', pg.pfk) +
+                barisBlok('Jumlah Pengeluaran', pg.jumlah, true) +
+                '<tr class="baris-tebal">' +
+                  '<td>Saldo Kas</td><td></td><td></td><td></td>' +
+                  '<td class="num">' + (Number(saldo.bulan_ini || 0) === 0 ? '0,-' : fmtAngka(saldo.bulan_ini)) + '</td>' +
+                  '<td class="num">' + (Number(saldo.sd_ini || 0) === 0 ? '0,-' : fmtAngka(saldo.sd_ini)) + '</td>' +
+                  '<td></td>' +
+                '</tr>' +
+              '</tbody>' +
+            '</table>' +
+            '<div class="lpj-signs">' +
+              '<div class="lpj-sign">' +
+                '<p>Mengentahui PPKD</p>' +
+                '<div class="sig"></div>' +
+                '<p class="name">( ' + esc(META.namaPpkd || '..........................................') + ' )</p>' +
+                (META.nipPpkd ? '<p class="nip">NIP : ' + esc(META.nipPpkd) + '</p>' : '') +
+              '</div>' +
+              '<div class="lpj-sign">' +
+                '<p>' + esc((META.kota || '........................') + ', ' + fmtTglPanjang(META.tgl_laporan)) + '</p>' +
+                '<p>Bendahara Pengeluaran PPKD</p>' +
+                '<div class="sig"></div>' +
+                '<p class="name">( ' + esc(META.bendahara || '............................') + ' )</p>' +
+                (META.nip ? '<p class="nip">NIP : ' + esc(META.nip) + '</p>' : '') +
+              '</div>' +
+            '</div>';
+    }
+    function cssCetak() {
+        return '*{margin:0;padding:0;box-sizing:border-box;font-family:"Times New Roman",Times,serif;}' +
+            'body{background:#fff;color:#000;font-size:11pt;}' +
+            '.lpj-doc{width:100%;padding:10px;color:#000;}' +
+            '.lpj-doc .lpj-head{text-align:center;margin-bottom:8px;}' +
+            '.lpj-doc .lpj-head .modul{font-size:10pt;} .lpj-doc .lpj-head .pem{font-size:12.5pt;font-weight:bold;text-transform:uppercase;}' +
+            '.lpj-doc .lpj-head .title{font-size:13pt;font-weight:bold;text-transform:uppercase;}' +
+            '.lpj-doc .lpj-info{font-size:10.5pt;margin-bottom:4px;} .lpj-doc .lpj-info div{display:flex;}' +
+            '.lpj-doc .lpj-info .k{width:180px;} .lpj-doc .lpj-info .s{width:12px;}' +
+            '.lpj-doc .lpj-rp{text-align:right;font-size:10.5pt;margin:0 2px 2px 0;}' +
+            '.lpj-doc table.lpj{width:100%;border-collapse:collapse;table-layout:fixed;}' +
+            '.lpj-doc table.lpj th,.lpj-doc table.lpj td{border:1px solid #000;padding:2px 4px;font-size:9pt;vertical-align:top;}' +
+            '.lpj-doc table.lpj th{text-align:center;font-weight:bold;} .lpj-doc table.lpj th.garis{text-decoration:underline;}' +
+            '.lpj-doc table.lpj td.num{text-align:right;white-space:nowrap;} .lpj-doc table.lpj td.c{text-align:center;}' +
+            '.lpj-doc table.lpj tr.baris-tebal td,.lpj-doc table.lpj tr.baris-grup td{font-weight:bold;}' +
+            '.lpj-doc .lpj-signs{margin-top:22px;display:flex;justify-content:space-between;gap:36px;font-size:10.5pt;}' +
+            '.lpj-doc .lpj-sign{flex:1;text-align:center;} .lpj-doc .lpj-sign p{margin:0;line-height:1.55;}' +
+            '.lpj-doc .lpj-sign .sig{height:70px;} .lpj-doc .lpj-sign .name{font-weight:bold;}' +
+            '.lpj-doc .lpj-sign .nip{font-size:10pt;}' +
+            '@page{size:A4 landscape;margin:10mm;}';
+    }
+
+    document.getElementById('btnCetak').addEventListener('click', function () {
+        if (!DATA || !(DATA.rincian || []).length) { toast('Belum ada data pengeluaran pada periode ini untuk dicetak.'); return; }
+        renderDoc();
+        setTimeout(function () { window.print(); }, 60);
+    });
+
+    document.getElementById('btnTampilkan').addEventListener('click', loadData);
+
+    document.getElementById('btnBulanIni').addEventListener('click', function () {
+        var now = new Date();
+        document.getElementById('fBulan').value = String(now.getMonth() + 1);
+        document.getElementById('fTahun').value = String(now.getFullYear());
+        loadData();
+    });
+
+    document.getElementById('fBulan').addEventListener('change', loadData);
+    document.getElementById('fTahun').addEventListener('change', loadData);
+
+    document.getElementById('btnKirimTtd').addEventListener('click', function () {
+        var btn = this;
+        if (!DATA || !(DATA.rincian || []).length) { toast('Belum ada data untuk dikirim.'); return; }
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+        renderDoc();
+        var body = new URLSearchParams({
+            jenis: 'LPJ Bendahara Pengeluaran PPKD',
+            nomor: '',
+            judul: 'LPJ Bendahara Pengeluaran PPKD - ' + (META.bulan_nama || '') + ' ' + (META.tahun || ''),
+            tanggal: META.tgl_laporan || '',
+            konten_html: '<!DOCTYPE html><html><head><meta charset="utf-8"><title>LPJ Bendahara Pengeluaran PPKD</title><style>' +
+                cssCetak() + '</style></head><body style="margin:0;background:#fff;">' +
+                document.getElementById('lpjDoc').innerHTML + '</body></html>'
+        });
+        body.append('penandatangan', JSON.stringify([
+            { user: 'self', urutan: 1, jabatan: 'Bendahara Pengeluaran PPKD', nama: META.bendahara || '' }
+        ]));
+
+        fetch(urlAksi('dokumen_kirim'), { method: 'POST', body: body })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (d && d.success) {
+                    toast(d.message || 'Dokumen terkirim ke antrean tanda tangan.');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                    setTimeout(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan'; }, 3000);
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                    toast((d && d.message) || 'Gagal mengirim dokumen.');
+                }
+            })
+            .catch(function () {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                toast('Gagal terhubung ke server API.');
+            });
+    });
+
+    isiPilihanPeriode();
+    pasangIsianManual();
+    loadData();
+})();
+    </script>
+</body>
+</html>

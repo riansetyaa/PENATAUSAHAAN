@@ -73,7 +73,10 @@
         '.cs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px 14px; }',
         '.cs-field label { display: block; font-size: 11px; font-weight: 600; color: #5a6c7d; margin-bottom: 5px; }',
         '.cs-field input[type="number"], .cs-field select { width: 100%; padding: 8px 10px; border: 1px solid #d0d5dd; border-radius: 7px; font-size: 13px; font-family: inherit; color: #111; background: #fff; }',
+        '.cs-field input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid #d0d5dd; border-radius: 7px; font-size: 13px; font-family: inherit; color: #111; background: #fff; }',
         '.cs-field input:focus, .cs-field select:focus { outline: none; border-color: #2c5aa0; box-shadow: 0 0 0 3px rgba(44,90,160,.12); }',
+        '.cs-ident { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #d9e0ea; }',
+        '.cs-ident-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #5a6c7d; margin-bottom: 10px; }',
         '.cs-color { display: flex; align-items: center; gap: 8px; border: 1px solid #d0d5dd; border-radius: 7px; padding: 5px 8px; background: #fff; }',
         '.cs-color input[type="color"] { width: 32px; height: 24px; padding: 0; border: 1px solid #d0d5dd; border-radius: 5px; background: none; cursor: pointer; }',
         '.cs-color span { font-family: "SF Mono", Consolas, monospace; font-size: 11px; color: #5a6c7d; }',
@@ -206,6 +209,43 @@
         '    b.addEventListener("click", function(){ document.querySelectorAll("#csOrient button").forEach(function(x){ x.classList.remove("active"); }); b.classList.add("active"); csApply(); });',
         '  });',
         '  csApply();',
+        '  csIdentInit();',
+        '}',
+        '/* Identitas penandatangan manual (nama & NIP) - laman ini hidup di',
+        '   dokumen terpisah (window.open), jadi logikanya mandiri; halaman',
+        '   biasa memakai js/identitas-ttd.js dengan kunci localStorage sama. */',
+        'var csIdent = (function () { try { return JSON.parse(localStorage.getItem("simtkd_ident_ttd")) || {}; } catch (e) { return {}; } })();',
+        'function csIdentTulis(el, nilai, awalan) {',
+        '  if (!el) return;',
+        '  if (nilai) {',
+        '    if (!el.getAttribute("data-ident-asli")) el.setAttribute("data-ident-asli", el.textContent);',
+        '    el.textContent = awalan + nilai;',
+        '  } else if (el.getAttribute("data-ident-asli")) {',
+        '    el.textContent = el.getAttribute("data-ident-asli");',
+        '    el.removeAttribute("data-ident-asli");',
+        '  } else if (awalan && !el.hasAttribute("data-nip-ttd")) {',
+        '    el.textContent = awalan + (el.getAttribute("data-ident-kosong") || "..............................");',
+        '  }',
+        '}',
+        'function csIdentTerapkan() {',
+        '  document.querySelectorAll("[data-ident-target=\\"nama\\"]").forEach(function (el) { csIdentTulis(el, csIdent.nama, ""); });',
+        '  document.querySelectorAll("[data-ident-target=\\"nip\\"]").forEach(function (el) { csIdentTulis(el, csIdent.nip, "NIP. "); });',
+        '}',
+        'function csIdentInit() {',
+        '  var inpNama = document.getElementById("csIdentNama");',
+        '  var inpNip = document.getElementById("csIdentNip");',
+        '  if (!inpNama && !inpNip) return;',
+        '  if (inpNama && csIdent.nama) inpNama.value = csIdent.nama;',
+        '  if (inpNip && csIdent.nip) inpNip.value = csIdent.nip;',
+        '  [["csIdentNama", "nama"], ["csIdentNip", "nip"]].forEach(function (p) {',
+        '    var el = document.getElementById(p[0]); if (!el) return;',
+        '    el.addEventListener("input", function () {',
+        '      csIdent[p[1]] = String(el.value || "").trim();',
+        '      try { localStorage.setItem("simtkd_ident_ttd", JSON.stringify(csIdent)); } catch (e) {}',
+        '      csIdentTerapkan();',
+        '    });',
+        '  });',
+        '  csIdentTerapkan();',
         '}',
         'function csKirimTtd() {',
         '  var btn = document.getElementById("csKirimTtd");',
@@ -222,7 +262,13 @@
         '  var ob = document.querySelector("#csOrient button.active");',
         '  var orientasi = (ob && ob.getAttribute) ? ob.getAttribute("data-o") : "portrait";',
         '  var pageStyle = (orientasi === "landscape") ? "@page { size: A4 landscape; margin: 12mm; }" : "@page { size: A4 portrait; margin: 14mm; }";',
-        '  body.append("konten_html", \'<style id="pageStyle">\' + pageStyle + \'</style>\' + (window.CS_TTD_HTML || ""));',
+        '  /* Pakai DOM dokumen saat ini (bukan salinan awal) supaya nama/NIP manual',
+        '     pada panel identitas & setelan cetak ikut terkirim. */',
+        '  var area = document.getElementById("docArea");',
+        '  var css = "";',
+        '  document.querySelectorAll("style").forEach(function (st) { css += st.textContent + "\\n"; });',
+        '  var isi = area ? (css + area.outerHTML) : (window.CS_TTD_HTML || "");',
+        '  body.append("konten_html", \'<style id="pageStyle">\' + pageStyle + \'</style>\' + isi);',
         '  fetch(window.CS_TTD_META.url, { method: "POST", body: body })',
         '    .then(function (r) { return r.json(); })',
         '    .then(function (d) {',
@@ -268,15 +314,15 @@
                 (left && left.jabatan ? '<div>' + esc(left.jabatan) + '</div>' : '<div>&nbsp;</div>') +
                 '<div class="kosong"></div>' +
                 '<div class="ttd-slot"></div>' +
-                '<div class="nama">' + esc((left && left.nama) || '(.........................)') + '</div>' +
-                '<div class="nip">' + esc((left && left.nip) || '') + '</div>' +
+                '<div class="nama" data-ident-target="nama">' + esc((left && left.nama) || '(.........................)') + '</div>' +
+                '<div class="nip" data-ident-target="nip" data-ident-kosong="' + esc(nipTtd(left)) + '">NIP. ' + esc(nipTtd(left)) + '</div>' +
             '</div>' +
             '<div class="col">' +
                 (right && right.jabatan ? '<div>' + esc(right.jabatan) + '</div>' : '<div>&nbsp;</div>') +
                 '<div class="kosong"></div>' +
                 '<div class="ttd-slot"></div>' +
                 '<div class="nama">' + esc((right && right.nama) || '(.........................)') + '</div>' +
-                '<div class="nip">' + esc((right && right.nip) || '') + '</div>' +
+                '<div class="nip">NIP. ' + esc(nipTtd(right)) + '</div>' +
             '</div>' +
         '</div>';
     }
@@ -304,13 +350,24 @@
     function paragraf(t) { return '<div class="surat">' + esc(t) + '</div>'; }
     function kepada(lines) { return '<div class="kepada">' + (lines || []).map(paragraf).join('') + '</div>'; }
     function itemLine(lbl, val) { return '<div class="item"><span class="lbl">' + esc(lbl) + '</span> : ' + esc(val == null ? '' : val) + '</div>'; }
+
+    /**
+     * NIP pada blok tanda tangan.
+     * Dipakai objek penandatangan bila menyertakan `nip`; bila tidak,
+     * otomatis memakai NIP dari Profil (Pengaturan > Profil) via js/ttd-nip.js.
+     */
+    function nipTtd(objek) {
+        var nip = (objek && objek.nip) || (window.SIMTKD_TTD && window.SIMTKD_TTD.nip) || '';
+        return String(nip || '').trim() || '..............................';
+    }
+
     function ttdTunggal(t) {
         return '<div class="ttd-single">' +
             '<div class="ttd-jabatan">' + esc((t && t.jabatan) || 'Bendahara Pengeluaran') + '</div>' +
             '<div class="ttd-space"></div>' +
             '<div class="ttd-slot"></div>' +
             '<div class="ttd-nama">' + esc((t && t.nama) || '(................................)') + '</div>' +
-            (t && t.nip ? '<div class="ttd-nip">NIP. ' + esc(t.nip) + '</div>' : '') +
+            '<div class="ttd-nip">NIP. ' + esc(nipTtd(t)) + '</div>' +
         '</div>';
     }
     // SURAT PENGANTAR (bagian atas SPP)
@@ -463,9 +520,24 @@
             ? '<style>' + CSS + '</style><div id="docArea">' + docHtml + '</div>'
             : '';
 
+        // Panel identitas penandatangan manual (opsional, di atas tombol cetak).
+        // Dipasang lewat opsi o.identitas = { label, labelNip, placeholder }.
+        var identHtml = o.identitas
+            ? '<div class="cs-ident">' +
+                '<div class="cs-ident-title"><i class="fa fa-user-edit"></i> Identitas Penandatangan</div>' +
+                '<div class="cs-grid">' +
+                    '<div class="cs-field"><label for="csIdentNama">' + esc(o.identitas.label || 'Nama Penandatangan') + '</label>' +
+                        '<input type="text" id="csIdentNama" data-ident="nama" placeholder="' + esc(o.identitas.placeholder || 'Nama lengkap') + '"></div>' +
+                    '<div class="cs-field"><label for="csIdentNip">' + esc(o.identitas.labelNip || 'NIP') + '</label>' +
+                        '<input type="text" id="csIdentNip" data-ident="nip" placeholder="NIP"></div>' +
+                '</div>' +
+            '</div>'
+            : '';
+
         var panel =
             '<div class="cetak-settings no-print">' +
                 '<div class="cs-head"><i class="fa fa-sliders-h"></i> Pengaturan Laman Cetak</div>' +
+                identHtml +
                 '<div class="cs-grid">' +
                     '<div class="cs-field"><label for="csFontSize">Ukuran Font</label><input type="number" id="csFontSize" min="8" max="30" value="13"></div>' +
                     '<div class="cs-field"><label for="csLineHeight">Jarak Tulisan</label><input type="number" id="csLineHeight" min="1" max="3" step="0.1" value="1.6"></div>' +

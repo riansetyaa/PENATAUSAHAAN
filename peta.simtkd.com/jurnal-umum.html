@@ -262,6 +262,38 @@
             .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; }
             .filter-grid { grid-template-columns: 1fr; }
         }
+        /* ---------- Dokumen cetak per jurnal (hanya tampil saat mencetak) ---------- */
+        #printSheet { display: none; }
+        #printSheet { font-family: "Times New Roman", Times, serif; color: #000; }
+        #printSheet .ps-head { text-align: center; margin-bottom: 4px; }
+        #printSheet .ps-head .instansi { font-size: 14pt; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+        #printSheet .ps-head .judul { font-size: 13pt; font-weight: 700; letter-spacing: 1px; }
+        #printSheet .ps-head .sub { font-size: 10.5pt; }
+        #printSheet table.ps-ident { width: 100%; border-collapse: collapse; margin: 10px 0 8px; font-size: 11pt; }
+        #printSheet table.ps-ident td { padding: 1px 0; vertical-align: top; }
+        #printSheet table.ps-ident td.lbl { width: 108px; }
+        #printSheet table.ps-ident td.titik { width: 10px; }
+        #printSheet table.ps-jurnal { width: 100%; border-collapse: collapse; }
+        #printSheet table.ps-jurnal th, #printSheet table.ps-jurnal td { border: 1px solid #000; padding: 3px 6px; font-size: 10.5pt; vertical-align: top; }
+        #printSheet table.ps-jurnal th { background: #f1f5f9; text-align: center; }
+        #printSheet table.ps-jurnal td.c { text-align: center; }
+        #printSheet table.ps-jurnal td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        #printSheet table.ps-jurnal tfoot td { font-weight: 700; }
+        #printSheet .ps-terbilang { margin-top: 8px; font-size: 10.5pt; font-style: italic; }
+        #printSheet .ps-ttd { margin-top: 34px; display: flex; justify-content: flex-end; }
+        #printSheet .ps-ttd .kotak { min-width: 300px; text-align: center; font-size: 11pt; }
+        #printSheet .ps-ttd .kotak p { margin: 0; line-height: 1.45; }
+        #printSheet .ps-ttd .sig { height: 56px; }
+        #printSheet .ps-ttd .nama { font-weight: 700; }
+        @media print {
+            @page { size: A4 portrait; margin: 12mm; }
+            body.cetak-jurnal { background: #fff !important; display: block; }
+            body.cetak-jurnal .topbar, body.cetak-jurnal .breadcrumb-bar, body.cetak-jurnal .sidebar,
+            body.cetak-jurnal .footer, body.cetak-jurnal #toast, body.cetak-jurnal .card,
+            body.cetak-jurnal .page-head, body.cetak-jurnal #akunDatalist { display: none !important; }
+            body.cetak-jurnal .content { padding: 0 !important; }
+            body.cetak-jurnal #printSheet { display: block !important; }
+        }
     </style>
 </head>
 <body>
@@ -290,20 +322,7 @@
     <div class="body-wrap">
 
         <!-- ================= SIDEBAR ================= -->
-        <aside class="sidebar" id="sidebar">
-            <div class="side-title">Menu Utama</div>
-            <a href="index.html" class="side-link"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a href="jurnal-umum.html" class="side-link active"><i class="fas fa-book"></i> Jurnal Umum</a>
-            <a href="buku-besar.html" class="side-link"><i class="fas fa-table-list"></i> Buku Besar</a>
-            <a href="neraca-saldo.html" class="side-link"><i class="fas fa-scale-balanced"></i> Neraca Saldo</a>
-            <div class="side-group" id="sideGroupKeuangan">
-                <a href="#" class="side-link" id="sideLinkKeuangan"><i class="fas fa-chart-line"></i> Laporan Keuangan <i class="fas fa-chevron-right side-arrow"></i></a>
-                <div class="side-sub" id="sideSubKeuangan">
-                    <a href="neraca.html" class="side-link"><i class="fas fa-scale-balanced"></i> Neraca</a>
-                    <a href="lra.html" class="side-link"><i class="fas fa-chart-column"></i> LRA</a>
-                </div>
-            </div>
-        </aside>
+        <aside class="sidebar" id="sidebar"></aside>
 
         <!-- ================= MAIN ================= -->
         <main class="main">
@@ -322,7 +341,13 @@
                         <h1>Jurnal Umum (Manual)</h1>
                         <p>Catat transaksi dua sisi (Debet/Kredit) secara manual — atau gunakan <b>Isi dari Dokumen</b> untuk menarik template jurnal dari STS (Penerimaan) dan SP2D (Belanja) yang sudah ada.</p>
                     </div>
-                    <div style="display:flex;gap:10px;">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                        <input type="text" id="ftNama" placeholder="Nama penandatangan (dari Profil)" autocomplete="off"
+                               title="Nama pada blok tanda tangan dokumen cetak jurnal — otomatis dari Profil, dapat ditimpa manual"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:230px;background:#fff;color:var(--text);">
+                        <input type="text" id="ftNip" placeholder="NIP (dari Profil)" autocomplete="off"
+                               title="NIP pada blok tanda tangan dokumen cetak jurnal — otomatis dari Profil, dapat ditimpa manual"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:180px;background:#fff;color:var(--text);">
                         <button class="btn btn-primary" id="btnMasterAkun"><i class="fas fa-layer-group"></i> Master Akun</button>
                         <button class="btn btn-success" id="btnTambahJurnal"><i class="fas fa-plus"></i> Tambah Jurnal</button>
                     </div>
@@ -477,6 +502,7 @@
                         <div class="filter-actions" style="margin-top:14px;">
                             <button class="btn btn-success" id="btnSimpanJurnal"><i class="fas fa-floppy-disk"></i> Simpan Jurnal</button>
                             <button class="btn" id="btnBatalJurnal" style="background:#e5e7eb;color:#374151;">Batal</button>
+                            <button class="btn btn-primary" id="btnCetakDraft" title="Cetak jurnal yang sedang diisi (belum disimpan)"><i class="fas fa-print"></i> Cetak Draft</button>
                         </div>
                     </div>
                 </div>
@@ -520,10 +546,12 @@
         </main>
     </div>
 
+    <div id="printSheet"></div>
     <div id="toast"></div>
     <datalist id="akunDatalist"></datalist>
 
     <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
     <script>if (window.SIMTKD_API) { SIMTKD_API.endpoint = 'api/akuntansi.php'; }</script>
     <script src="js/sidebar.js"></script>
 
@@ -540,12 +568,15 @@
             }
 
             // Profil akun dari database (topbar) + filter SKPD
+            var PROFIL = {};
             (function () {
                 fetch(url('profil'))
                     .then(function (res) { return res.json(); })
                     .then(function (d) {
                         if (!(d && d.success) || !d.user) return;
                         var u = d.user;
+                        PROFIL = u;
+                        isiTtd();
                         function set(txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; }
                         set(u.provinsi, 'regionProvinsi');
                         set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
@@ -570,6 +601,168 @@
                 var p = String(s).split('-');
                 return p[2] + ' ' + (BULAN[parseInt(p[1], 10) - 1] || p[1]) + ' ' + p[0];
             }
+
+            // ============================================================
+            // Penandatangan (manual, default dari Profil) + cetak per jurnal
+            // ============================================================
+            var disentuhTtd = {};
+            function bacaSimpan(kunci) { try { return (localStorage.getItem(kunci) || '').trim(); } catch (e) { return ''; } }
+            function tulisSimpan(kunci, nilai) { try { if (nilai === '') localStorage.removeItem(kunci); else localStorage.setItem(kunci, nilai); } catch (e) {} }
+            function isiTtd() {
+                var eNama = document.getElementById('ftNama'), eNip = document.getElementById('ftNip');
+                if (eNama && eNama.value.trim() === '' && !disentuhTtd.ftNama) eNama.value = bacaSimpan('simtkd_nama_ttd') || (PROFIL.nama || '');
+                if (eNip && eNip.value.trim() === '' && !disentuhTtd.ftNip) eNip.value = bacaSimpan('simtkd_nip') || (PROFIL.nip || '');
+            }
+            isiTtd();
+            [['ftNama', 'simtkd_nama_ttd'], ['ftNip', 'simtkd_nip']].forEach(function (p) {
+                var e = document.getElementById(p[0]);
+                if (!e) return;
+                e.addEventListener('input', function () { disentuhTtd[p[0]] = true; tulisSimpan(p[1], e.value.trim()); });
+            });
+            function nilai(id) { var e = document.getElementById(id); return e ? String(e.value || '').trim() : ''; }
+
+            function terbilang(n) {
+                var angka = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+                function urai(x) {
+                    if (x < 12) return angka[x];
+                    if (x < 20) return urai(x - 10) + ' belas';
+                    if (x < 100) return urai(Math.floor(x / 10)) + ' puluh ' + urai(x % 10);
+                    if (x < 200) return 'seratus ' + urai(x - 100);
+                    if (x < 1000) return urai(Math.floor(x / 100)) + ' ratus ' + urai(x % 100);
+                    if (x < 2000) return 'seribu ' + urai(x - 1000);
+                    if (x < 1000000) return urai(Math.floor(x / 1000)) + ' ribu ' + urai(x % 1000);
+                    if (x < 1000000000) return urai(Math.floor(x / 1000000)) + ' juta ' + urai(x % 1000000);
+                    if (x < 1000000000000) return urai(Math.floor(x / 1000000000)) + ' miliar ' + urai(x % 1000000000);
+                    return urai(Math.floor(x / 1000000000000)) + ' triliun ' + urai(x % 1000000000000);
+                }
+                var raw = Number(n);
+                if (!isFinite(raw)) raw = 0;
+                var kata = urai(Math.floor(Math.abs(raw))).replace(/\s+/g, ' ').trim();
+                if (!kata || kata === 'nol') return 'nol rupiah';
+                return (raw < 0 ? 'minus ' : '') + kata + ' rupiah';
+            }
+
+            function kopWilayah() {
+                var kota = String(PROFIL.kota || '').trim();
+                return kota !== '' ? ('PEMERINTAH ' + kota.toUpperCase()) : 'PEMERINTAH DAERAH';
+            }
+            function labelStatus(st) {
+                if (st === 'sudah_approve') return 'Sudah Approve';
+                if (st === 'ditolak') return 'Ditolak';
+                return 'Draft';
+            }
+            function labelSumber(t) {
+                if (t === 'sts') return 'STS (Penerimaan)';
+                if (t === 'sp2d') return 'SP2D (Belanja)';
+                return 'Manual';
+            }
+
+            /**
+             * Bangun dokumen (voucher) 1 jurnal — dipakai untuk cetak per jurnal,
+             * baik dari daftar tersimpan maupun dari form yang sedang diisi.
+             */
+            function dokumenJurnal(o) {
+                var baris = (o.detail || []).filter(function (b) { return b && b.kode_akun; });
+                var totD = 0, totK = 0;
+                baris.forEach(function (b) {
+                    if (b.posisi === 'kredit') totK += Number(b.jumlah || 0); else totD += Number(b.jumlah || 0);
+                });
+
+                var body = baris.length ? baris.map(function (b, i) {
+                    var d = (b.posisi === 'kredit') ? 0 : Number(b.jumlah || 0);
+                    var k = (b.posisi === 'kredit') ? Number(b.jumlah || 0) : 0;
+                    return '<tr>' +
+                        '<td class="c">' + (i + 1) + '</td>' +
+                        '<td class="c">' + esc(b.kode_akun) + '</td>' +
+                        '<td>' + esc(b.nama_akun || akunNama(b.kode_akun) || '-') + '</td>' +
+                        '<td class="num">' + (d ? Number(d).toLocaleString('id-ID') : '-') + '</td>' +
+                        '<td class="num">' + (k ? Number(k).toLocaleString('id-ID') : '-') + '</td>' +
+                    '</tr>';
+                }).join('') : '<tr><td colspan="5" class="c">(belum ada rincian akun)</td></tr>';
+
+                var kotaTtd = String(PROFIL.kota || '').trim() || 'Kota/Kabupaten';
+                var nm = nilai('ftNama'), nip = nilai('ftNip');
+
+                return '<div class="ps-head">' +
+                        '<div class="instansi">' + esc(kopWilayah()) + '</div>' +
+                        '<div class="judul">JURNAL UMUM</div>' +
+                        ((o.nomor_jurnal || o.nomor) ? '<div class="sub">Nomor: ' + esc(o.nomor_jurnal || o.nomor) + '</div>'
+                                 : '<div class="sub">(draft — belum disimpan)</div>') +
+                    '</div>' +
+                    '<table class="ps-ident"><tbody>' +
+                        '<tr><td class="lbl">SKPD</td><td class="titik">:</td><td>' + esc(o.skpd || PROFIL.instansi || '-') + '</td>' +
+                            '<td class="lbl">Sumber</td><td class="titik">:</td><td>' + esc(labelSumber(o.sumber_tipe)) + '</td></tr>' +
+                        '<tr><td class="lbl">Tanggal</td><td class="titik">:</td><td>' + esc(o.tanggal ? fmtTgl(o.tanggal) : '-') + '</td>' +
+                            '<td class="lbl">Status</td><td class="titik">:</td><td>' + esc(labelStatus(o.status)) + '</td></tr>' +
+                        '<tr><td class="lbl">Uraian</td><td class="titik">:</td><td colspan="4">' + esc(o.uraian || '-') + '</td></tr>' +
+                    '</tbody></table>' +
+                    '<table class="ps-jurnal">' +
+                        '<thead><tr>' +
+                            '<th style="width:34px;">No</th>' +
+                            '<th style="width:110px;">Kode Akun</th>' +
+                            '<th>Nama Akun</th>' +
+                            '<th style="width:130px;">Debet (Rp)</th>' +
+                            '<th style="width:130px;">Kredit (Rp)</th>' +
+                        '</tr></thead><tbody>' + body + '</tbody>' +
+                        '<tfoot><tr>' +
+                            '<td colspan="3" class="c">Jumlah</td>' +
+                            '<td class="num">' + Number(totD).toLocaleString('id-ID') + '</td>' +
+                            '<td class="num">' + Number(totK).toLocaleString('id-ID') + '</td>' +
+                        '</tr></tfoot>' +
+                    '</table>' +
+                    '<div class="ps-terbilang">Jumlah (terbilang): ' + esc(terbilang(totD)) + '</div>' +
+                    '<div class="ps-ttd"><div class="kotak">' +
+                        '<p>' + esc(kotaTtd) + ', ' + esc(o.tanggal ? fmtTgl(o.tanggal) : '......................') + '</p>' +
+                        '<p>Fungsi Akuntansi SKPKD</p>' +
+                        '<div class="sig"></div>' +
+                        '<p class="nama">( ' + esc(nm || '..............................') + ' )</p>' +
+                        '<p>NIP : ' + esc(nip || '.....................') + '</p>' +
+                    '</div></div>';
+            }
+
+
+            /** Cetak 1 jurnal: isi #printSheet lalu panggil dialog cetak. */
+            function cetakJurnal(o) {
+                if (!o || !o.detail || !o.detail.length) { toast('Jurnal ini belum punya rincian akun untuk dicetak.'); return; }
+                isiTtd();
+                var sheet = document.getElementById('printSheet');
+                sheet.innerHTML = dokumenJurnal(o);
+                document.body.classList.add('cetak-jurnal');
+                var sudah = false;
+                var bersih = function () {
+                    if (sudah) return;
+                    sudah = true;
+                    document.body.classList.remove('cetak-jurnal');
+                    sheet.innerHTML = '';
+                };
+                window.addEventListener('afterprint', bersih, { once: true });
+                setTimeout(function () { window.print(); setTimeout(bersih, 1500); }, 60);
+            }
+
+            /** Jurnal dari form yang sedang diisi (untuk tombol "Cetak Draft"). */
+            function jurnalDariForm() {
+                var detail = [];
+                document.querySelectorAll('#tbodyDetail tr').forEach(function (tr) {
+                    var kode = tr.querySelector('.dKode') ? tr.querySelector('.dKode').value.trim() : '';
+                    var posisi = tr.querySelector('.dPosisi') ? tr.querySelector('.dPosisi').value : 'debet';
+                    var jumlah = tr.querySelector('.dJumlah') ? (parseFloat(tr.querySelector('.dJumlah').value) || 0) : 0;
+                    if (kode && jumlah > 0) detail.push({ kode_akun: kode, nama_akun: akunNama(kode), posisi: posisi, jumlah: jumlah });
+                });
+                return {
+                    nomor: '',
+                    tanggal: nilai('jTanggal'),
+                    uraian: nilai('jUraian'),
+                    sumber_tipe: nilai('jSumber'),
+                    status: 'draft',
+                    skpd: nilai('fSkpd') || PROFIL.instansi || '',
+                    detail: detail
+                };
+            }
+
+            document.getElementById('btnCetakDraft').addEventListener('click', function () {
+                cetakJurnal(jurnalDariForm());
+            });
+
             function esc(t) { var d = document.createElement('div'); d.textContent = String(t || ''); return d.innerHTML; }
             function toast(msg) {
                 var t = document.getElementById('toast');
@@ -902,6 +1095,7 @@
                         if (r.status !== 'sudah_approve') aksi += '<button class="dropdown-item approve" data-act="approve" data-id="' + r.id + '" data-no="' + esc(r.nomor_jurnal) + '"><i class="fas fa-check"></i> Approve</button>';
                         if (r.status === 'draft') aksi += '<button class="dropdown-item reject" data-act="reject" data-id="' + r.id + '" data-no="' + esc(r.nomor_jurnal) + '"><i class="fas fa-xmark"></i> Tolak</button>';
                         aksi += '<button class="dropdown-item" data-act="detail" data-id="' + r.id + '"><i class="fas fa-eye"></i> Detail</button>';
+                        aksi += '<button class="dropdown-item" data-cetak="' + r.id + '"><i class="fas fa-print"></i> Cetak Jurnal</button>';
                         aksi += '<button class="dropdown-item danger" data-act="hapus" data-id="' + r.id + '" data-no="' + esc(r.nomor_jurnal) + '"><i class="fas fa-trash"></i> Hapus</button>';
                         return '<tr>' +
                             '<td>' + esc(r.nomor_jurnal || '-') + '</td>' +
@@ -911,7 +1105,8 @@
                             '<td class="num">' + fmtRp(r.total_debet) + '</td>' +
                             '<td class="num">' + fmtRp(r.total_kredit) + '</td>' +
                             '<td class="c">' + badge(r.status) + '</td>' +
-                            '<td class="c"><div class="dropdown">' +
+                            '<td class="c" style="white-space:nowrap;"><button class="aksi-btn" data-cetak="' + r.id + '" title="Cetak jurnal ini"><i class="fas fa-print"></i></button>' +
+                            '<div class="dropdown">' +
                                 '<button class="aksi-btn" data-drop="' + r.id + '"><i class="fas fa-ellipsis-vertical"></i></button>' +
                                 '<div class="dropdown-menu" id="dm-' + r.id + '">' + aksi + '</div>' +
                             '</div></td>' +
@@ -959,6 +1154,14 @@
                     return;
                 }
                 var item = e.target.closest('[data-act]');
+                var btnCetak = e.target.closest('[data-cetak]');
+                if (btnCetak) {
+                    document.querySelectorAll('.dropdown-menu.open').forEach(function (m) { m.classList.remove('open'); });
+                    var idc = btnCetak.getAttribute('data-cetak'), rc = null;
+                    for (var ii = 0; ii < DATA.length; ii++) { if (String(DATA[ii].id) === String(idc)) { rc = DATA[ii]; break; } }
+                    if (rc) cetakJurnal(rc); else toast('Data jurnal tidak ditemukan.');
+                    return;
+                }
                 if (!item) return;
                 var act = item.getAttribute('data-act');
                 var id = item.getAttribute('data-id');
