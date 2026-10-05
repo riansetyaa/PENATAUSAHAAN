@@ -4,6 +4,7 @@ Disallow: /api/
 Disallow: /config/
 Disallow: /includes/
 Disallow: /database/
+Disallow: /logs/
 Disallow: /webhook/
 Disallow: /belanja/
 Disallow: /penerimaan/

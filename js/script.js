@@ -19,6 +19,8 @@
     const captchaInput = document.getElementById('captchaInput');
     const usernameInput = document.getElementById('username');
     const toastContainer = document.getElementById('toastContainer');
+    const aktivasiBox = document.getElementById('aktivasiBox');
+    const linkAktivasi = document.getElementById('linkAktivasi');
 
     let captchaCode = '';
 
@@ -193,6 +195,20 @@
     }
 
     // ==========================================
+    // Kotak Aktivasi Akun (akun berstatus pending)
+    // ==========================================
+    function tampilkanKotakAktivasi(tujuan) {
+        if (!aktivasiBox || !linkAktivasi) return;
+        linkAktivasi.href = tujuan || 'aktivasi.html';
+        aktivasiBox.style.display = 'flex';
+    }
+
+    function sembunyikanKotakAktivasi() {
+        if (!aktivasiBox) return;
+        aktivasiBox.style.display = 'none';
+    }
+
+    // ==========================================
     // Form Submission
     // ==========================================
     loginForm.addEventListener('submit', function (e) {
@@ -271,6 +287,7 @@
             btnLogin.disabled = false;
 
             if (data.success) {
+                sembunyikanKotakAktivasi();
                 showToast(data.message || 'Login berhasil!', 'success');
                 // Redirect ke dashboard (frontend vanilla HTML)
                 setTimeout(function () {
@@ -284,6 +301,10 @@
                 if (data.field) {
                     var target = document.getElementById(data.field);
                     if (target) target.style.borderColor = '#e74c3c';
+                }
+                // Akun belum diverifikasi -> tawarkan tombol menuju halaman Aktivasi Akun
+                if (data.need_activation) {
+                    tampilkanKotakAktivasi(data.aktivasi || 'aktivasi.html');
                 }
             }
         })

@@ -132,6 +132,59 @@ function hashApiToken(string $token): string
 }
 
 /**
+ * Bangkitkan kode OTP numerik (default 6 digit) memakai CSPRNG.
+ * Dipakai untuk verifikasi/aktivasi akun (lihat api/aktivasi.php).
+ */
+function generateOtp(int $length = 6): string
+{
+    $otp = '';
+    for ($i = 0; $i < $length; $i++) {
+        $otp .= (string) random_int(0, 9);
+    }
+    return $otp;
+}
+
+/**
+ * Hash kode OTP untuk disimpan di DB.
+ * Memakai password_hash() (bcrypt) — bukan hash cepat — supaya bila DB
+ * bocor, kode OTP 6 digit tidak bisa dibalik/di-brute force secara instan.
+ */
+function hashOtp(string $otp): string
+{
+    return password_hash($otp, PASSWORD_DEFAULT);
+}
+
+/** Jumlah maksimal percobaan salah memasukkan satu kode OTP. */
+function otpTebakMaksimal(): int
+{
+    return 5;
+}
+
+/** Masa berlaku kode OTP (detik). */
+function otpBerlakuDetik(): int
+{
+    return 600; // 10 menit
+}
+
+/**
+ * Samarkan email untuk ditampilkan di layar (mis. "ri***@polban.ac.id").
+ * Dipakai agar halaman aktivasi tidak membocorkan alamat email lengkap.
+ */
+function maskEmail(string $email): string
+{
+    $at = strrpos($email, '@');
+    if ($at === false || $at === 0) {
+        return $email;
+    }
+
+    $user   = substr($email, 0, $at);
+    $domain = substr($email, $at);
+    $awal   = substr($user, 0, min(2, strlen($user)));
+
+    return $awal . str_repeat('*', max(1, strlen($user) - strlen($awal))) . $domain;
+}
+
+/**
  * Rate limit sederhana berbasis file (tanpa DB/Redis).
  * Key bebas (mis. "login:user" atau "login:ip"). Max $max percobaan dalam $windowDetik.
  * Return true jika DIIZINKAN (dan mencatat percobaan), false jika melebihi batas.
@@ -216,11 +269,19 @@ function ensureColumn(PDO $pdo, string $tabel, string $kolom, string $ddl): void
 /**
  * Selaraskan kolom wajib pada tabel `users`.
  * Dipanggil oleh endpoint yang bergantung pada kolom tersebut
- * (login, register, profil) agar basis data lama tetap bisa dipakai.
+ * (login, register, profil, aktivasi) agar basis data lama tetap bisa dipakai.
  */
 function ensureUsersColumns(PDO $pdo): void
 {
     ensureColumn($pdo, 'users', 'nip', '`nip` VARCHAR(30) DEFAULT NULL AFTER `nama_lengkap`');
     ensureColumn($pdo, 'users', 'api_token', '`api_token` VARCHAR(64) DEFAULT NULL AFTER `provinsi`');
+
+    // Kolom verifikasi OTP (aktivasi akun berstatus 'pending').
+    // Lihat api/aktivasi.php & database/users_otp.sql.
+    ensureColumn($pdo, 'users', 'otp_hash', '`otp_hash` VARCHAR(255) DEFAULT NULL AFTER `api_token`');
+    ensureColumn($pdo, 'users', 'otp_expired_at', '`otp_expired_at` DATETIME DEFAULT NULL AFTER `otp_hash`');
+    ensureColumn($pdo, 'users', 'otp_terkirim_at', '`otp_terkirim_at` DATETIME DEFAULT NULL AFTER `otp_expired_at`');
+    ensureColumn($pdo, 'users', 'otp_percobaan', '`otp_percobaan` TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER `otp_terkirim_at`');
+    ensureColumn($pdo, 'users', 'otp_verifikasi_at', '`otp_verifikasi_at` DATETIME DEFAULT NULL AFTER `otp_percobaan`');
 }
 

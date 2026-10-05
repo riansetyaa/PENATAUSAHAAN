@@ -387,12 +387,15 @@
             btnRegister.disabled = false;
 
             if (data.success) {
-                showToast(data.message || 'Pendaftaran berhasil! Akun langsung aktif.', 'success');
+                showToast(data.message || 'Pendaftaran berhasil! Silakan verifikasi kode OTP.', 'success');
 
-                // Akun langsung aktif -> redirect ke halaman login (frontend vanilla HTML)
+                // Akun berstatus PENDING -> arahkan ke halaman Aktivasi Akun
+                // (email dibawa lewat query string agar tidak perlu diketik ulang)
+                const tujuan = data.aktivasi
+                    || ('aktivasi.html?email=' + encodeURIComponent(mail));
                 setTimeout(function () {
-                    window.location.href = 'login.html';
-                }, 1800);
+                    window.location.href = tujuan;
+                }, 2000);
             } else {
                 showToast(data.message || 'Pendaftaran gagal. Silakan coba lagi.', 'error');
 

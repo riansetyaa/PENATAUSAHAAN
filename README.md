@@ -9,9 +9,12 @@ Frontend menggunakan **HTML, CSS, dan JavaScript murni (vanilla)**. Backend meng
 
 - **Login** menggunakan username atau email + validasi captcha
 - **Pendaftaran (Daftar)** dengan validasi lengkap + indikator kekuatan kata sandi
+- **Aktivasi Akun dengan Kode OTP email** — akun baru berstatus `pending`; pengguna
+  memasukkan email, memeriksa **nama akun & instansi**, klik **Konfirmasi**, lalu
+  memasukkan kode OTP 6 angka yang dikirim ke email untuk mengaktifkan akun
 - **Dashboard** ringkasan APBD yang datanya diambil langsung dari database
 - Perlindungan sesi (halaman dashboard hanya bisa diakses setelah login)
-- Password di-hash dengan `password_hash()` (bcrypt)
+- Password di-hash dengan `password_hash()` (bcrypt), kode OTP juga di-hash
 - Query memakai **PDO prepared statements** (aman dari SQL Injection)
 
 ---
@@ -22,14 +25,16 @@ Frontend menggunakan **HTML, CSS, dan JavaScript murni (vanilla)**. Backend meng
 PENATAUSAHAAN/
 ├── login.html          # Frontend login (vanilla)
 ├── daftar.html         # Frontend pendaftaran (vanilla)
+├── aktivasi.html       # Frontend aktivasi akun via kode OTP (vanilla)
 ├── dashboard.html      # Frontend dashboard (vanilla)
 ├── css/                # Stylesheet
 ├── js/                 # JavaScript frontend (fetch ke API)
 ├── img/                # Gambar / logo
 │
 ├── api/                # ⚙ BACKEND (PHP) - endpoint API JSON
-│   ├── login.php       #   POST: autentikasi login
-│   ├── register.php    #   POST: pendaftaran akun
+│   ├── login.php       #   POST: autentikasi login (akun 'pending' ditolak)
+│   ├── register.php    #   POST: pendaftaran akun (status 'pending')
+│   ├── aktivasi.php    #   POST: cek email, kirim OTP, verifikasi OTP
 │   ├── logout.php      #   GET : hapus sesi (logout)
 │   ├── session.php     #   GET : cek status login
 │   ├── summary.php     #   GET : data ringkasan dashboard
@@ -37,12 +42,16 @@ PENATAUSAHAAN/
 │   ├── dokumen_go.php  #   GET : SSO redirect ke doc.simtkd.com (?token=)
 │   └── aklap_go.php    #   GET : SSO redirect ke peta.simtkd.com (?token=)
 ├── config/
-│   └── db.php          # Koneksi database (PDO)
+│   ├── db.php          # Koneksi database (PDO)
+│   └── mail.example.php# Contoh konfigurasi SMTP (salin ke config/mail.php)
 ├── includes/
-│   ├── functions.php   # Helper (validasi, respons JSON)
+│   ├── functions.php   # Helper (validasi, respons JSON, OTP, migrasi kolom)
+│   ├── mailer.php      # Pengirim email kode OTP (SMTP / mail())
 │   └── auth.php        # Sesi & proteksi halaman
+├── logs/               # Catatan kode OTP (berkas .php + .htaccess, tidak publik)
 ├── database/
 │   └── simtkd.sql      # Skema database (referensi)
+│   └── users_otp.sql   # Migrasi kolom OTP + default status 'pending'
 │   └── dokumen_ttd.sql # Tabel dokumen & tanda tangan elektronik
 ├── peta.simtkd.com/    # Subdomain modul AKLAP (SSO via ?token=)
 ├── doc.simtkd.com/     # Subdomain dokumen & tanda tangan elektronik
@@ -52,7 +61,9 @@ PENATAUSAHAAN/
 
 > **Konsep:** Halaman frontend (`.html`) memanggil API PHP (`.php` di folder `api/`)
 > menggunakan `fetch()`. Backend PHP menangani database, validasi, dan sesi.
-> Alur: `login.html` → `api/login.php` → `dashboard.html` → `api/summary.php`.
+> Alur: `daftar.html` → `api/register.php` (status `pending`) →
+> `aktivasi.html` → `api/aktivasi.php` (OTP) → `login.html` → `api/login.php` →
+> `dashboard.html` → `api/summary.php`.
 
 ---
 
@@ -130,8 +141,9 @@ define('DB_PASS', '');   // isi dengan password MySQL jika ada
 
 | Endpoint | Method | Deskripsi |
 |----------|--------|-----------|
-| `api/login.php` | POST | Login (`username`, `password`, `tahun_anggaran`) |
-| `api/register.php` | POST | Daftar (`nama_lengkap`, `username`, `email`, `password`, `instansi`, `peran`) |
+| `api/login.php` | POST | Login (`username`, `password`) — akun `pending` ditolak + `need_activation` |
+| `api/register.php` | POST | Daftar (`nama_lengkap`, `username`, `email`, `password`, `instansi`, `peran`) — hasil: status `pending` |
+| `api/aktivasi.php` | POST | Aktivasi akun: `action=cek` (email) → `action=kirim_otp` → `action=verifikasi` (`email`, `otp`) |
 | `api/logout.php` | GET | Logout |
 | `api/session.php` | GET | Cek sesi login (dipakai dashboard) |
 | `api/summary.php` | GET | Data ringkasan APBD (wajib login) |
@@ -143,6 +155,50 @@ Semua endpoint mengembalikan JSON:
 ```json
 { "success": true, "message": "...", ... }
 ```
+
+### 🔐 Alur Aktivasi Akun (Verifikasi Kode OTP Email)
+
+Akun hasil pendaftaran berstatus **`pending`** dan tidak dapat dipakai login
+sampai diverifikasi. Halaman `aktivasi.html` memandu empat tahap:
+
+| Tahap | Aksi pengguna | Endpoint & perilaku server |
+|-------|---------------|-----------------------------|
+| 1 | Masukkan **email** lalu klik **Cek Akun** | `api/aktivasi.php` `action=cek` → menampilkan **nama akun, instansi, username, wilayah, peran** (email disamarkan) |
+| 2 | Periksa data lalu klik **Konfirmasi & Kirim OTP** | `action=kirim_otp` → kode OTP **6 angka** (acak, `random_int`) dibuat, **hash-nya** (bcrypt) disimpan di `users.otp_hash`, berlaku **10 menit**, lalu dikirim ke email |
+| 3 | Masukkan **kode OTP** lalu klik **Verifikasi & Aktifkan** | `action=verifikasi` → kode dicocokkan; bila benar `users.status` menjadi **`aktif`** dan kolom OTP dibersihkan, pengguna diarahkan ke `login.html` |
+| 4 | Login seperti biasa | `api/login.php` → akun `aktif` berhasil masuk ke dashboard |
+
+Pengamanan yang diterapkan:
+
+- Kode OTP disimpan **hanya sebagai hash** (tidak pernah disimpan mentah).
+- Kode **kedaluwarsa 10 menit** (`otp_expired_at`), maksimal **5 kali** salah tebak
+  per kode (`otp_percobaan`), jeda **60 detik** antar kirim ulang (`otp_terkirim_at`),
+  maksimal **5 kirim / 15 menit** per email.
+- Timestamp OTP dihitung di sisi PHP (`date()`), bukan `NOW()` MySQL, agar tidak
+  terpengaruh perbedaan zona waktu server database.
+- Akun `pending` **tidak bisa login**; halaman login menampilkan tautan tetap
+  **“Aktivasi Akun”** (`aktivasi.html`) di bawah tombol **Masuk**, serta tautan
+  **“Aktifkan Akun Sekarang”** yang muncul otomatis saat login akun `pending`
+  ditolak (membawa email terdaftar).
+- Kolom OTP (`otp_hash`, `otp_expired_at`, `otp_terkirim_at`, `otp_percobaan`,
+  `otp_verifikasi_at`) ditambahkan otomatis oleh `ensureUsersColumns()`; migrasi
+  manual tersedia di `database/users_otp.sql`.
+
+#### ✉️ Konfigurasi Pengiriman Email (SMTP)
+
+```bash
+cp config/mail.example.php config/mail.php   # lalu isi kredensial SMTP
+```
+
+`config/mail.php` **tidak di-commit** ke git (berisi password email).
+Bila file itu belum dibuat, sistem memakai `mail()` bawaan PHP. Pengiriman email
+memakai `includes/mailer.php` (SMTP SSL/STARTTLS + AUTH LOGIN, tanpa dependensi
+Composer). **Bila pengiriman gagal**, API memberi pesan agar menghubungi
+administrator, dan kode OTP tetap dicatat pada `logs/otp.log.php` (berkas
+terlindungi `.htaccess` + ekstensi `.php` sehingga tidak bisa dibaca dari browser)
+supaya admin masih bisa membantu pengguna. Untuk uji coba lokal, set
+`'debug_otp' => true` pada `config/mail.php` agar kode OTP ikut tampil di halaman
+aktivasi (jangan dipakai di produksi).
 
 ---
 
@@ -213,11 +269,14 @@ impor SQL manual yang wajib dilakukan. Untuk menyiapkan/memeriksa skema lebih du
 `database/akuntansi_v2.sql` — sudah diuji pada DB kosong **dan** DB versi lama
 (kolom ditambahkan tanpa menghapus data).
 
-Demikian pula kolom **`users.nip`** (dipakai blok tanda tangan) dan
-**`users.api_token`** (token multi-tenant) diselaraskan otomatis oleh
+Demikian pula kolom **`users.nip`** (dipakai blok tanda tangan),
+**`users.api_token`** (token multi-tenant), dan kolom verifikasi OTP
+(**`users.otp_hash`**, **`otp_expired_at`**, **`otp_terkirim_at`**,
+**`otp_percobaan`**, **`otp_verifikasi_at`**) diselaraskan otomatis oleh
 `ensureUsersColumns()` di `includes/functions.php`, yang dipanggil **login**,
-**register**, dan **profil**. Ini mencegah kegagalan login total pada basis data
-lama yang belum menjalankan `database/users_nip.sql` / `database/api_token.sql`
+**register**, **profil**, dan **aktivasi**. Ini mencegah kegagalan login total pada
+basis data lama yang belum menjalankan `database/users_nip.sql` /
+`database/api_token.sql` / `database/users_otp.sql`
 (gejala: halaman login hanya menampilkan “Terjadi kesalahan koneksi ke server”).
 
 Modul **Master Akun**, **Anggaran (Pagu)**, **Buku Kas**, **Buku Kas Umum (BUD)**,
@@ -274,8 +333,10 @@ Skema database: `database/dokumen_ttd.sql` (tabel `dokumen`, `dokumen_ttd`,
 ## 🔐 Keamanan
 
 - Password disimpan dengan `password_hash()` (bcrypt)
+- Kode OTP disimpan sebagai hash (bcrypt), berlaku 10 menit, dibatasi
+  jumlah percobaan salah & jeda kirim ulang
 - Query menggunakan **PDO prepared statements**
-- Folder `config/`, `includes/`, `database/` dilindungi dari akses browser (`.htaccess`)
+- Folder `config/`, `includes/`, `database/`, `logs/` dilindungi dari akses browser (`.htaccess`)
 - Sesi menggunakan `session_regenerate_id()` untuk mencegah *session fixation*
 - Validasi dilakukan dua lapis: **client-side** (JS) dan **server-side** (PHP)
 
@@ -285,10 +346,20 @@ Skema database: `database/dokumen_ttd.sql` (tabel `dokumen`, `dokumen_ttd`,
 
 - Aplikasi harus diakses melalui **server** (`http://localhost/...`), bukan langsung
   dari file (`file://`) — karena backend PHP & sesi membutuhkan server.
-- Akun baru yang mendaftar **langsung aktif** (tanpa verifikasi admin) dan bisa
-  login menggunakan **username atau email**. Untuk database yang sudah berjalan,
-  jalankan `database/users_status_aktif.sql` agar akun lama yang masih `pending`
-  ikut teraktifkan.
+- Akun baru yang mendaftar berstatus **`pending`** dan harus **diverifikasi dengan
+  kode OTP** lewat `aktivasi.html` sebelum bisa login (masukkan email → periksa
+  **nama akun & instansi** → klik **Konfirmasi** → masukkan kode OTP dari email).
+- Setelah verifikasi berhasil, pengguna dapat login menggunakan **username atau
+  email**. Login akun `pending` ditolak dan halaman login menampilkan tautan
+  **Aktifkan Akun Sekarang**; tautan tetap **Aktivasi Akun** juga selalu tersedia
+  di bawah tombol **Masuk**.
+- Pastikan pengiriman email sudah dikonfigurasi (`config/mail.php`, contoh pada
+  `config/mail.example.php`). Tabel `users` pada database yang sudah berjalan
+  dimigrasikan otomatis (kolom `otp_*`); jalankan `database/users_otp.sql` bila
+  ingin migrasi manual.
+- Akun lama tetap `aktif` (tidak ikut diverifikasi ulang). Bila ingin seluruh akun
+  melewati verifikasi OTP, jalankan perintah opsional yang dikomentari di
+  `database/users_otp.sql`.
 
 ---
 

@@ -427,6 +427,21 @@
 </table>
 <div class="warn"><b>Penting bagi pengelola:</b> halaman AKLAP hanya dapat tampil benar bila dibuka lewat tautan ber-token (dari menu aplikasi utama atau tautan yang membawa <code class="k">?token=</code>). Pastikan setiap laman menyediakan <b>Kembali ke Penatausahaan</b> seperti modul lainnya.</div>
 
+<h3 class="mini">6.4 Aktivasi akun dengan kode OTP (aplikasi utama)</h3>
+<p>Pendaftaran akun tidak lagi langsung aktif. Akun baru berstatus <code class="k">pending</code> dan diaktifkan sendiri oleh pengguna melalui halaman <code class="k">aktivasi.html</code> (memasukkan email → memeriksa <b>nama akun &amp; instansi</b> → klik <b>Konfirmasi</b> → memasukkan <b>kode OTP 6 angka</b> dari email).</p>
+<table class="guide">
+  <tr><th style="width:34%">Komponen</th><th>Keterangan</th></tr>
+  <tr><td><code class="k">aktivasi.html</code> + <code class="k">js/aktivasi.js</code></td><td>Halaman &amp; skrip aktivasi 3 langkah (email → konfirmasi data → kode OTP) dengan pewaktu masa berlaku kode dan jeda kirim ulang.</td></tr>
+  <tr><td><code class="k">api/aktivasi.php</code> — <code class="k">action=cek</code></td><td>Mencari akun berdasarkan email/username; mengembalikan nama akun, instansi, username, wilayah, dan peran (email disamarkan).</td></tr>
+  <tr><td><code class="k">api/aktivasi.php</code> — <code class="k">action=kirim_otp</code></td><td>Membuat kode OTP 6 angka, menyimpan <b>hash</b>-nya (bcrypt), berlaku <b>10 menit</b>, jeda <b>60 detik</b> antar kirim, maks <b>5 kirim / 15 menit</b>, lalu mengirim email.</td></tr>
+  <tr><td><code class="k">api/aktivasi.php</code> — <code class="k">action=verifikasi</code></td><td>Mencocokkan kode; bila benar status akun menjadi <code class="k">aktif</code> dan kolom OTP dibersihkan (maks <b>5 kali</b> salah tebak per kode).</td></tr>
+  <tr><td><code class="k">includes/mailer.php</code></td><td>Pengirim email OTP: SMTP (SSL/STARTTLS + AUTH LOGIN) atau <code class="k">mail()</code>; konfigurasi opsional di <code class="k">config/mail.php</code> (contoh: <code class="k">config/mail.example.php</code>).</td></tr>
+  <tr><td><code class="k">users.otp_hash</code> · <code class="k">otp_expired_at</code> · <code class="k">otp_terkirim_at</code> · <code class="k">otp_percobaan</code> · <code class="k">otp_verifikasi_at</code></td><td>Kolom baru pada tabel <code class="k">users</code> — ditambahkan otomatis oleh <code class="k">ensureUsersColumns()</code> (migrasi manual: <code class="k">database/users_otp.sql</code>).</td></tr>
+  <tr><td><code class="k">api/login.php</code></td><td>Akun <code class="k">pending</code> <b>ditolak</b> login (respons JSON berisi <code class="k">need_activation</code>); halaman login menampilkan tautan <b>Aktifkan Akun Sekarang</b>.</td></tr>
+  <tr><td><code class="k">login.html</code></td><td>Tautan tetap <b>Aktivasi Akun</b> (<code class="k">aktivasi.html</code>) di bawah tombol <b>Masuk</b>, sehingga pengguna dapat membuka halaman aktivasi tanpa harus mencoba login lebih dahulu.</td></tr>
+</table>
+<div class="info"><b>Catatan:</b> kode OTP selalu dicatat di <code class="k">logs/otp.log.php</code> (tidak dapat dibuka dari browser) agar pengelola dapat membantu mahasiswa bila email belum sampai. Untuk uji coba lokal, set <code class="k">'debug_otp' =&gt; true</code> pada <code class="k">config/mail.php</code> supaya kode ikut tampil di halaman aktivasi (jangan dipakai di server produksi). Akun lama tetap <code class="k">aktif</code> — tidak ikut diverifikasi ulang.</div>
+
 
 <!-- ================= BAGIAN 7 ================= -->
 <h1 class="sec" id="bag7">7. Cara Memverifikasi Cepat</h1>

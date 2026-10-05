@@ -89,11 +89,15 @@ $hashed = password_hash($password, PASSWORD_DEFAULT);
 // Token API unik per pengguna (multi-tenant). DB menyimpan HASH-nya.
 $apiToken = generateApiToken();
 
-// Simpan pengguna baru (status langsung 'aktif' -> tanpa verifikasi admin)
+// Simpan pengguna baru dengan status 'pending'.
+// Akun baru HARUS diverifikasi lebih dulu melalui halaman Aktivasi Akun
+// (aktivasi.html -> api/aktivasi.php): cek email -> konfirmasi nama & instansi
+// -> kode OTP dikirim ke email -> setelah kode benar status menjadi 'aktif'
+// dan pengguna baru bisa login (lihat api/login.php).
 try {
     $stmt = $pdo->prepare("
         INSERT INTO users (nama_lengkap, username, email, password, instansi, kota, provinsi, api_token, peran, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'aktif')
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     ");
     $stmt->execute([$nama, $username, $email, $hashed, $instansi, $kota, $provinsi, hashApiToken($apiToken), $peran]);
 
@@ -102,6 +106,9 @@ try {
     jsonResponse(false, 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.', [], 500);
 }
 
-jsonResponse(true, 'Pendaftaran berhasil! Akun Anda langsung aktif. Silakan login menggunakan username atau email.', [
-    'user_id' => $userId,
+jsonResponse(true, 'Pendaftaran berhasil! Akun Anda berstatus PENDING. Silakan verifikasi dengan kode OTP yang dikirim ke email Anda untuk mengaktifkan akun.', [
+    'user_id'  => $userId,
+    'status'   => 'pending',
+    'email'    => $email,
+    'aktivasi' => 'aktivasi.html?email=' . urlencode($email),
 ], 201);

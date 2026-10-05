@@ -171,16 +171,23 @@
 <div class="info"><b>Catatan:</b> pengelolaan server dan data aplikasi merupakan tanggung jawab dosen/administratur. Mahasiswa cukup mendaftar dan login (Subbab 2.3–2.4).</div>
 
 <h2 class="sub">2.3 Registrasi Akun Baru</h2>
-<p>Mahasiswa mendaftarkan akun sendiri melalui menu <b>Daftar</b>. Isi nama lengkap, email, username, password, serta <b>nama instansi (SKPD)</b> — nama instansi menjadi kunci pemisahan data. Akun langsung aktif setelah registrasi.</p>
+<p>Mahasiswa mendaftarkan akun sendiri melalui menu <b>Daftar</b>. Isi nama lengkap, email, username, password, serta <b>nama instansi (SKPD)</b> — nama instansi menjadi kunci pemisahan data. Akun <b>tidak langsung aktif</b>: setelah registrasi akun berstatus <b>pending</b> dan harus diaktifkan dengan <b>kode OTP</b> yang dikirim ke email Anda.</p>
 <figure>
   <img src="screenshots/opt/03-pendaftaran.webp" alt="Halaman pendaftaran" loading="lazy" decoding="async">
   <figcaption>Gambar 2.2 — Halaman pendaftaran akun</figcaption>
 </figure>
+<div class="info"><b>Aktivasi akun (wajib sebelum bisa login):</b> setelah menekan <b>Daftar</b>, Anda otomatis diarahkan ke halaman <b>Aktivasi Akun</b> (<code class="k">aktivasi.html</code>) dan email terdaftar sudah terisi.</div>
+<div class="step"><b class="no">1</b> Masukkan <b>email</b> terdaftar, lalu klik <b>Cek Akun</b> — sistem menampilkan <b>nama akun</b> dan <b>instansi</b> Anda untuk diperiksa.</div>
+<div class="step"><b class="no">2</b> Bila data sudah benar, klik <b>Konfirmasi &amp; Kirim OTP</b>.</div>
+<div class="step"><b class="no">3</b> Buka email Anda, masukkan <b>kode OTP 6 angka</b> (berlaku 10 menit), lalu klik <b>Verifikasi &amp; Aktifkan Akun</b>.</div>
+<div class="step"><b class="no">4</b> Bila kode benar, akun berstatus <b>aktif</b> dan Anda diarahkan ke halaman login.</div>
+<div class="info"><b>Belum menerima kode?</b> Periksa folder spam, klik <b>Kirim ulang kode</b> (jeda 60 detik), atau hubungi dosen Anda — kode juga tercatat di server sehingga dapat dibantu.</div>
 
 <h2 class="sub">2.4 Login ke Aplikasi</h2>
 <div class="step"><b class="no">1</b> Buka halaman <b>Login</b> dari menu <b>Masuk</b>, masukkan <b>username/email</b> dan <b>password</b>.</div>
 <div class="step"><b class="no">2</b> Masukkan <b>5 karakter captcha</b> yang tampil (contoh pada gambar: <code class="k">SSSSS</code>). Klik ikon refresh bila huruf sulit dibaca.</div>
 <div class="step"><b class="no">3</b> Klik <b>Login</b> — bila berhasil Anda diarahkan ke Dashboard. Terdapat pembatasan <b>maksimal 8 percobaan / 5 menit</b> per akun untuk mencegah penyerangan.</div>
+<div class="info"><b>Akun belum aktif?</b> Login akun <b>pending</b> akan ditolak dan muncul tautan <b>Aktifkan Akun Sekarang</b> menuju halaman aktivasi (Subbab 2.3).</div>
 <figure>
   <img src="screenshots/opt/02-login.webp" alt="Halaman login" loading="lazy" decoding="async">
   <figcaption>Gambar 2.3 — Halaman login dengan captcha</figcaption>

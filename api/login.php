@@ -78,16 +78,21 @@ if (!$user || !password_verify($password, $user['password'])) {
 }
 
 // Cek status akun.
-// Registrasi kini langsung mengaktifkan akun; akun lama yang masih 'pending'
-// otomatis diaktifkan saat login pertama (tanpa verifikasi admin).
+// Akun hasil pendaftaran berstatus 'pending' sampai diverifikasi melalui
+// halaman Aktivasi Akun (kode OTP ke email) — lihat api/aktivasi.php.
+// Akun 'pending' TIDAK boleh login, tetapi frontend diberi tahu agar
+// menampilkan tombol menuju halaman aktivasi.
 if ($user['status'] === 'pending') {
-    try {
-        $pdo->prepare("UPDATE users SET status = 'aktif' WHERE id = ? AND status = 'pending'")
-            ->execute([(int) $user['id']]);
-    } catch (PDOException $e) {
-        // abaikan kegagalan auto-aktivasi; login tetap dilanjutkan
-    }
-    $user['status'] = 'aktif';
+    jsonResponse(
+        false,
+        'Akun Anda belum diverifikasi. Silakan aktifkan akun terlebih dahulu dengan kode OTP yang dikirim ke email Anda.',
+        [
+            'status'         => 'pending',
+            'need_activation' => true,
+            'aktivasi'       => 'aktivasi.html?email=' . urlencode((string) $user['email']),
+        ],
+        403
+    );
 }
 
 if ($user['status'] === 'nonaktif') {
