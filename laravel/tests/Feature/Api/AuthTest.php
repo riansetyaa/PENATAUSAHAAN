@@ -307,4 +307,70 @@ class AuthTest extends TestCase
             ->assertJsonPath('success', false)
             ->assertJsonPath('message', 'Tidak terautentikasi.');
     }
+
+    // -----------------------------------------------------------------
+    // Kompatibilitas bentuk respons (ditemukan oleh differential test)
+    // -----------------------------------------------------------------
+
+    /**
+     * Validasi Laravel secara bawaan menjawab {message, errors} TANPA kunci
+     * `success`. Frontend legacy memeriksa `d.success`, sehingga bentuk
+     * bawaan itu dianggap "gagal" walau request-nya memang tidak valid.
+     * Guard ini mencegah regresi.
+     */
+    public function test_respons_validasi_selalu_memiliki_kunci_success(): void
+    {
+        $this->postJson('/api/v1/auth/login', [])
+            ->assertStatus(422)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Username/Email dan password wajib diisi.');
+    }
+
+    /**
+     * Bentuk respons session harus identik dengan api/session.php legacy:
+     * pesan "Autentikasi valid." dan user memuat id serta email.
+     */
+    public function test_bentuk_respons_session_sama_dengan_legacy(): void
+    {
+        $user = $this->buatUser();
+
+        $this->actingAs($user)
+            ->getJson('/api/v1/auth/session')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('message', 'Autentikasi valid.')
+            ->assertJsonPath('user.id', $user->id)
+            ->assertJsonPath('user.username', 'budi')
+            ->assertJsonPath('user.email', 'budi@polban.ac.id')
+            ->assertJsonPath('user.instansi', 'Dinas Testing')
+            ->assertJsonPath('user.peran', 'Bendahara');
+
+        // `api_token` milik legacy tidak lagi dikembalikan (token API kini
+        // dikelola Sanctum di tabel personal_access_tokens).
+        $this->assertArrayNotHasKey('api_token', $this->actingAs($user)->getJson('/api/v1/auth/session')->json('user'));
+    }
+
+    /**
+     * Rate limit login harus memakai kunci 'username+IP' seperti legacy,
+     * bukan throttle bawaan Laravel (kunci IP, bentuk JSON berbeda).
+     */
+    public function test_rate_limit_login_mengikuti_pola_legacy(): void
+    {
+        $this->buatUser();
+
+        // 8 percobaan diizinkan, ke-9 ditolak (identik dengan legacy).
+        for ($i = 1; $i <= 8; $i++) {
+            $this->postJson('/api/v1/auth/login', [
+                'username' => 'budi',
+                'password' => 'salah',
+            ])->assertStatus(401);
+        }
+
+        $this->postJson('/api/v1/auth/login', [
+            'username' => 'budi',
+            'password' => 'salah',
+        ])->assertStatus(429)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Terlalu banyak percobaan login. Coba lagi dalam beberapa menit.');
+    }
 }

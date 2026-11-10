@@ -43,16 +43,14 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'username' => ['required', 'string'],
-            'password' => ['required', 'string'],
-        ], [
-            'username.required' => 'Username/Email dan password wajib diisi.',
-            'password.required' => 'Username/Email dan password wajib diisi.',
-        ]);
+        $username = trim((string) $request->input('username', ''));
+        $password = (string) $request->input('password', '');
 
-        $username = trim((string) $request->input('username'));
-        $password = (string) $request->input('password');
+        // Validasi manual (bukan $request->validate) agar bentuk respons
+        // identik dengan legacy: {success, message} TANPA kunci `errors`.
+        if ($username === '' || $password === '') {
+            return $this->fail('Username/Email dan password wajib diisi.', [], 422);
+        }
 
         // ---- Rate limit: maks 8 percobaan / 5 menit per username+IP ----
         $ip = $request->ip() ?? '-';
@@ -243,6 +241,13 @@ class AuthController extends Controller
      * GET /api/v1/auth/session
      *
      * Dipakai frontend untuk memastikan session masih valid.
+     *
+     * Bentuk respons SENGAJA disamakan persis dengan api/session.php pada
+     * sistem legacy (termasuk kalimat pesan dan urutan isi array user) agar
+     * differential test harness dapat membandingkan keduanya secara ketat.
+     *
+     * Catatan: `api_token` milik legacy TIDAK dikembalikan. Pada sistem baru
+     * token API dikelola Sanctum dan tidak lagi disimpan di tabel users.
      */
     public function session(Request $request)
     {
@@ -252,13 +257,15 @@ class AuthController extends Controller
             return $this->fail('Tidak terautentikasi.', [], 401);
         }
 
-        return $this->ok('Sesi aktif.', [
+        return $this->ok('Autentikasi valid.', [
             'user' => [
-                'nama'     => $user->nama_lengkap,
-                'username' => $user->username,
-                'peran'    => $user->peran,
-                'instansi' => $user->instansi,
-                'nip'      => $user->nip,
+                'id'       => $user->id,
+                'nama'     => (string) $user->nama_lengkap,
+                'nip'      => (string) ($user->nip ?? ''),
+                'username' => (string) $user->username,
+                'email'    => (string) $user->email,
+                'instansi' => (string) ($user->instansi ?? ''),
+                'peran'    => (string) $user->peran,
             ],
         ]);
     }

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -95,5 +96,23 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return null;
+        });
+
+        // Validasi Laravel secara bawaan menjawab {message, errors} TANPA
+        // kunci `success`. Frontend legacy memeriksa `d.success`, sehingga
+        // bentuk bawaan itu akan dianggap gagal although request-nya valid.
+        // Bentuk respons diseragamkan ke gaya legacy: {success, message, ...}.
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            if (! $request->is('api/*')) {
+                return null;
+            }
+
+            $errors = $e->errors();
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors'  => $errors,
+            ], 422);
         });
     })->create();

@@ -179,9 +179,91 @@ php artisan test
 |---|---|---|
 | 0 | Penguatan sistem live (token bocor, XSS, kredensial, `db_credentials()`) | ✅ |
 | 1 | Fondasi Laravel: model, migration, scope, middleware, auth | ✅ |
-| 2 | Differential test harness (golden master) | ⬜ |
+| 2 | Differential test harness (golden master) | ✅ |
 | 3 | Porting modul: auth → penerimaan → belanja → AKLAP → dokumen | ⬜ |
 | 4 | Integrasi frontend (62 halaman) | ⬜ |
 | 5 | Parallel run, verifikasi, cutover | ⬜ |
 
 Detail Fase 0 ada di commit `8b6d34f`.
+
+---
+
+## 9. Differential Test Harness
+
+### 9.1 Konsep
+
+API legacy (PHP vanilla) adalah **golden master**. Apa pun yang dikembalikan
+legacy dianggap benar; API baru wajib mengulang hasil yang sama.
+
+Karena kedua API membaca basis data yang sama (`simtkd`), perbandingan nilai
+nyata — total anggaran, saldo akun, nomor dokumen — benar-benar bermakna,
+bukan sekadar membandingkan bentuk JSON.
+
+```
+laravel/tools/difftest/
+├── Client.php        Klien HTTP (cURL + cookie jar + Bearer token)
+├── Response.php      Hasil request
+├── Normalizer.php    Normalisasi & diff JSON
+├── Runner.php        Orkestrasi + pelaporan
+├── scenarios.php     Katalog skenario (CHECKLIST porting)
+└── run.php           CLI
+```
+
+### 9.2 Menjalankan
+
+```bash
+# Terminal 1 — server legacy
+php -S 127.0.0.1:8899 -t /path/ke/PENATAUSAHAAN
+
+# Terminal 2 — server Laravel
+cd laravel && php artisan serve --host=127.0.0.1 --port=8291
+
+# Terminal 3 — harness
+php laravel/tools/difftest/run.php
+php laravel/tools/difftest/run.php --filter=auth      # hanya skenario auth
+php laravel/tools/difftest/run.php --pending-only      # hanya yang belum dimigrasi
+php laravel/tools/difftest/run.php --verbose
+```
+
+Exit code `0` = tidak ada kegagalan, `1` = ada FAIL/ERROR.
+Cocok untuk dipakai sebagai langkah wajib CI.
+
+### 9.3 Status saat ini
+
+```
+TOTAL 95   PASS 18   FAIL 0   PENDING 77   ERROR 0
+Endpoint yang sudah dimigrasi: 18/95 (19%)
+```
+
+Skenario `PENDING` adalah **checklist porting yang hidup** — setiap endpoint
+legacy yang belum ada padanya API baru akan tercatat di sana.
+
+### 9.4 Temuan yang sudah ditemukan harness
+
+| Temuan | Dampak | Perbaikan |
+|---|---|---|
+| Respons validasi Laravel tidak punya kunci `success` | **Frontend lama rusak** — memeriksa `d.success` | Exception handler global menyeragamkan ke `{success, message, errors}` |
+| `throttle` bawaan Laravel memakai kunci IP & JSON berbeda | 429 vs 422, pesan tak sama | Rate limit dipindah ke dalam controller (pola legacy: `username+IP`) |
+| Bentuk respons `session` berbeda (pesan, `user.id`, `user.email`) | Frontend bergantung isi | Controller disesuaikan identik dengan legacy |
+| `api_token` legacy tak ada padanya API baru | Noise | Di-*drop* per-skenario dengan alasan terdokumentasi |
+
+Harness juga menemukan **dua bug pada dirinya sendiri** (variabel runtime
+tak diteruskan; ekspektasi tak di-interpolasi) — keduanya diperbaiki.
+
+### 9.5 Cara menambah skenario
+
+```php
+[
+    'name'  => 'aklap.buku_besar',
+    'desc'  => 'Buku besar',
+    'legacy' => ['method' => 'GET', 'path' => '/api/akuntansi.php', 'params' => ['action' => 'buku_besar']],
+    'baru'   => ['method' => 'GET', 'path' => '/api/v1/aklap/buku-besar'],
+    // Kunci yang boleh berbeda (opsional)
+    'drop'   => ['user.api_token'],
+    // Ekspektasi tambahan pada API baru (opsional)
+    'expect' => ['success' => true],
+],
+```
+
+Placeholder `{{user.aktif.username}}` diisi dari akun uji runtime. Akun uji
+dibuat dan dibersihkan otomatis oleh harness.

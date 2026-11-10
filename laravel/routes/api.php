@@ -29,12 +29,21 @@ Route::prefix('v1')->group(function () {
     // Group 'api-session' membawa cookie session sehingga frontend utama
     // (yang memakai session cookie) tetap bekerja seperti sistem legacy.
     Route::middleware('api-session')->prefix('auth')->group(function () {
+        // CATATAN: TIDAK memakai middleware `throttle` bawaan Laravel.
+        //
+        // Rate limit legacy diterapkan DI DALAM controller dengan kunci
+        // 'username+IP' (8 percobaan / 5 menit) dan pesan error yang sama
+        // dengan sistem lama. Middleware throttle bawaan memakai kunci IP
+        // dan membalas 429 dengan bentuk JSON berbeda, sehingga hasil
+        // endpoint berbeda dari legacy (ditemukan oleh differential test).
+        //
+        // Endpoint publik tetap dilindungi: limit di dalam controller
+        // berlaku persis seperti versi legacy.
+
         Route::post('login', [AuthController::class, 'login'])
-            ->middleware('throttle:10,1')
             ->name('api.v1.auth.login');
 
         Route::post('register', [AuthController::class, 'register'])
-            ->middleware('throttle:5,1')
             ->name('api.v1.auth.register');
 
         Route::get('logout', [AuthController::class, 'logout'])
@@ -56,16 +65,14 @@ Route::prefix('v1')->group(function () {
     // Publik — aktivasi akun (OTP)
     // -----------------------------------------------------------------
     Route::middleware('api-session')->prefix('aktivasi')->group(function () {
+        // Sama seperti auth: rate limit di dalam controller (legacy-faithful).
         Route::post('cek', [AktivasiController::class, 'cek'])
-            ->middleware('throttle:30,1')
             ->name('api.v1.aktivasi.cek');
 
         Route::post('kirim-otp', [AktivasiController::class, 'kirimOtp'])
-            ->middleware('throttle:5,15')
             ->name('api.v1.aktivasi.kirim-otp');
 
         Route::post('verifikasi', [AktivasiController::class, 'verifikasi'])
-            ->middleware('throttle:15,15')
             ->name('api.v1.aktivasi.verifikasi');
     });
 
