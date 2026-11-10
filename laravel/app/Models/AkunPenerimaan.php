@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model untuk tabel `akun_penerimaan` (skema legacy SIM-TKD).
  *
- * Dibuat oleh tools/generate-schema-artifacts.php dari skema live.
- *
- * Catatan: tabel ini punya kolom `skpd` sehingga otomatis ter-filter
- * per instansi/SKPD lewat global scope yang dipasang App\Models\Model.
+ * @manual Relasi ditulis manual — jangan ditimpa generator.
  */
 class AkunPenerimaan extends Model
 {
@@ -32,4 +32,11 @@ class AkunPenerimaan extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * User yang membuat akun penerimaan.
+     */
+    public function dibuatOleh(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

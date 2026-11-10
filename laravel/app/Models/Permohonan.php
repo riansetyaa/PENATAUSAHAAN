@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model untuk tabel `permohonan` (skema legacy SIM-TKD).
  *
- * Dibuat oleh tools/generate-schema-artifacts.php dari skema live.
- *
- * Catatan: tabel ini punya kolom `skpd` sehingga otomatis ter-filter
- * per instansi/SKPD lewat global scope yang dipasang App\Models\Model.
+ * @manual Relasi & accessor ditulis manual — jangan ditimpa generator.
  */
 class Permohonan extends Model
 {
@@ -34,4 +34,11 @@ class Permohonan extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * User yang membuat permohonan (dipakai sebagai kolom `dibuat_oleh`).
+     */
+    public function dibuatOleh(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

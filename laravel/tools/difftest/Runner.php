@@ -136,6 +136,25 @@ class Runner
             }
         }
 
+        // ---- Perbedaan yang disengaja ----
+        // Bila skenario mendeklarasikan `known_divergence`, perbedaan di atas
+        // diperlakukan sebagai hal yang KNOWN (bukan kegagalan) asalkan
+        // alasannya diisi. Ini dipakai ketika porting sengaja memperbaiki
+        // perilaku legacy yang memang rusak.
+        $known = $sc['known_divergence'] ?? null;
+
+        if ($diffs !== [] && is_array($known) && ! empty($known['reason'])) {
+            return new ScenarioResult(
+                $name,
+                ScenarioResult::KNOWN,
+                $diffs,
+                $legacyResp->status,
+                $baruResp->status,
+                note: (string) ($known['note'] ?? ''),
+                knownReason: (string) $known['reason'],
+            );
+        }
+
         return new ScenarioResult(
             $name,
             $diffs === [] ? ScenarioResult::PASS : ScenarioResult::FAIL,

@@ -88,4 +88,9 @@ Route::prefix('v1')->group(function () {
         //   routes/api/aklap.php
         //   routes/api/dokumen.php
     });
+
+    // -----------------------------------------------------------------
+    // Modul Penerimaan
+    // -----------------------------------------------------------------
+    require __DIR__ . '/api/penerimaan.php';
 });

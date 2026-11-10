@@ -434,33 +434,250 @@ return [
         'expect' => ['success' => true],
     ],
 
-    [
-        'name'  => 'auth.logout',
-        'desc'  => 'Logout menghapus sesi',
-        'legacy' => [
-            'method' => 'GET',
-            'path'   => '/api/logout.php',
-            'params' => [],
-        ],
-        'baru' => [
-            'method' => 'GET',
-            'path'   => '/api/v1/auth/logout',
-            'params' => [],
-        ],
-        'expect' => ['success' => true],
-    ],
-
     // =================================================================
     // BELUM DIMIGDASI — CHECKLIST PORTING
     // =================================================================
 
-    // ---- Modul utama: penerimaan ----
-    ['name' => 'permohonan.list',          'desc' => 'Daftar permohonan rekening',            'legacy' => ['method' => 'GET', 'path' => '/api/permohonan.php'], 'baru' => null],
-    ['name' => 'permohonan.set_aktif',     'desc' => 'Set aktif/nonaktif permohonan',          'legacy' => ['method' => 'POST', 'path' => '/api/permohonan.php', 'params' => ['action' => 'set_aktif']], 'baru' => null],
-    ['name' => 'permohonan.verifikasi',    'desc' => 'Verifikasi permohonan',                  'legacy' => ['method' => 'POST', 'path' => '/api/permohonan.php', 'params' => ['action' => 'verifikasi']], 'baru' => null],
-    ['name' => 'akun_penerimaan.list',     'desc' => 'Daftar akun penerimaan',                 'legacy' => ['method' => 'GET', 'path' => '/api/akun_penerimaan.php'], 'baru' => null],
-    ['name' => 'akun_penerimaan.create',   'desc' => 'Buat akun penerimaan',                   'legacy' => ['method' => 'POST', 'path' => '/api/akun_penerimaan.php', 'params' => ['action' => 'create']], 'baru' => null],
-    ['name' => 'akun_penerimaan.update',   'desc' => 'Ubah akun penerimaan',                   'legacy' => ['method' => 'POST', 'path' => '/api/akun_penerimaan.php', 'params' => ['action' => 'update_metode']], 'baru' => null],
+    // ---- Modul utama: penerimaan (SUDAH DIMIGDASI) ----
+    [
+        'name'  => 'permohonan.list',
+        'desc'  => 'Daftar permohonan rekening',
+        'legacy' => ['method' => 'GET', 'path' => '/api/permohonan.php'],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/permohonan'],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'permohonan.list.cari',
+        'desc'  => 'Daftar permohonan dengan pencarian (?q=)',
+        'legacy' => ['method' => 'GET', 'path' => '/api/permohonan.php', 'params' => ['q' => 'BANK']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/permohonan', 'params' => ['q' => 'BANK']],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'permohonan.list.hanya_aktif',
+        'desc'  => 'Daftar permohonan hanya yang disetujui & aktif (?aktif=1)',
+        'legacy' => ['method' => 'GET', 'path' => '/api/permohonan.php', 'params' => ['aktif' => '1']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/permohonan', 'params' => ['aktif' => '1']],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'permohonan.create.gagal.bank_kosong',
+        'desc'  => 'Simpan permohonan tanpa bank ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/permohonan.php',
+            'params' => ['nama_rekening' => 'Pemilik Uji', 'nomor_rekening' => '1234567890'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/permohonan',
+            'params' => ['nama_rekening' => 'Pemilik Uji', 'nomor_rekening' => '1234567890'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'bank',
+            'message' => 'Silakan pilih bank.',
+        ],
+    ],
+    [
+        'name'  => 'permohonan.create.gagal.nama_kosong',
+        'desc'  => 'Simpan permohonan tanpa nama pemilik ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/permohonan.php',
+            'params' => ['bank' => 'BANK UJI', 'nomor_rekening' => '1234567890'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/permohonan',
+            'params' => ['bank' => 'BANK UJI', 'nomor_rekening' => '1234567890'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'nama_rekening',
+            'message' => 'Nama pemilik rekening wajib diisi.',
+        ],
+    ],
+    [
+        'name'  => 'permohonan.create.gagal.nomor_kosong',
+        'desc'  => 'Simpan permohonan tanpa nomor rekening ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/permohonan.php',
+            'params' => ['bank' => 'BANK UJI', 'nama_rekening' => 'Pemilik Uji'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/permohonan',
+            'params' => ['bank' => 'BANK UJI', 'nama_rekening' => 'Pemilik Uji'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'nomor_rekening',
+            'message' => 'Nomor rekening wajib diisi.',
+        ],
+    ],
+    [
+        'name'  => 'permohonan.set_aktif.gagal.id_tidak_ada',
+        'desc'  => 'Set aktif pada ID yang tidak ada (404)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/permohonan.php',
+            'params' => ['action' => 'set_aktif', 'id' => '99999999', 'status_aktif' => '1'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/permohonan/99999999/set-aktif',
+            'params' => ['status_aktif' => '1'],
+        ],
+        'expect' => [
+            'success' => false,
+            'message' => 'Data tidak ditemukan atau bukan milik instansi Anda.',
+        ],
+    ],
+    [
+        'name'  => 'permohonan.verifikasi.gagal.id_tidak_ada',
+        'desc'  => 'Verifikasi pada ID yang tidak ada (404)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/permohonan.php',
+            'params' => ['action' => 'verifikasi', 'id' => '99999999'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/permohonan/99999999/verifikasi',
+        ],
+        'expect' => [
+            'success' => false,
+            'message' => 'Data tidak ditemukan atau bukan milik instansi Anda.',
+        ],
+    ],
+    [
+        'name'  => 'akun_penerimaan.list',
+        'desc'  => 'Daftar akun penerimaan',
+        'legacy' => ['method' => 'GET', 'path' => '/api/akun_penerimaan.php'],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/akun'],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'akun_penerimaan.list.cari',
+        'desc'  => 'Daftar akun penerimaan dengan pencarian',
+        'legacy' => ['method' => 'GET', 'path' => '/api/akun_penerimaan.php', 'params' => ['q' => '4.1']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/akun', 'params' => ['q' => '4.1']],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'akun_penerimaan.create.gagal.kode_kosong',
+        'desc'  => 'Simpan akun penerimaan tanpa kode ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/akun_penerimaan.php',
+            'params' => ['action' => 'create', 'nama_akun' => 'Uji'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/akun',
+            'params' => ['action' => 'create', 'nama_akun' => 'Uji'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'kode_akun',
+            'message' => 'Kode akun wajib diisi.',
+        ],
+    ],
+    [
+        'name'  => 'akun_penerimaan.create.gagal.nama_kosong',
+        'desc'  => 'Simpan akun penerimaan tanpa nama ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/akun_penerimaan.php',
+            'params' => ['action' => 'create', 'kode_akun' => '9.9.99'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/akun',
+            'params' => ['action' => 'create', 'kode_akun' => '9.9.99'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'nama_akun',
+            'message' => 'Nama akun wajib diisi.',
+        ],
+    ],
+    [
+        'name'  => 'akun_penerimaan.aksi_tidak_dikenal',
+        'desc'  => 'Aksi tak dikenal ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/akun_penerimaan.php',
+            'params' => ['action' => 'aksi_ngawur'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/akun',
+            'params' => ['action' => 'aksi_ngawur'],
+        ],
+        'expect' => [
+            'success' => false,
+            'message' => 'Aksi tidak dikenali.',
+        ],
+    ],
+    [
+        'name'  => 'laporan.obyek_penerimaan',
+        'desc'  => 'Daftar kode rekening rincian obyek penerimaan',
+        'legacy' => ['method' => 'GET', 'path' => '/api/laporan.php', 'params' => ['action' => 'obyek_penerimaan']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/laporan/obyek'],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'laporan.buku_pembantu.gagal.kode_kosong',
+        'desc'  => 'Buku pembantu tanpa kode rekening ditolak (422)',
+        'legacy' => ['method' => 'GET', 'path' => '/api/laporan.php', 'params' => ['action' => 'buku_pembantu', 'kode_akun' => '']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/laporan/buku-pembantu', 'params' => ['kode_akun' => '']],
+        'expect' => [
+            'success' => false,
+            'message' => 'Kode rekening rincian obyek wajib dipilih.',
+        ],
+    ],
+    [
+        'name'  => 'laporan.rekap.gagal.periode_kosong',
+        'desc'  => 'Rekap tanpa periode ditolak (422)',
+        'legacy' => ['method' => 'GET', 'path' => '/api/laporan.php', 'params' => ['action' => 'rekap']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/laporan/rekap'],
+        'expect' => [
+            'success' => false,
+            'message' => 'Periode (tanggal awal dan akhir) wajib diisi.',
+        ],
+    ],
+    [
+        'name'  => 'laporan.rekap.harian',
+        'desc'  => 'Rekap penerimaan harian',
+        'legacy' => ['method' => 'GET', 'path' => '/api/laporan.php', 'params' => ['action' => 'rekap', 'mode' => 'harian', 'dari' => '2020-01-01', 'sampai' => '2030-12-31']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/laporan/rekap', 'params' => ['mode' => 'harian', 'dari' => '2020-01-01', 'sampai' => '2030-12-31']],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'laporan.rekap.bulanan',
+        'desc'  => 'Rekap penerimaan bulanan',
+        'legacy' => ['method' => 'GET', 'path' => '/api/laporan.php', 'params' => ['action' => 'rekap', 'mode' => 'bulanan', 'dari' => '2020-01-01', 'sampai' => '2030-12-31']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/laporan/rekap', 'params' => ['mode' => 'bulanan', 'dari' => '2020-01-01', 'sampai' => '2030-12-31']],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'laporan.bku',
+        'desc'  => 'Buku Kas Umum penerimaan',
+        'legacy' => ['method' => 'GET', 'path' => '/api/laporan.php', 'params' => ['action' => 'bku', 'dari' => '2020-01-01', 'sampai' => '2030-12-31']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/laporan/bku', 'params' => ['dari' => '2020-01-01', 'sampai' => '2030-12-31']],
+        'expect' => ['success' => true],
+    ],
+
+    // ---- Modul utama: penerimaan yang BELUM dimigrasi ----
+    ['name' => 'sts.list',                 'desc' => 'Daftar STS',                             'legacy' => ['method' => 'GET', 'path' => '/api/sts.php'], 'baru' => null],
+    ['name' => 'stbp.list',                'desc' => 'Daftar STBP',                            'legacy' => ['method' => 'GET', 'path' => '/api/stbp.php'], 'baru' => null],
+    ['name' => 'stbp.update_status',       'desc' => 'Ubah status STBP',                       'legacy' => ['method' => 'POST', 'path' => '/api/stbp.php', 'params' => ['action' => 'update_status']], 'baru' => null],
+    ['name' => 'skp.list',                 'desc' => 'Daftar SKP Daerah',                      'legacy' => ['method' => 'GET', 'path' => '/api/skp.php'], 'baru' => null],
+    ['name' => 'skp.create',               'desc' => 'Buat SKP Daerah',                        'legacy' => ['method' => 'POST', 'path' => '/api/skp.php', 'params' => ['action' => 'create']], 'baru' => null],
+    ['name' => 'skp.delete',               'desc' => 'Hapus SKP Daerah',                       'legacy' => ['method' => 'POST', 'path' => '/api/skp.php', 'params' => ['action' => 'delete']], 'baru' => null],
     ['name' => 'sts.list',                 'desc' => 'Daftar STS',                             'legacy' => ['method' => 'GET', 'path' => '/api/sts.php'], 'baru' => null],
     ['name' => 'stbp.list',                'desc' => 'Daftar STBP',                            'legacy' => ['method' => 'GET', 'path' => '/api/stbp.php'], 'baru' => null],
     ['name' => 'stbp.update_status',       'desc' => 'Ubah status STBP',                       'legacy' => ['method' => 'POST', 'path' => '/api/stbp.php', 'params' => ['action' => 'update_status']], 'baru' => null],
@@ -540,4 +757,25 @@ return [
     ['name' => 'aklap.aklap_rekap',        'desc' => 'Rekap AKLAP (dashboard)',                'legacy' => ['method' => 'GET', 'path' => '/api/aklap.php', 'params' => ['action' => 'rekap']], 'baru' => null],
     ['name' => 'aklap.lra_rekap',          'desc' => 'Rekap LRA',                              'legacy' => ['method' => 'GET', 'path' => '/api/aklap.php', 'params' => ['action' => 'lra_rekap']], 'baru' => null],
     ['name' => 'aklap.neraca_rekap',       'desc' => 'Rekap neraca',                           'legacy' => ['method' => 'GET', 'path' => '/api/aklap.php', 'params' => ['action' => 'neraca_rekap']], 'baru' => null],
+
+    // ================================================================
+    // LOGOUT — diletakkan TERAKHIR karena logout mencabut seluruh token
+    // API milik user tersebut. Bila dijalankan lebih awal, seluruh
+    // skenario yang menyusul akan berakhir dengan 401.
+    // ================================================================
+    [
+        'name'  => 'auth.logout',
+        'desc'  => 'Logout menghapus sesi',
+        'legacy' => [
+            'method' => 'GET',
+            'path'   => '/api/logout.php',
+            'params' => [],
+        ],
+        'baru' => [
+            'method' => 'GET',
+            'path'   => '/api/v1/auth/logout',
+            'params' => [],
+        ],
+        'expect' => ['success' => true],
+    ],
 ];

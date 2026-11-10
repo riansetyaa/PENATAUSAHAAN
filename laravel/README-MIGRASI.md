@@ -180,11 +180,22 @@ php artisan test
 | 0 | Penguatan sistem live (token bocor, XSS, kredensial, `db_credentials()`) | ✅ |
 | 1 | Fondasi Laravel: model, migration, scope, middleware, auth | ✅ |
 | 2 | Differential test harness (golden master) | ✅ |
-| 3 | Porting modul: auth → penerimaan → belanja → AKLAP → dokumen | ⬜ |
+| 3a | Porting modul **Penerimaan** (permohonan, akun, laporan) | ✅ |
+| 3b | Porting modul Belanja (34 aksi) | ⬜ |
+| 3c | Porting modul AKLAP (49 aksi) | ⬜ |
+| 3d | Porting modul Dokumen & TTD (8 aksi) | ⬜ |
+| 3e | Porting STS / STBP / SKP / Profil / Dashboard / Lupa password | ⬜ |
 | 4 | Integrasi frontend (62 halaman) | ⬜ |
 | 5 | Parallel run, verifikasi, cutover | ⬜ |
 
 Detail Fase 0 ada di commit `8b6d34f`.
+
+### Status porting
+
+```
+TOTAL 114   PASS 37   FAIL 0   PENDING 77   ERROR 0
+Endpoint yang sudah dimigrasi: 37/114 (32%)
+```
 
 ---
 

@@ -34,7 +34,7 @@ class EnsureInstansi
         if (trim((string) ($user->instansi ?? '')) === '') {
             return response()->json([
                 'success' => false,
-                'message' => 'Instansi akun belum diatur. Hubungi administrator.',
+                'message' => 'Instansi belum diatur pada akun Anda. Hubungi administrator.',
             ], 403);
         }
 

@@ -276,6 +276,7 @@ $counts = [
     ScenarioResult::FAIL    => 0,
     ScenarioResult::PENDING => 0,
     ScenarioResult::ERROR   => 0,
+    ScenarioResult::KNOWN   => 0,
 ];
 
 $symbols = [
@@ -283,13 +284,22 @@ $symbols = [
     ScenarioResult::FAIL    => "\033[31mFAIL\033[0m",
     ScenarioResult::PENDING => "\033[33mPEND\033[0m",
     ScenarioResult::ERROR   => "\033[35mERR \033[0m",
+    ScenarioResult::KNOWN   => "\033[36mKNWN\033[0m",
 ];
 
 foreach ($results as $r) {
     $counts[$r->status]++;
     printf("  %-6s %s\n", $symbols[$r->status], $r->name);
 
-    if ($r->status === ScenarioResult::FAIL || $r->status === ScenarioResult::ERROR) {
+    if ($r->status === ScenarioResult::KNOWN) {
+        echo "         \033[36mⓘ perbedaan disengaja: {$r->knownReason}\033[0m\n";
+        if ($r->note !== '') {
+            echo "         \033[36m  {$r->note}\033[0m\n";
+        }
+        foreach ($r->diffs as $d) {
+            echo "         \033[36m- {$d}\033[0m\n";
+        }
+    } elseif ($r->status === ScenarioResult::FAIL || $r->status === ScenarioResult::ERROR) {
         foreach ($r->diffs as $d) {
             echo "         \033[31m- {$d}\033[0m\n";
         }
@@ -305,15 +315,16 @@ $total = count($results);
 
 echo "\n" . str_repeat('=', 62) . "\n";
 printf(
-    "TOTAL %d   \033[32mPASS %d\033[0m   \033[31mFAIL %d\033[0m   \033[33mPENDING %d\033[0m   \033[35mERROR %d\033[0m\n",
+    "TOTAL %d   \033[32mPASS %d\033[0m   \033[31mFAIL %d\033[0m   \033[33mPENDING %d\033[0m   \033[35mERROR %d\033[0m   \033[36mKNOWN %d\033[0m\n",
     $total,
     $counts[ScenarioResult::PASS],
     $counts[ScenarioResult::FAIL],
     $counts[ScenarioResult::PENDING],
-    $counts[ScenarioResult::ERROR]
+    $counts[ScenarioResult::ERROR],
+    $counts[ScenarioResult::KNOWN]
 );
 
-$done = $counts[ScenarioResult::PASS] + $counts[ScenarioResult::FAIL];
+$done = $counts[ScenarioResult::PASS] + $counts[ScenarioResult::FAIL] + $counts[ScenarioResult::KNOWN];
 if ($done > 0) {
     printf("Endpoint yang sudah dimigrasi: %d/%d (%.0f%%)\n",
         $done,

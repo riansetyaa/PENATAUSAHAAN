@@ -116,6 +116,12 @@ foreach ($tables as $table) {
     $modelFile  = $modDir . '/' . $model . '.php';
     $migFile    = $migDir . '/2026_01_01_000000_mirror_' . $table . '.php';
 
+    // Model yang sudah diedit tangan (ada relasi, accessor, dsb.) ditandai
+    // dengan marker `// @manual` pada filenya. Generator TIDAK menimpanya
+    // supaya relasi custom tidak hilang saat generator dijalankan ulang.
+    $isManual = is_file($modelFile)
+        && str_contains((string) file_get_contents($modelFile), '@manual');
+
     if (!file_exists($migFile)) {
         file_put_contents($migFile, renderMigration($table, $columns, $indexes, $primary));
         $created++;
@@ -123,6 +129,8 @@ foreach ($tables as $table) {
     if (!file_exists($modelFile)) {
         file_put_contents($modelFile, renderModel($table, $columns, $primary, $model));
         $created++;
+    } elseif ($isManual) {
+        $skipped++;
     }
 }
 

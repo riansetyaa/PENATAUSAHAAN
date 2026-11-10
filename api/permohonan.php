@@ -22,13 +22,22 @@ if (!isLoggedIn()) {
 $pdo    = db();
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Pemisahan data multi-dinas (fail-closed).
+//
+// PENTING: variabel ini HARUS diinisialisasi SEBELUM percabangan metode.
+// Sebelumnya hanya di-set di dalam blok GET, sehingga pada aksi POST
+// (set_aktif & verifikasi) $skpd bernilai null. Akibatnya syarat
+// "AND (? = '' OR skpd = ?)" tidak pernah bernilai benar sehingga UPDATE
+// tidak pernah menyentuh baris mana pun -> aksi tersebut selalu membalas
+// 404 "Data tidak ditemukan atau bukan milik instansi Anda."
+$skpd = requireInstansi();
+
 // ============================================
 // GET - Daftar permohonan
 // ============================================
 if ($method === 'GET') {
     $q     = input('q');
     $aktif = input('aktif', ''); // '1' = hanya rekening yang disetujui & aktif (untuk STBP)
-    $skpd  = requireInstansi(); // pemisahan data multi-dinas (fail-closed)
 
     $sql    = "SELECT p.*, u.nama_lengkap AS dibuat_oleh
                FROM permohonan p
@@ -121,8 +130,7 @@ if ($method === 'POST') {
     $bank   = input('bank');
     $nama   = input('nama_rekening');
     $nomor  = input('nomor_rekening');
-    // skpd selalu dari sesi (jangan percaya input klien)
-    $skpd   = requireInstansi();
+    // skpd selalu dari sesi (sudah di-set di atas, jangan percaya input klien)
 
     if ($bank === '') {
         jsonResponse(false, 'Silakan pilih bank.', ['field' => 'bank'], 422);

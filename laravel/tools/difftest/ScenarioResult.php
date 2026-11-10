@@ -15,6 +15,11 @@ class ScenarioResult
     public const ERROR   = 'ERROR';
 
     /**
+     * Perbedaan yang disengaja (sudah didokumentasikan & disetujui).
+     */
+    public const KNOWN   = 'KNOWN';
+
+    /**
      * @param  array<int, string>  $diffs
      */
     public function __construct(
@@ -24,6 +29,7 @@ class ScenarioResult
         public readonly ?int $legacyStatus = null,
         public readonly ?int $newStatus = null,
         public readonly string $note = '',
+        public readonly ?string $knownReason = null,
     ) {
     }
 }
