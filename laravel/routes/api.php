@@ -93,4 +93,9 @@ Route::prefix('v1')->group(function () {
     // Modul Penerimaan
     // -----------------------------------------------------------------
     require __DIR__ . '/api/penerimaan.php';
+
+    // -----------------------------------------------------------------
+    // Modul Utama (dashboard, profil, lupa password, SKP daerah)
+    // -----------------------------------------------------------------
+    require __DIR__ . '/api/utama.php';
 });

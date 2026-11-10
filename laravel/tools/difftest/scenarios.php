@@ -710,6 +710,275 @@ return [
     ['name' => 'belanja.npd_validasi_pa',  'desc' => 'Validasi NPD (PA)',                      'legacy' => ['method' => 'POST', 'path' => '/api/belanja.php', 'params' => ['action' => 'npd_validasi_pa']], 'baru' => null],
     ['name' => 'belanja.npd_validasi_bp',  'desc' => 'Validasi NPD (BP)',                      'legacy' => ['method' => 'POST', 'path' => '/api/belanja.php', 'params' => ['action' => 'npd_validasi_bp']], 'baru' => null],
 
+    // ---- Modul utama: pengaturan & dashboard (SUDAH DIMIGDASI) ----
+    [
+        'name'  => 'summary.dashboard',
+        'desc'  => 'Ringkasan APBD dashboard',
+        'legacy' => ['method' => 'GET', 'path' => '/api/summary.php'],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/dashboard/summary'],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'profil.get',
+        'desc'  => 'Data profil user',
+        'legacy' => ['method' => 'GET', 'path' => '/api/profil.php'],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/profil'],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'profil.simpan.gagal.email_tidak_valid',
+        'desc'  => 'Simpan profil dengan email tidak valid ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/profil.php',
+            'params' => ['action' => 'simpan', 'nama_lengkap' => 'Uji Difftest', 'email' => 'bukan-email'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/profil',
+            'params' => ['action' => 'simpan', 'nama_lengkap' => 'Uji Difftest', 'email' => 'bukan-email'],
+        ],
+        'expect' => [
+            'success' => false,
+            'message' => 'Format email tidak valid.',
+        ],
+    ],
+    [
+        'name'  => 'profil.ganti_password.gagal.password_lama_salah',
+        'desc'  => 'Ganti password dengan password lama salah ditolak (401)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/profil.php',
+            'params' => [
+                'action'              => 'ganti_password',
+                'password_lama'       => 'SalahSekali',
+                'password_baru'       => 'PasswordBaruKuat123',
+                'password_konfirmasi' => 'PasswordBaruKuat123',
+            ],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/profil/password',
+            'params' => [
+                'action'              => 'ganti_password',
+                'password_lama'       => 'SalahSekali',
+                'password_baru'       => 'PasswordBaruKuat123',
+                'password_konfirmasi' => 'PasswordBaruKuat123',
+            ],
+        ],
+        'expect' => [
+            'success' => false,
+            'message' => 'Password lama salah.',
+        ],
+    ],
+    [
+        'name'  => 'profil.ganti_password.gagal.konfirmasi_tidak_cocok',
+        'desc'  => 'Konfirmasi password tidak cocok ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/profil.php',
+            'params' => [
+                'action'              => 'ganti_password',
+                'password_lama'       => '{{user.password}}',
+                'password_baru'       => 'PasswordBaruKuat123',
+                'password_konfirmasi' => 'PasswordLain123',
+            ],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/profil/password',
+            'params' => [
+                'action'              => 'ganti_password',
+                'password_lama'       => '{{user.password}}',
+                'password_baru'       => 'PasswordBaruKuat123',
+                'password_konfirmasi' => 'PasswordLain123',
+            ],
+        ],
+        'expect' => [
+            'success' => false,
+            'message' => 'Konfirmasi password tidak cocok.',
+        ],
+    ],
+    [
+        'name'  => 'lupa_password.cek.gagal.email_tidak_terdaftar',
+        'desc'  => 'Cek akun lupa password tidak terdaftar (404)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/lupa_password.php',
+            'params' => ['action' => 'cek', 'email' => 'entah_tidak_ada@polban.ac.id'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/lupa-password/cek',
+            'params' => ['email' => 'entah_tidak_ada@polban.ac.id'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'email',
+            'message' => 'Email belum terdaftar. Pastikan email sama dengan saat mendaftar.',
+        ],
+    ],
+    [
+        'name'  => 'lupa_password.cek.gagal.format_email',
+        'desc'  => 'Cek akun lupa password format email salah (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/lupa_password.php',
+            'params' => ['action' => 'cek', 'email' => 'bukan-email'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/lupa-password/cek',
+            'params' => ['email' => 'bukan-email'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'email',
+            // CATATAN: 'bukan-email' LOLOS dari pemeriksaan format pada kedua
+            // API karena string tersebut juga memenuhi pola username
+            // (huruf + strip, 3-20 karakter). Keduanya lalu sama-sama
+            // mencari akun dan membalas 404 "belum terdaftar".
+            'message' => 'Email belum terdaftar. Pastikan email sama dengan saat mendaftar.',
+        ],
+    ],
+    [
+        'name'  => 'lupa_password.cek.gagal.akun_pending',
+        'desc'  => 'Cek akun lupa password untuk akun pending (403)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/lupa_password.php',
+            'params' => ['action' => 'cek', 'email' => '{{user.pending.email}}'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/lupa-password/cek',
+            'params' => ['email' => '{{user.pending.email}}'],
+        ],
+        'expect' => [
+            'success' => false,
+            'status'  => 'pending',
+        ],
+    ],
+    [
+        'name'  => 'skp.list',
+        'desc'  => 'Daftar SKP Daerah',
+        'legacy' => ['method' => 'GET', 'path' => '/api/skp.php'],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/skp'],
+        'expect' => ['success' => true],
+    ],
+    [
+        'name'  => 'skp.detail.gagal.id_tidak_ada',
+        'desc'  => 'Detail SKP yang tidak ada (404)',
+        'legacy' => ['method' => 'GET', 'path' => '/api/skp.php', 'params' => ['id' => '99999999']],
+        'baru'   => ['method' => 'GET', 'path' => '/api/v1/penerimaan/skp', 'params' => ['id' => '99999999']],
+        'expect' => [
+            'success' => false,
+            'message' => 'SKP Daerah tidak ditemukan.',
+        ],
+    ],
+    [
+        'name'  => 'skp.create.gagal.tanggal_kosong',
+        'desc'  => 'Simpan SKP tanpa tanggal ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/skp.php',
+            'params' => ['action' => 'create', 'nama_penyetor' => 'Wajib Pajak Uji', 'nilai_keputusan' => '1000'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/skp',
+            'params' => ['action' => 'create', 'nama_penyetor' => 'Wajib Pajak Uji', 'nilai_keputusan' => '1000'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'tanggal',
+            'message' => 'Tanggal SKP wajib diisi.',
+        ],
+    ],
+    [
+        'name'  => 'skp.create.gagal.nama_penyetor_kosong',
+        'desc'  => 'Simpan SKP tanpa nama penyetor ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/skp.php',
+            'params' => ['action' => 'create', 'tanggal' => '2026-03-15', 'nilai_keputusan' => '1000'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/skp',
+            'params' => ['action' => 'create', 'tanggal' => '2026-03-15', 'nilai_keputusan' => '1000'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'nama_penyetor',
+            'message' => 'Nama Penyetor (Wajib Pajak) wajib diisi.',
+        ],
+    ],
+    [
+        'name'  => 'skp.create.gagal.nilai_nol',
+        'desc'  => 'Simpan SKP dengan nilai 0 ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/skp.php',
+            'params' => ['action' => 'create', 'tanggal' => '2026-03-15', 'nama_penyetor' => 'Uji', 'nilai_keputusan' => '0'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/skp',
+            'params' => ['action' => 'create', 'tanggal' => '2026-03-15', 'nama_penyetor' => 'Uji', 'nilai_keputusan' => '0'],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'nilai_keputusan',
+            'message' => 'Nilai ketetapan harus lebih dari 0.',
+        ],
+    ],
+    [
+        'name'  => 'skp.create.gagal.jenis_pajak_tidak_terdaftar',
+        'desc'  => 'Jenis pajak yang tidak terdaftar di Akun Penerimaan ditolak (422)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/skp.php',
+            'params' => [
+                'action' => 'create', 'tanggal' => '2026-03-15',
+                'nama_penyetor' => 'Uji', 'nilai_keputusan' => '1000',
+                'jenis_pajak' => '9.9.9.99',
+            ],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/skp',
+            'params' => [
+                'action' => 'create', 'tanggal' => '2026-03-15',
+                'nama_penyetor' => 'Uji', 'nilai_keputusan' => '1000',
+                'jenis_pajak' => '9.9.9.99',
+            ],
+        ],
+        'expect' => [
+            'success' => false,
+            'field'   => 'jenis_pajak',
+        ],
+    ],
+    [
+        'name'  => 'skp.delete.gagal.id_tidak_ada',
+        'desc'  => 'Hapus SKP yang tidak ada (404)',
+        'legacy' => [
+            'method' => 'POST',
+            'path'   => '/api/skp.php',
+            'params' => ['action' => 'delete', 'id' => '99999999'],
+        ],
+        'baru' => [
+            'method' => 'POST',
+            'path'   => '/api/v1/penerimaan/skp',
+            'params' => ['action' => 'delete', 'id' => '99999999'],
+        ],
+        'expect' => [
+            'success' => false,
+            'message' => 'SKP Daerah tidak ditemukan atau bukan milik instansi Anda.',
+        ],
+    ],
+
+
     // ---- Modul utama: pengaturan & dashboard ----
     ['name' => 'summary.dashboard',        'desc' => 'Ringkasan APBD dashboard',               'legacy' => ['method' => 'GET', 'path' => '/api/summary.php'], 'baru' => null],
     ['name' => 'profil.get',               'desc' => 'Data profil user',                       'legacy' => ['method' => 'GET', 'path' => '/api/profil.php'], 'baru' => null],

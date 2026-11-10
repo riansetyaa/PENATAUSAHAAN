@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model untuk tabel `skp_daerah` (skema legacy SIM-TKD).
  *
- * Dibuat oleh tools/generate-schema-artifacts.php dari skema live.
- *
- * Catatan: tabel ini punya kolom `skpd` sehingga otomatis ter-filter
- * per instansi/SKPD lewat global scope yang dipasang App\Models\Model.
+ * @manual Relasi ditulis manual — jangan ditimpa generator.
  */
 class SkpDaerah extends Model
 {
@@ -21,19 +21,24 @@ class SkpDaerah extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'user_id', 'skpd', 'nomor_skp', 'tanggal', 'jenis_pajak', 'akun_kode', 'nama_penyetor', 'alamat', 'npwpd', 'objek_pajak', 'nilai_keputusan', 'masa_pajak_dari', 'masa_pajak_akhir', 'jatuh_tempo', 'keterangan', 'status',
+        'user_id', 'skpd', 'nomor_skp', 'tanggal', 'akun_kode', 'jenis_pajak',
+        'nama_penyetor', 'alamat', 'npwpd', 'objek_pajak', 'nilai_keputusan',
+        'masa_pajak_dari', 'masa_pajak_akhir', 'jatuh_tempo', 'keterangan', 'status',
     ];
 
     protected $casts = [
         'id' => 'integer',
         'user_id' => 'integer',
-        'tanggal' => 'date',
         'nilai_keputusan' => 'decimal:2',
-        'masa_pajak_dari' => 'date',
-        'masa_pajak_akhir' => 'date',
-        'jatuh_tempo' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * User yang membuat SKP Daerah.
+     */
+    public function dibuatOleh(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
