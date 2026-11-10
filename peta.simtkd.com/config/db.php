@@ -48,6 +48,17 @@ function db_credentials(): array
         ];
     }
 
+    // ---- Fallback terakhir: konfigurasi lokal bawaan XAMPP ----
+    // Fungsi ini HARUS selalu mengembalikan array. Sebelumnya jalur ini jatuh
+    // tanpa `return` -> PHP 8 melempar TypeError -> HTTP 500 di seluruh
+    // endpoint AKLAP.
+    error_log('[SIM-TKD/AKLAP] Kredensial DB tidak dikonfigurasi (credentials.php / env); memakai fallback lokal. Set credentials.php di produksi.');
+    return [
+        'host' => '127.0.0.1',
+        'name' => 'simtkd',
+        'user' => 'root',
+        'pass' => '',
+    ];
 }
 
 /**

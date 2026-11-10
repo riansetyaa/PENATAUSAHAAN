@@ -47,6 +47,21 @@ function db_credentials(): array
             'pass' => (string) (getenv('SIMTKD_DB_PASS') ?: ''),
         ];
     }
+
+    // ---- Fallback terakhir: konfigurasi lokal bawaan XAMPP ----
+    // Nilai bawaan ini BUKAN rahasia dan hanya berlaku bila kredensial
+    // belum dikonfigurasi (mis. instalasi lokal/development).
+    // Penting: fungsi ini HARUS selalu mengembalikan array. Sebelumnya jalur
+    // ini jatuh tanpa `return`, sehingga PHP melempar
+    // "TypeError: db_credentials(): Return value must be of type array,
+    // none returned" -> HTTP 500 di SELURUH endpoint aplikasi.
+    error_log('[SIM-TKD] Kredensial DB tidak dikonfigurasi (credentials.php / env); memakai fallback lokal. Set credentials.php di produksi.');
+    return [
+        'host' => '127.0.0.1',
+        'name' => 'simtkd',
+        'user' => 'root',
+        'pass' => '',
+    ];
 }
    
 

@@ -45,8 +45,17 @@ function db_credentials(): array
             'pass' => (string) (getenv('SIMTKD_DB_PASS') ?: ''),
         ];
     }
-    // Tanpa kredensial -> error jelas saat db() dipanggil
-    die('Kredensial database belum diatur (doc.simtkd.com/config/credentials.php).');
+
+    // ---- Fallback terakhir: konfigurasi lokal bawaan XAMPP ----
+    // Dulu jalur ini memanggil die() sehingga client menerima HTML/ teks
+    // biasa (bukan JSON) saat kredensial belum diatur.
+    error_log('[SIM-TKD/DOC] Kredensial DB tidak dikonfigurasi (credentials.php / env); memakai fallback lokal. Set credentials.php di produksi.');
+    return [
+        'host' => '127.0.0.1',
+        'name' => 'simtkd',
+        'user' => 'root',
+        'pass' => '',
+    ];
 }
 
 /**

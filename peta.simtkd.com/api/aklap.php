@@ -15,7 +15,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../config/api.php';
+// Catatan: config/api.php (konstanta API_TOKEN legacy) telah DIHAPUS.
+// Token API bersifat dinamis — hash SHA-256 dari token rotasi-per-login
+// disimpan di users.api_token. Lihat api/login.php & includes/functions.php.
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -37,19 +39,29 @@ $stmtUser = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, k
 $stmtUser->execute([$tokenHash]);
 $user = $stmtUser->fetch();
 if (!$user && $token !== '' && preg_match('/^[a-f0-9]{32}$/', $token)) {
-    // MIGRASI OTOMATIS: token lama tersimpan plaintext (32 hex). Cocokkan mentah,
-    // lalu upgrade ke hash SHA-256 agar format penyimpanan seragam.
-    try {
-        $stmtLegacy = $pdo->prepare("SELECT id FROM users WHERE api_token = ? LIMIT 1");
-        $stmtLegacy->execute([$token]);
-        $legacyId = $stmtLegacy->fetchColumn();
-        if ($legacyId) {
-            $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?")->execute([$tokenHash, (int) $legacyId]);
-            $stmtUser->execute([$tokenHash]);
-            $user = $stmtUser->fetch();
+    // MIGRASI TOKEN LEGACY (plaintext 32 hex -> hash SHA-256)
+    // -------------------------------------------------------
+    // NONAKTIF secara bawaan. Jalur ini pernah membiarkan token admin
+    // hardcoded (yang bocor ke riwayat git) tetap berlaku sebagai kredensial.
+    // Token dirotasi di api/login.php setiap kali user login, sehingga user
+    // yang login kembali otomatis mendapat token hash yang valid.
+    //
+    // Aktifkan SEMENTARA hanya untuk memindahkan user yang belum login:
+    //     SIMTKD_ALLOW_LEGACY_TOKEN=1
+    // lalu NONAKTIFKAN kembali setelah migrasi selesai.
+    if (getenv('SIMTKD_ALLOW_LEGACY_TOKEN') === '1') {
+        try {
+            $stmtLegacy = $pdo->prepare("SELECT id FROM users WHERE api_token = ? LIMIT 1");
+            $stmtLegacy->execute([$token]);
+            $legacyId = $stmtLegacy->fetchColumn();
+            if ($legacyId) {
+                $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?")->execute([$tokenHash, (int) $legacyId]);
+                $stmtUser->execute([$tokenHash]);
+                $user = $stmtUser->fetch();
+            }
+        } catch (Throwable $e) {
+            error_log('[AKLAP] migrasi token legacy gagal: ' . $e->getMessage());
         }
-    } catch (Throwable $e) {
-        error_log('[AKLAP] migrasi token legacy gagal: ' . $e->getMessage());
     }
 }
 if (!$user) {

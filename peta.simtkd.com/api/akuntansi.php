@@ -46,7 +46,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../includes/auth.php';  // fallback sesi (sama host dengan app utama)
 require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../config/api.php';
+// Catatan: config/api.php (konstanta API_TOKEN legacy) telah DIHAPUS.
+// Token API bersifat dinamis — hash SHA-256 dari token rotasi-per-login
+// disimpan di users.api_token. Lihat api/login.php & includes/functions.php.
 
 header('Content-Type: application/json; charset=utf-8');
 

@@ -226,18 +226,35 @@ $stmtUser  = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, 
 $stmtUser->execute([$tokenHash]);
 $user = $stmtUser->fetch();
 if (!$user && preg_match('/^[a-f0-9]{32}$/', $token)) {
-    // MIGRASI OTOMATIS: token legacy plaintext (32 hex) -> hash SHA-256
-    try {
-        $st = $pdo->prepare("SELECT id FROM users WHERE api_token = ? LIMIT 1");
-        $st->execute([$token]);
-        $legacyId = $st->fetchColumn();
-        if ($legacyId) {
-            $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?")->execute([$tokenHash, (int) $legacyId]);
-            $stmtUser->execute([$tokenHash]);
-            $user = $stmtUser->fetch();
+    // MIGRASI TOKEN LEGACY (plaintext 32 hex -> hash SHA-256)
+    // -------------------------------------------------------
+    // NONAKTIF secara bawaan. Jalur ini pernah membiarkan token admin
+    // hardcoded (yang bocor ke riwayat git) tetap berlaku sebagai kredensial.
+    //
+    // Token dirotasi (dan di-hash) pada setiap login di app utama
+    // (api/login.php), sehingga setiap pengguna yang login kembali otomatis
+    // mendapat token hash yang valid. Tidak ada kebutuhan membuka jalur ini
+    // secara permanen.
+    //
+    // Untuk memindahkan user yang belum login sejak pergantian format, aktifkan
+    // SEMENTARA di environment server:
+    //
+    //     SIMTKD_ALLOW_LEGACY_TOKEN=1
+    //
+    // lalu NONAKTIFKAN kembali setelah semua user bermigrasi.
+    if (getenv('SIMTKD_ALLOW_LEGACY_TOKEN') === '1') {
+        try {
+            $st = $pdo->prepare("SELECT id FROM users WHERE api_token = ? LIMIT 1");
+            $st->execute([$token]);
+            $legacyId = $st->fetchColumn();
+            if ($legacyId) {
+                $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?")->execute([$tokenHash, (int) $legacyId]);
+                $stmtUser->execute([$tokenHash]);
+                $user = $stmtUser->fetch();
+            }
+        } catch (Throwable $e) {
+            error_log('[DOC] migrasi token legacy gagal: ' . $e->getMessage());
         }
-    } catch (Throwable $e) {
-        error_log('[DOC] migrasi token legacy gagal: ' . $e->getMessage());
     }
 }
 if (!$user) {
@@ -329,6 +346,26 @@ if ($action === 'konten') {
         : (string) $d['konten_html'];
     header('Content-Type: text/html; charset=utf-8');
     header('X-Frame-Options: SAMEORIGIN');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: no-store, private');
+    // CSP ketat: HTML dokumen berasal dari cetakan halaman aplikasi sehingga
+    // memuat nilai dari database. Tanpa CSP, script yang tersisip di dalam
+    // dokumen akan berjalan di iframe SAMEORIGIN dan bisa membaca
+    // sessionStorage (token API) milik pengguna -> pencurian token.
+    // Dokumen TTD yang sah HANYA butuh: <style> inline, <img> (logo & tanda
+    // tangan/QR berupa data-URI). Tidak boleh ada script sama sekali.
+    header(
+        "Content-Security-Policy: "
+        . "default-src 'none'; "
+        . "img-src 'self' data: blob:; "
+        . "style-src 'unsafe-inline'; "
+        . "font-src 'self' data:; "
+        . "script-src 'none'; "
+        . "object-src 'none'; "
+        . "base-uri 'none'; "
+        . "form-action 'none'; "
+        . "frame-ancestors 'self'"
+    );
     echo $html;
     exit;
 }
