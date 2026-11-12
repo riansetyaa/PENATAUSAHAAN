@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Pengguna - SIM-TKD | Sistem Informasi Manajemen Tata Kelola Daerah</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== Kartu ringkasan ===== */
+        .monitor-stats { margin-bottom: 20px; }
+        .icon-total    { background: linear-gradient(135deg, #1d3a6e, #2c5aa0); }
+        .icon-active   { background: linear-gradient(135deg, #16a34a, #15803d); }
+        .icon-login    { background: linear-gradient(135deg, #0891b2, #0e7490); }
+        .icon-week     { background: linear-gradient(135deg, #d97706, #b45309); }
+        .icon-never    { background: linear-gradient(135deg, #64748b, #475569); }
+        .icon-progress { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+
+        .monitor-note {
+            display: flex; align-items: flex-start; gap: 9px;
+            padding: 12px 16px; margin-bottom: 18px;
+            background: #eef5ff; border: 1px solid #d5e4fb; border-radius: 10px;
+            font-size: 12px; line-height: 1.5; color: #31527f;
+        }
+        .monitor-note i { color: #1d3a6e; margin-top: 2px; }
+
+        /* ===== Toolbar filter ===== */
+        .monitor-toolbar {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            padding: 15px 20px; border-bottom: 1px solid var(--border);
+            background: #fbfcfe;
+        }
+        .monitor-search { position: relative; flex: 1 1 260px; min-width: 220px; }
+        .monitor-search i {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: #94a3b8; font-size: 13px; pointer-events: none;
+        }
+        .monitor-search input {
+            width: 100%; padding: 9px 12px 9px 34px;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-size: 13px; font-family: inherit; color: #1f2937; background: #fff;
+        }
+        .monitor-search input:focus,
+        .monitor-toolbar select:focus {
+            outline: none; border-color: #1d3a6e;
+            box-shadow: 0 0 0 3px rgba(29, 58, 110, .12);
+        }
+        .monitor-toolbar select {
+            padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 13px; font-family: inherit; color: #1f2937; background: #fff;
+            cursor: pointer;
+        }
+        .monitor-updated { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
+        /* ===== Tabel ===== */
+        .monitor-table { min-width: 1180px; }
+        .monitor-table th, .monitor-table td { padding: 12px 14px; vertical-align: middle; }
+
+        .monitor-user { display: flex; align-items: center; gap: 10px; min-width: 220px; }
+        .monitor-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: #eef2f9; color: #1d3a6e;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0;
+        }
+        .monitor-name { display: block; font-weight: 700; color: #1f2937; white-space: nowrap; }
+        .monitor-sub { display: block; font-size: 11px; color: #64748b; white-space: nowrap; }
+        .monitor-instansi { display: block; max-width: 210px; font-size: 12px; color: #475569; line-height: 1.35; }
+
+        .login-ok {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 12px; font-weight: 600; color: #166534; white-space: nowrap;
+        }
+        .login-ok i { font-size: 10px; }
+        .login-never {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 12px; color: #94a3b8; white-space: nowrap;
+        }
+        .monitor-table td small { display: block; font-size: 10.5px; color: #94a3b8; margin-top: 2px; }
+        .monitor-actions { display: flex; align-items: center; gap: 4px; }
+
+        .badge-aktif   { background: #e7f6ec; color: #166534; }
+        .badge-pending { background: #fff7e6; color: #92400e; }
+        .badge-nonaktif{ background: #fdeeee; color: #991b1b; }
+        .badge-unknown { background: #eef1f6; color: #5a6c7d; }
+
+        /* ===== Progres ===== */
+        .progress-wrap { min-width: 150px; }
+        .progress-top {
+            display: flex; align-items: baseline; justify-content: space-between;
+            gap: 8px; margin-bottom: 5px;
+        }
+        .progress-top > span { font-size: 13px; font-weight: 800; color: #1d3a6e; }
+        .progress-top small { font-size: 10.5px; color: #94a3b8; }
+        .progress-track {
+            height: 7px; background: #e8edf5; border-radius: 999px; overflow: hidden;
+        }
+        .progress-track.big { height: 10px; margin-bottom: 16px; }
+        .progress-fill {
+            height: 100%; border-radius: 999px;
+            background: linear-gradient(90deg, #2c5aa0, #27ae60);
+            transition: width .35s ease;
+        }
+        .progress-wrap.is-zero .progress-fill { background: #cbd5e1; }
+        .progress-wrap.is-low  .progress-fill { background: linear-gradient(90deg, #f59e0b, #f97316); }
+        .progress-wrap.is-mid  .progress-fill { background: linear-gradient(90deg, #2c5aa0, #0891b2); }
+        .progress-wrap.is-high .progress-fill { background: linear-gradient(90deg, #0891b2, #16a34a); }
+        .progress-wrap.is-done .progress-fill { background: linear-gradient(90deg, #16a34a, #15803d); }
+
+        /* ===== Pil modul ===== */
+        .mod-pills { display: flex; flex-wrap: wrap; gap: 4px; min-width: 230px; }
+        .mod-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 7px; border-radius: 999px;
+            font-size: 10px; font-weight: 600; white-space: nowrap;
+        }
+        .mod-pill b { font-weight: 800; }
+        .mod-pill.done    { background: #e7f6ec; color: #166534; }
+        .mod-pill.partial { background: #fff7e6; color: #92400e; }
+        .mod-pill.empty   { background: #f1f5f9; color: #94a3b8; }
+
+        .monitor-empty { padding: 42px 20px; text-align: center; color: #94a3b8; font-size: 13px; }
+
+        /* ===== Modal detail ===== */
+        body.modal-open { overflow: hidden; }
+        .monitor-modal {
+            position: fixed; inset: 0; z-index: 2000;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .monitor-modal[hidden] { display: none; }
+        .monitor-modal-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .55); }
+        .monitor-modal-box {
+            position: relative; width: min(760px, 100%); max-height: 90vh; overflow: auto;
+            background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgba(15, 23, 42, .3);
+        }
+        .monitor-modal-head {
+            position: sticky; top: 0; z-index: 1;
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+            padding: 18px 22px; border-bottom: 1px solid var(--border); background: #fff;
+        }
+        .monitor-modal-head h3 { font-size: 17px; font-weight: 800; color: #1f2937; margin: 0 0 3px; }
+        .monitor-modal-head p { font-size: 12px; color: #64748b; margin: 0; }
+        .monitor-modal-close {
+            border: none; background: #f1f5f9; color: #475569;
+            width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 15px;
+            flex-shrink: 0;
+        }
+        .monitor-modal-close:hover { background: #e2e8f0; }
+        .monitor-modal-body { padding: 20px 22px 26px; }
+
+        .detail-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 10px 18px; margin-bottom: 18px;
+        }
+        .detail-item { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+        .detail-item span {
+            color: #94a3b8; font-size: 10.5px; text-transform: uppercase;
+            letter-spacing: .4px; font-weight: 700;
+        }
+        .detail-item b { color: #1f2937; font-weight: 600; word-break: break-word; }
+
+        /* ===== Ubah peran ===== */
+        .detail-role {
+            margin: 18px 0;
+            padding: 14px 16px;
+            border: 1px solid #dbe4f3;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        .detail-role-head {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 12.5px; font-weight: 800; color: #1f2937;
+            margin-bottom: 9px;
+        }
+        .detail-role-head i { color: #1d3a6e; margin-right: 4px; }
+        .role-editor { display: flex; flex-wrap: wrap; gap: 8px; }
+        .role-editor select {
+            flex: 1 1 200px; min-width: 0;
+            padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 13px; font-family: inherit; color: #1f2937; background: #fff;
+        }
+        .role-editor select:focus {
+            outline: none; border-color: #1d3a6e;
+            box-shadow: 0 0 0 3px rgba(29, 58, 110, .12);
+        }
+        .role-hint { margin: 8px 0 0; font-size: 11px; line-height: 1.5; color: #64748b; }
+        .role-hint.role-locked { color: #92400e; }
+        .role-hint.role-locked i { margin-right: 4px; }
+        .role-status { min-height: 16px; margin: 6px 0 0; font-size: 11.5px; font-weight: 600; }
+        .role-status.success { color: #166534; }
+        .role-status.error { color: #b91c1c; }
+        .role-status.info { color: #64748b; }
+
+        .detail-progress-head {
+            display: flex; justify-content: space-between; align-items: baseline;
+            font-size: 13px; color: #1f2937; margin-bottom: 6px;
+        }
+        .detail-modul { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
+        .detail-modul-head {
+            display: flex; justify-content: space-between; gap: 10px;
+            font-size: 12.5px; font-weight: 700; color: #1f2937; margin-bottom: 6px;
+        }
+        .detail-modul-head i { color: #1d3a6e; }
+        .detail-langkah {
+            list-style: none; margin: 0; padding: 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 4px 14px;
+        }
+        .detail-langkah li {
+            display: flex; align-items: center; gap: 7px;
+            font-size: 12px; color: #64748b; padding: 4px 0;
+        }
+        .detail-langkah li i { font-size: 9px; color: #cbd5e1; }
+        .detail-langkah li.done { color: #166534; }
+        .detail-langkah li.done i { color: #16a34a; }
+        .detail-langkah li span { flex: 1; }
+        .detail-langkah li b { font-weight: 700; color: #475569; }
+
+        @media (max-width: 768px) {
+            .monitor-toolbar { padding: 12px 14px; }
+            .monitor-toolbar select, .monitor-search { flex: 1 1 100%; }
+            .monitor-modal { padding: 10px; }
+            .monitor-modal-body { padding: 16px; }
+            .role-editor select, .role-editor .btn { flex: 1 1 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- ================= OVERLAY (mobile) ================= -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Pengaturan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Monitoring Pengguna</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="topbar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate">--</span>
+                </div>
+                <div class="topbar-item user">
+                    <div class="user-avatar small">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span id="topbarUserName">Admin Dinas</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Monitoring Pengguna</h1>
+                    <p class="page-subtitle">Pantau kehadiran login dan progres pengerjaan setiap akun mahasiswa.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline" id="btnRefresh"><i class="fas fa-sync-alt"></i> Muat Ulang</button>
+                    <button class="btn btn-primary" id="btnExport" disabled><i class="fas fa-file-csv"></i> Unduh CSV</button>
+                </div>
+            </div>
+
+            <!-- Akses ditolak -->
+            <div class="card" id="aksesDitolak" style="display: none;">
+                <div class="card-body" style="text-align: center; padding: 48px 24px;">
+                    <i class="fas fa-lock" style="font-size: 42px; color: #b91c1c;"></i>
+                    <h3 style="margin: 14px 0 6px; font-size: 18px; color: #1f2937;">Akses Ditolak</h3>
+                    <p id="aksesDitolakPesan" style="margin: 0 auto 18px; max-width: 520px; font-size: 13px; color: #64748b; line-height: 1.6;">
+                        Halaman ini hanya dapat diakses oleh admin/dosen.
+                    </p>
+                    <a href="../dashboard/dashboard.html" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a>
+                </div>
+            </div>
+
+            <div id="monitorContent">
+                <!-- Peringatan bila kolom login tidak tersedia -->
+                <div class="monitor-note" id="peringatanKolom" style="display: none;">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <span>Kolom pelacakan login belum tersedia di basis data. Data login akan tampil setelah administrator menjalankan migrasi <strong>database/users_login_tracking.sql</strong>.</span>
+                </div>
+
+                <div class="monitor-note">
+                    <i class="fas fa-circle-info"></i>
+                    <span>Progres dihitung dari data yang <strong>dibuat oleh masing-masing akun</strong> (kolom <em>user_id</em>), bukan dari data instansi. Akun yang memakai instansi sama tetap memiliki progres masing-masing. Perubahan peran hanya dapat dilakukan oleh <strong>Admin Dinas</strong>.</span>
+                </div>
+
+                <!-- Kartu ringkasan -->
+                <div class="cards-grid monitor-stats">
+                    <div class="card summary-card">
+                        <div class="card-icon icon-total"><i class="fas fa-users"></i></div>
+                        <div class="card-body">
+                            <span class="card-label">Total Pengguna</span>
+                            <h3 class="card-value" id="statTotal">--</h3>
+                            <div class="card-trend trend-warn"><i class="fas fa-user-group"></i> <span>akun terdaftar</span></div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card-icon icon-active"><i class="fas fa-user-check"></i></div>
+                        <div class="card-body">
+                            <span class="card-label">Akun Aktif</span>
+                            <h3 class="card-value" id="statAktif">--</h3>
+                            <div class="card-trend trend-up"><i class="fas fa-circle-check"></i> <span>siap dipakai</span></div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card-icon icon-login"><i class="fas fa-right-to-bracket"></i></div>
+                        <div class="card-body">
+                            <span class="card-label">Sudah Login</span>
+                            <h3 class="card-value" id="statLogin">--</h3>
+                            <div class="card-trend trend-up"><i class="fas fa-key"></i> <span>pernah masuk</span></div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card-icon icon-week"><i class="fas fa-calendar-check"></i></div>
+                        <div class="card-body">
+                            <span class="card-label">Login 7 Hari</span>
+                            <h3 class="card-value" id="statLogin7">--</h3>
+                            <div class="card-trend trend-warn"><i class="fas fa-clock"></i> <span>7 hari terakhir</span></div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card-icon icon-never"><i class="fas fa-user-clock"></i></div>
+                        <div class="card-body">
+                            <span class="card-label">Belum Pernah Login</span>
+                            <h3 class="card-value" id="statBelum">--</h3>
+                            <div class="card-trend trend-down"><i class="fas fa-triangle-exclamation"></i> <span>perlu diingatkan</span></div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card-icon icon-progress"><i class="fas fa-chart-simple"></i></div>
+                        <div class="card-body">
+                            <span class="card-label">Rata-rata Progres</span>
+                            <h3 class="card-value" id="statRata">--</h3>
+                            <div class="card-trend trend-up"><i class="fas fa-arrow-trend-up"></i> <span>akun mahasiswa</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabel pengguna -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-users-viewfinder"></i> Daftar Pengguna</h3>
+                        <span class="monitor-updated" id="lastUpdated">Memuat...</span>
+                    </div>
+
+                    <div class="monitor-toolbar">
+                        <div class="monitor-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="filterCari" placeholder="Cari nama, username, email, atau instansi..." autocomplete="off">
+                        </div>
+                        <select id="filterStatus" title="Filter status akun">
+                            <option value="">Semua status</option>
+                            <option value="aktif">Aktif</option>
+                            <option value="pending">Pending</option>
+                            <option value="nonaktif">Nonaktif</option>
+                        </select>
+                        <select id="filterLogin" title="Filter status login">
+                            <option value="">Semua login</option>
+                            <option value="sudah">Sudah pernah login</option>
+                            <option value="belum">Belum pernah login</option>
+                            <option value="7hari">Login 7 hari terakhir</option>
+                        </select>
+                        <select id="filterPeran" title="Filter peran">
+                            <option value="">Semua peran</option>
+                        </select>
+                        <select id="filterUrut" title="Urutkan">
+                            <option value="progres_desc">Progres tertinggi</option>
+                            <option value="progres_asc">Progres terendah</option>
+                            <option value="login_desc">Login terbaru</option>
+                            <option value="login_asc">Login terlama</option>
+                            <option value="nama_asc">Nama A-Z</option>
+                            <option value="instansi_asc">Instansi A-Z</option>
+                        </select>
+                    </div>
+
+                    <div class="table-body">
+                        <div class="table-responsive">
+                            <table class="data-table monitor-table">
+                                <thead>
+                                    <tr>
+                                        <th>Pengguna</th>
+                                        <th>Instansi (SKPD)</th>
+                                        <th>Peran</th>
+                                        <th>Akun</th>
+                                        <th>Login Terakhir</th>
+                                        <th>Aktivitas Terakhir</th>
+                                        <th>Progres</th>
+                                        <th>Modul</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyMonitoring">
+                                    <tr>
+                                        <td colspan="9" style="text-align: center; color: #9098a5; padding: 36px;">
+                                            Memuat data pengguna...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="monitor-empty" id="monitorEmpty" style="display: none;">
+                            Tidak ada pengguna yang cocok dengan filter.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span>
+        </footer>
+    </div>
+
+    <!-- Modal detail pengguna -->
+    <div class="monitor-modal" id="modalDetail" hidden>
+        <div class="monitor-modal-backdrop" data-close="1"></div>
+        <div class="monitor-modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="monitor-modal-head">
+                <div>
+                    <h3 id="modalTitle">Detail Pengguna</h3>
+                    <p id="modalSubtitle"></p>
+                </div>
+                <button type="button" class="monitor-modal-close" data-close="1" aria-label="Tutup">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="monitor-modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/monitoring.js"></script>
+</body>
+</html>

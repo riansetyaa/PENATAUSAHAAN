@@ -20,6 +20,19 @@
     // Token API user (diisi saat sesi berhasil) -> untuk link modul AKLAP
     let SESSION_API_TOKEN = '';
 
+    // Menu khusus admin/dosen (mis. Monitoring Pengguna) disembunyikan
+    // untuk akun biasa setelah data sesi diketahui.
+    function aturMenuAdmin(user) {
+        var peran = (user && user.peran) ? String(user.peran) : '';
+        var username = (user && user.username) ? String(user.username) : '';
+        var boleh = peran === 'Admin Dinas' || peran === 'Kepala Dinas'
+            || peran === 'Dosen' || username === 'admin';
+
+        document.querySelectorAll('[data-admin-only]').forEach(function (el) {
+            el.style.display = boleh ? '' : 'none';
+        });
+    }
+
     // ==========================================
     // Sidebar collapsed state (persisten antar halaman)
     // ==========================================
@@ -526,6 +539,8 @@
                     window.location.href = '../login.html';
                     return null;
                 }
+                aturMenuAdmin(sessionData.user);
+
                 // Kirim token API user ke link modul AKLAP (multi-tenant)
                 var apiToken = sessionData.user && sessionData.user.api_token;
                 SESSION_API_TOKEN = apiToken || '';

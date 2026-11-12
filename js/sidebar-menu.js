@@ -72,6 +72,7 @@
         { href: 'api/dokumen_go.php', icon: 'fa-pen-nib', text: 'Tanda Tangan Dokumen' },
 
         { group: 'pengaturan', icon: 'fa-cog', text: 'Pengaturan', items: [
+            { href: 'pengaturan/monitoring.html',      icon: 'fa-users-viewfinder', text: 'Monitoring Pengguna', adminOnly: true },
             { href: 'pengaturan/profil.html',          icon: 'fa-user',       text: 'Profil' },
             { href: 'pengaturan/akun-penerimaan.html', icon: 'fa-coins',      text: 'Akun Penerimaan' },
             { href: 'pengaturan/anggaran-neraca.html', icon: 'fa-chart-line', text: 'Anggaran & Neraca' }
@@ -152,7 +153,8 @@
             html += '<a href="' + esc(pos.base + it.href) + '" class="menu-item' +
                         (it.extraClass ? ' ' + esc(it.extraClass) : '') +
                         (aktif ? ' active' : '') + '"' +
-                        (it.id ? ' id="' + esc(it.id) + '"' : '') + '>' +
+                        (it.id ? ' id="' + esc(it.id) + '"' : '') +
+                        (it.adminOnly ? ' data-admin-only="1"' : '') + '>' +
                         '<i class="fas ' + esc(it.icon) + '"></i>' +
                         '<span>' + esc(it.text) + '</span>' +
                     '</a>';

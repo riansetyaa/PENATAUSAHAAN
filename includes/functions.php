@@ -327,6 +327,66 @@ function ensureColumn(PDO $pdo, string $tabel, string $kolom, string $ddl): void
 }
 
 /**
+ * Selaraskan kolom pelacakan login pada tabel `users`.
+ * ---------------------------------------------------
+ * Halaman Pengaturan -> Monitoring Pengguna membutuhkan informasi kapan
+ * akun terakhir login dan berapa kali login. Sebelum fitur ini ada, login
+ * hanya merotasi api_token sehingga tidak ada catatan waktu masuk.
+ *
+ * Kolom yang ditambahkan:
+ *   last_login_at    DATETIME NULL
+ *   login_count      INT UNSIGNED NOT NULL DEFAULT 0
+ *   last_ip          VARCHAR(45) NULL
+ *   last_activity_at DATETIME NULL
+ *
+ * Backfill hanya dilakukan SEKALI, yaitu saat kolom last_login_at baru
+ * dibuat. Nilai updated_at dipakai sebagai perkiraan karena login lama
+ * merotasi api_token (UPDATE users) sehingga updated_at ikut berubah.
+ * Akun berstatus pending tidak ikut di-backfill agar aktivasi OTP tidak
+ * dianggap sebagai login.
+ */
+function ensureLoginTracking(PDO $pdo): void
+{
+    static $sudahDicek = false;
+    if ($sudahDicek) {
+        return;
+    }
+    $sudahDicek = true;
+
+    $kolomBaru = false;
+    try {
+        $ada = $pdo->query("SHOW COLUMNS FROM `users` LIKE 'last_login_at'")->fetch();
+        $kolomBaru = !$ada;
+    } catch (Throwable $e) {
+        error_log('[SIM-TKD] ensureLoginTracking cek kolom: ' . $e->getMessage());
+        return;
+    }
+
+    ensureColumn($pdo, 'users', 'last_login_at', '`last_login_at` DATETIME DEFAULT NULL AFTER `otp_verifikasi_at`');
+    ensureColumn($pdo, 'users', 'login_count', '`login_count` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `last_login_at`');
+    ensureColumn($pdo, 'users', 'last_ip', '`last_ip` VARCHAR(45) DEFAULT NULL AFTER `login_count`');
+    ensureColumn($pdo, 'users', 'last_activity_at', '`last_activity_at` DATETIME DEFAULT NULL AFTER `last_ip`');
+
+    if (!$kolomBaru) {
+        return;
+    }
+
+    try {
+        $pdo->exec("
+            UPDATE `users`
+            SET `last_login_at`    = `updated_at`,
+                `last_activity_at` = `updated_at`,
+                `login_count`      = 1
+            WHERE `status` = 'aktif'
+              AND `api_token` IS NOT NULL AND `api_token` <> ''
+              AND `updated_at` > DATE_ADD(`created_at`, INTERVAL 1 MINUTE)
+        ");
+    } catch (Throwable $e) {
+        error_log('[SIM-TKD] ensureLoginTracking backfill: ' . $e->getMessage());
+    }
+}
+
+/**
  * Selaraskan kolom wajib pada tabel `users`.
  * Dipanggil oleh endpoint yang bergantung pada kolom tersebut
  * (login, register, profil, aktivasi) agar basis data lama tetap bisa dipakai.
@@ -343,5 +403,47 @@ function ensureUsersColumns(PDO $pdo): void
     ensureColumn($pdo, 'users', 'otp_terkirim_at', '`otp_terkirim_at` DATETIME DEFAULT NULL AFTER `otp_expired_at`');
     ensureColumn($pdo, 'users', 'otp_percobaan', '`otp_percobaan` TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER `otp_terkirim_at`');
     ensureColumn($pdo, 'users', 'otp_verifikasi_at', '`otp_verifikasi_at` DATETIME DEFAULT NULL AFTER `otp_percobaan`');
+
+    // Kolom monitoring login (Pengaturan -> Monitoring Pengguna).
+    ensureLoginTracking($pdo);
+}
+
+/**
+ * Daftar peran yang benar-benar didukung kolom ENUM `users.peran`.
+ * ------------------------------------------------
+ * Dibaca dari skema (bukan hardcode) agar opsi di halaman Monitoring
+ * Pengguna selalu sesuai dengan basis data. Bila ENUM belum ada atau
+ * gagal dibaca, dipakai daftar bawaan aplikasi.
+ *
+ * @return string[]
+ */
+function daftarPeran(PDO $pdo): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    $bawaan = ['Admin Dinas', 'Operator', 'Bendahara', 'Verifikator', 'Kepala Dinas', 'Pengguna Umum'];
+
+    try {
+        $row = $pdo->query("SHOW COLUMNS FROM `users` LIKE 'peran'")->fetch();
+        if ($row && preg_match('/^enum\((.*)\)$/i', (string) $row['Type'], $m)) {
+            $hasil = [];
+            foreach (str_getcsv($m[1], ',', "'", '\\') as $nilai) {
+                $nilai = trim((string) $nilai);
+                if ($nilai !== '') {
+                    $hasil[] = $nilai;
+                }
+            }
+            if ($hasil) {
+                return $cache = $hasil;
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('[SIM-TKD] daftarPeran: ' . $e->getMessage());
+    }
+
+    return $cache = $bawaan;
 }
 

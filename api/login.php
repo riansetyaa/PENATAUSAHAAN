@@ -105,9 +105,32 @@ rateLimitClear($rlKey);
 // Set sesi login
 // Rotasi token API setiap login (keamanan): token lama otomatis tidak berlaku.
 // DB menyimpan HASH SHA-256; token mentah hanya dikirim ke user saat ini.
+//
+// Sekaligus catat aktivitas login untuk halaman Monitoring Pengguna
+// (Pengaturan -> Monitoring Pengguna). Bila kolom pelacakan belum ada
+// (mis. hak ALTER ditolak), login TETAP berhasil: token dirotasi lewat
+// query cadangan, sedangkan kegagalan pencatatan hanya masuk log server.
 $newToken = generateApiToken();
-$stmtUp = $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?");
-$stmtUp->execute([hashApiToken($newToken), (int) $user['id']]);
+try {
+    $stmtUp = $pdo->prepare("
+        UPDATE users
+        SET api_token       = ?,
+            last_login_at   = NOW(),
+            last_activity_at = NOW(),
+            last_ip         = ?,
+            login_count     = login_count + 1
+        WHERE id = ?
+    ");
+    $stmtUp->execute([hashApiToken($newToken), $ip, (int) $user['id']]);
+} catch (Throwable $e) {
+    error_log('[SIM-TKD] login: gagal mencatat aktivitas login: ' . $e->getMessage());
+    try {
+        $stmtUp = $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?");
+        $stmtUp->execute([hashApiToken($newToken), (int) $user['id']]);
+    } catch (Throwable $e2) {
+        error_log('[SIM-TKD] login: gagal merotasi token: ' . $e2->getMessage());
+    }
+}
 $user['api_token'] = $newToken;
 
 setUserSession($user);
