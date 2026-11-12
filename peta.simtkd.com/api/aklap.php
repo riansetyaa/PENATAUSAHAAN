@@ -21,6 +21,12 @@ require_once __DIR__ . '/../config/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+// Aksi baca modul AKLAP sudah diporting; mutasi (approve/reject, jurnal biasa)
+// tetap dilayani di sini sampai fase berikutnya.
+require_once __DIR__ . '/../../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 $pdo    = db();
 $action = (string) ($_GET['action'] ?? 'jurnal');
 

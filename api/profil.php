@@ -18,6 +18,10 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 if (!isLoggedIn()) {
     jsonResponse(false, 'Tidak terautentikasi.', [], 401);
 }
@@ -91,7 +95,7 @@ if ($action === 'simpan') {
 
     $nama     = input('nama_lengkap');
     $email    = strtolower(input('email'));
-    $instansi = input('instansi');
+    $instansi = normalizeInstansi(input('instansi'));
     $nip      = preg_replace('/[^0-9A-Za-z.\-\/ ]/', '', input('nip'));
     $nip      = trim(preg_replace('/\s+/', ' ', (string) $nip));
 
@@ -101,8 +105,16 @@ if ($action === 'simpan') {
     if (!isValidEmail($email)) {
         jsonResponse(false, 'Format email tidak valid.', [], 422);
     }
+    // Instansi adalah kunci pemisahan data multi-dinas. Jangan biarkan kosong:
+    // akun tanpa instansi akan ditolak (403) oleh semua endpoint ber-scope.
+    if ($instansi === '') {
+        jsonResponse(false, 'Nama instansi wajib diisi.', ['field' => 'instansi'], 422);
+    }
+    if (mb_strlen($instansi) < 3) {
+        jsonResponse(false, 'Nama instansi minimal 3 karakter.', ['field' => 'instansi'], 422);
+    }
     if (mb_strlen($instansi) > 150) {
-        jsonResponse(false, 'Nama instansi maksimal 150 karakter.', [], 422);
+        jsonResponse(false, 'Nama instansi maksimal 150 karakter.', ['field' => 'instansi'], 422);
     }
     if (mb_strlen($nip) > 30) {
         jsonResponse(false, 'NIP maksimal 30 karakter.', [], 422);
@@ -115,11 +127,23 @@ if ($action === 'simpan') {
         jsonResponse(false, 'Email sudah dipakai oleh akun lain.', [], 409);
     }
 
+    // Samakan ejaan instansi dengan ejaan yang sudah dipakai akun lain
+    // (case-insensitive), agar satu dinas tidak terpecah jadi beberapa tenant.
+    $sebelum      = ambilUserProfil($pdo, $userId);
+    $instansiBaru = samakanInstansi($pdo, $instansi, $userId);
+
+    if ($sebelum && strcasecmp(normalizeInstansi((string) ($sebelum['instansi'] ?? '')), $instansiBaru) !== 0) {
+        // Jejak audit: perubahan cakupan data antar-dinas selalu tercatat.
+        error_log('[SIM-TKD] instansi diubah user=' . $userId
+            . ' dari "' . (string) ($sebelum['instansi'] ?? '') . '"'
+            . ' ke "' . $instansiBaru . '"');
+    }
+
     $st = $pdo->prepare("UPDATE users SET nama_lengkap = ?, email = ?, instansi = ?, nip = ? WHERE id = ?");
     $st->execute([
         $nama,
         $email,
-        $instansi !== '' ? $instansi : null,
+        $instansiBaru,
         $nip !== '' ? $nip : null,
         $userId,
     ]);
@@ -127,7 +151,7 @@ if ($action === 'simpan') {
     // Refresh sesi agar sidebar/topbar di semua halaman langsung menampilkan data baru
     $_SESSION['nama']     = $nama;
     $_SESSION['email']    = $email;
-    $_SESSION['instansi'] = $instansi;
+    $_SESSION['instansi'] = $instansiBaru;
     $_SESSION['nip']      = $nip;
 
     jsonResponse(true, 'Profil berhasil diperbarui.', [
@@ -135,7 +159,7 @@ if ($action === 'simpan') {
             'nama_lengkap' => $nama,
             'nip'          => $nip,
             'email'        => $email,
-            'instansi'     => $instansi,
+            'instansi'     => $instansiBaru,
         ],
     ]);
 }

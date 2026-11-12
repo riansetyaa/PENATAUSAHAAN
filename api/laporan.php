@@ -33,6 +33,10 @@ if (!isLoggedIn()) {
 $pdo  = db();
 $skpd = requireInstansi(); // pemisahan data multi-dinas (fail-closed)
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 $action = input('action', 'bku');
 
 if (!in_array($action, ['bku', 'rekap', 'obyek_penerimaan', 'buku_pembantu'], true)) {

@@ -27,7 +27,7 @@ $nama       = input('nama_lengkap');
 $username   = input('username');
 $email      = input('email');
 $password   = input('password');
-$instansi   = input('instansi');
+$instansi   = normalizeInstansi(input('instansi'));
 $peran      = input('peran', 'Bendahara');
 $kota       = input('kota');
 $provinsi   = input('provinsi');
@@ -56,6 +56,17 @@ if (strlen($password) < 8) {
     jsonResponse(false, 'Kata sandi minimal 8 karakter.', ['field' => 'password'], 422);
 }
 
+// Instansi adalah kunci pemisahan data multi-dinas: wajib & dinormalisasi.
+if ($instansi === '') {
+    jsonResponse(false, 'Nama instansi wajib diisi.', ['field' => 'instansi'], 422);
+}
+if (mb_strlen($instansi) < 3) {
+    jsonResponse(false, 'Nama instansi minimal 3 karakter.', ['field' => 'instansi'], 422);
+}
+if (mb_strlen($instansi) > 150) {
+    jsonResponse(false, 'Nama instansi maksimal 150 karakter.', ['field' => 'instansi'], 422);
+}
+
 $allowedRoles = ['Admin Dinas', 'Operator', 'Bendahara', 'Verifikator', 'Kepala Dinas', 'Pengguna Umum'];
 if (!in_array($peran, $allowedRoles, true)) {
     $peran = 'Pengguna Umum';
@@ -66,6 +77,10 @@ $pdo = db();
 // Selaraskan skema kolom `users` (basis data lama belum tentu punya
 // kolom `api_token`/`nip`) — lihat includes/functions.php: ensureUsersColumns().
 ensureUsersColumns($pdo);
+
+// Pakai ejaan instansi yang sudah ada (bila ada) agar tidak terbentuk
+// varian tenant baru hanya karena perbedaan spasi/huruf besar-kecil.
+$instansi = samakanInstansi($pdo, $instansi);
 
 // Cek duplikasi username & email
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?");

@@ -93,6 +93,66 @@ function requireInstansi(): string
 }
 
 /**
+ * Normalisasi nama instansi (tenant key).
+ * ---------------------------------------
+ * `users.instansi` adalah kunci pemisahan data multi-dinas, jadi ejaan yang
+ * berbeda sedikit ("Dinas  X", " Dinas X ", "Dinas X&Y") dapat membuat data
+ * terlihat terpisah/tercampur. Fungsi ini:
+ *   - memangkas spasi di awal/akhir,
+ *   - merapatkan spasi ganda/tab/karakter tak terlihat menjadi satu spasi,
+ *   - menormalkan spasi di sekitar '&' menjadi " & ".
+ * Huruf besar/kecil TIDAK diubah agar nama instansi tetap enak dibaca;
+ * perbandingan di MySQL sudah case-insensitive (collation *_ci).
+ */
+function normalizeInstansi(string $instansi): string
+{
+    $s = trim($instansi);
+    // Buang karakter kontrol (termasuk NBSP) dan rapikan semua whitespace.
+    $s = (string) preg_replace('/[\x00-\x1F\x7F\x{00A0}]+/u', ' ', $s);
+    $s = (string) preg_replace('/\s+/u', ' ', $s);
+    // "Dinas X&Y" / "Dinas X &Y" -> "Dinas X & Y".
+    $s = (string) preg_replace('/\s*&\s*/u', ' & ', $s);
+
+    return trim($s);
+}
+
+/**
+ * Samakan ejaan instansi dengan ejaan yang sudah dipakai akun lain.
+ * ----------------------------------------------------------------
+ * Mencegah dua akun yang sebenarnya satu dinas tersimpan dengan ejaan
+ * berbeda ("Dinas Kesehatan" vs "dinas kesehatan" vs "Dinas  Kesehatan").
+ * Perbandingan mengikuti collation kolom (case-insensitive).
+ */
+function samakanInstansi(PDO $pdo, string $instansi, ?int $kecualiUserId = null): string
+{
+    if ($instansi === '') {
+        return '';
+    }
+
+    $sql    = "SELECT instansi FROM users
+               WHERE instansi IS NOT NULL AND TRIM(instansi) <> '' AND instansi = ?";
+    $params = [$instansi];
+
+    if ($kecualiUserId !== null) {
+        $sql     .= " AND id <> ?";
+        $params[] = $kecualiUserId;
+    }
+
+    $sql .= " ORDER BY id ASC LIMIT 1";
+
+    try {
+        $st = $pdo->prepare($sql);
+        $st->execute($params);
+        $ada = $st->fetchColumn();
+    } catch (Throwable $e) {
+        error_log('[SIM-TKD] samakanInstansi: ' . $e->getMessage());
+        return $instansi;
+    }
+
+    return $ada === false ? $instansi : normalizeInstansi((string) $ada);
+}
+
+/**
  * Validasi tahun anggaran (int, rentang wajar).
  */
 function isValidTahun($tahun): bool

@@ -268,6 +268,7 @@
         clearError(email, document.getElementById('errEmail'));
         clearError(password, document.getElementById('errPassword'));
         clearError(confirmPassword, document.getElementById('errConfirm'));
+        clearError(instansi, document.getElementById('errInstansi'));
         document.getElementById('errTerms').textContent = '';
 
         let hasError = false;
@@ -299,6 +300,15 @@
             hasError = true;
         } else if (!isAllowedEmailDomain(mail)) {
             setError(email, document.getElementById('errEmail'), 'Pendaftaran hanya menggunakan email @polban.ac.id.');
+            hasError = true;
+        }
+
+        // Validate instansi (kunci pemisahan data multi-dinas)
+        if (!inst) {
+            setError(instansi, document.getElementById('errInstansi'), 'Nama instansi wajib diisi.');
+            hasError = true;
+        } else if (inst.length < 3) {
+            setError(instansi, document.getElementById('errInstansi'), 'Nama instansi minimal 3 karakter.');
             hasError = true;
         }
 

@@ -19,6 +19,13 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
+// ---- Migrasi bertahap (cutover), lihat laravel/docs/CUTOVER-TANPA-DOWNTIME.md
+// Bila endpoint ini aktif di config/cutover.php, request diteruskan ke
+// aplikasi Laravel (beserta tiket SSO dari sesi). Bawaan: MATI -> tidak ada
+// perubahan perilaku sama sekali.
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 if (!isLoggedIn()) {
     jsonResponse(false, 'Tidak terautentikasi.', [], 401);
 }

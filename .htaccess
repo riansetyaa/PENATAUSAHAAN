@@ -11,3 +11,17 @@
 <FilesMatch "^(setup\.php|\.git|composer\.(json|lock))$">
     Require all denied
 </FilesMatch>
+
+# 2b) File .env (rahasia) TIDAK BOLEH diakses lewat web, di mana pun.
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>
+
+# 3) Aplikasi Laravel (migrasi) tidak boleh diakses lewat domain utama.
+#    Document root aplikasi baru HARUS diarahkan ke laravel/public pada
+#    subdomain terpisah (mis. next.simtkd.com) — lihat
+#    laravel/docs/CUTOVER-TANPA-DOWNTIME.md. Aturan ini mencegah kode sumber
+#    (termasuk .env) terunduh bila folder laravel/ ikut ter-deploy ke sini.
+<IfModule mod_rewrite.c>
+    RewriteRule ^laravel/ - [F,L]
+</IfModule>

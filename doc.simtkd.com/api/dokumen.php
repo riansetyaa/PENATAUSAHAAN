@@ -24,6 +24,17 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config/db.php';
 
+// ---- Migrasi bertahap (cutover), lihat laravel/docs/CUTOVER-TANPA-DOWNTIME.md
+// File ini MANDIRI (bukan bagian aplikasi utama), jadi pustaka proksi dimuat
+// dari folder includes/ aplikasi utama yang berada di atas document root
+// subdomain ini. Bila tidak ada (mis. subdomain belum dideploy ulang),
+// pengalihan dilewati -> legacy melayani seperti biasa.
+$simtkdCutoverLib = __DIR__ . '/../../includes/cutover.php';
+if (is_file($simtkdCutoverLib)) {
+    require_once $simtkdCutoverLib;
+    cutover_maybe_proxy(__FILE__);
+}
+
 /** Respons JSON + hentikan eksekusi. */
 function jsonOut(bool $success, string $message, array $extra = [], int $code = 200): void
 {

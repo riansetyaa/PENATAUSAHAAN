@@ -52,6 +52,11 @@ require_once __DIR__ . '/../config/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+// Fase ini: Master Akun + Anggaran (pagu). Aksi lain dijalankan di sini.
+require_once __DIR__ . '/../../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 $pdo    = db();
 $action = (string) ($_GET['action'] ?? '');
 
