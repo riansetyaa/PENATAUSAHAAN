@@ -17,3 +17,6 @@ logs/*.log
 .webhook_secret
 .webhook_secret_staging
 test-db.php
+
+# Aplikasi Laravel: dipelihara terpisah, tidak di-commit di repo ini
+laravel/
