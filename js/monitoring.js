@@ -238,8 +238,8 @@
             '</td>' +
             '<td><span class="monitor-instansi">' + esc(u.instansi || '—') + '</span>' +
                 '<small>Terdaftar ' + esc(fmtTanggal(u.dibuat)) + '</small></td>' +
-            '<td><span class="type-badge type-muted">' + esc(u.peran || '—') + '</span></td>' +
-            '<td><span class="type-badge ' + kelasStatus + '">' + esc(labelStatus) + '</span>' +
+            '<td class="col-peran"><span class="type-badge type-muted">' + esc(u.peran || '—') + '</span></td>' +
+            '<td class="col-akun"><span class="type-badge ' + kelasStatus + '">' + esc(labelStatus) + '</span>' +
                 (u.otp_verifikasi_at ? '<small>OTP terverifikasi</small>' : '') + '</td>' +
             '<td>' + loginHtml + '</td>' +
             '<td><span class="monitor-instansi">' + esc(aktivitas) + '</span></td>' +

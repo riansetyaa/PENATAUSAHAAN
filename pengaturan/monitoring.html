@@ -58,6 +58,19 @@
         .monitor-table { min-width: 1180px; }
         .monitor-table th, .monitor-table td { padding: 12px 14px; vertical-align: middle; }
 
+        /* Peran dan status akun harus terbaca utuh. Aturan global
+           .data-table td memakai word-break: break-word, sehingga badge
+           "Bendahara"/"Aktif" pecah menjadi beberapa baris saat kolom
+           menyempit. Beri lebar minimum + larang pemenggalan kata. */
+        .monitor-table .col-peran { min-width: 150px; }
+        .monitor-table .col-akun  { min-width: 132px; }
+        .monitor-table .type-badge,
+        .monitor-table .col-akun small {
+            white-space: nowrap;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+
         .monitor-user { display: flex; align-items: center; gap: 10px; min-width: 220px; }
         .monitor-avatar {
             width: 34px; height: 34px; border-radius: 50%;
@@ -404,8 +417,8 @@
                                     <tr>
                                         <th>Pengguna</th>
                                         <th>Instansi (SKPD)</th>
-                                        <th>Peran</th>
-                                        <th>Akun</th>
+                                        <th class="col-peran">Peran</th>
+                                        <th class="col-akun">Akun</th>
                                         <th>Login Terakhir</th>
                                         <th>Aktivitas Terakhir</th>
                                         <th>Progres</th>
