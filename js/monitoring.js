@@ -12,6 +12,7 @@
     var BARIS = [];
     var SAYA = null;
     var BISA_UBAH_PERAN = false;
+    var DOKUMEN_AKTIF = 0;
     var PERAN_TERSEDIA = [
         'Admin Dinas', 'Operator', 'Bendahara',
         'Verifikator', 'Kepala Dinas', 'Pengguna Umum'
@@ -99,6 +100,241 @@
         if (p >= 30) return 'is-mid';
         if (p > 0) return 'is-low';
         return 'is-zero';
+    }
+
+    // ------------------------------------------------------------
+    // Hasil dokumen mahasiswa
+    // ------------------------------------------------------------
+    var IKON_DOKUMEN = {
+        'SPD': 'fa-file-invoice',
+        'SPP': 'fa-file-signature',
+        'SPM': 'fa-file-invoice-dollar',
+        'SP2D': 'fa-money-check-alt',
+        'LPJ': 'fa-clipboard-check',
+        'NPD': 'fa-file-invoice-dollar',
+        'Pengajuan TU': 'fa-paper-plane',
+        'SKP Daerah': 'fa-receipt',
+        'STBP': 'fa-file-invoice',
+        'STS': 'fa-money-bill-wave',
+        'Permohonan': 'fa-file-signature',
+        'Rekening Bank SKPD': 'fa-university',
+        'Rekanan': 'fa-handshake',
+        'Jurnal Umum': 'fa-book',
+        'Jurnal Khusus': 'fa-book-open',
+        'Jurnal Manual': 'fa-book',
+        'Buku Kas': 'fa-book',
+        'Buku Kas Harian': 'fa-calendar-day',
+        'Rekonsiliasi Bank': 'fa-scale-balanced',
+        'Akun Penerimaan': 'fa-coins'
+    };
+
+    function ikonDokumen(jenis) {
+        return IKON_DOKUMEN[jenis] || 'fa-file-lines';
+    }
+
+    /** 'sudah_divalidasi' -> 'Sudah divalidasi' */
+    function labelStatus(s) {
+        if (!s) return '—';
+        var t = String(s).replace(/_/g, ' ');
+        return t.charAt(0).toUpperCase() + t.slice(1);
+    }
+
+    function rupiah(n) {
+        if (n === null || n === undefined || n === '') return '';
+        var v = Number(n);
+        if (!isFinite(v)) return '';
+        return 'Rp ' + v.toLocaleString('id-ID', { maximumFractionDigits: 0 });
+    }
+
+    function badgeTtd(x) {
+        if (!x.alur_ttd) return '';
+        if (!x.ttd) {
+            return '<span class="doc-badge none" title="Belum dikirim ke Tanda Tangan Dokumen">Belum dikirim</span>';
+        }
+        if (x.ttd.status === 'ditandatangani') {
+            return '<span class="doc-badge ok" title="Sudah ditandatangani">Ditandatangani</span>';
+        }
+        return '<span class="doc-badge wait" title="Sudah dikirim, menunggu tanda tangan">Menunggu TTD</span>';
+    }
+
+    function htmlDokumen(d) {
+        var r = (d && d.ringkasan) || {};
+        var entri = (d && d.entri) || [];
+        var dokumen = (d && d.dokumen) || [];
+
+        var html = '<div class="doc-summary">' +
+            '<span class="doc-chip"><b>' + angka(r.total_entri) + '</b> entri data</span>' +
+            '<span class="doc-chip"><b>' + angka(r.dokumen_kirim) + '</b> dokumen terkirim</span>' +
+            '<span class="doc-chip done"><b>' + angka(r.ditandatangani) + '</b> ditandatangani</span>' +
+            '<span class="doc-chip wait"><b>' + angka(r.menunggu_ttd) + '</b> menunggu TTD</span>' +
+        '</div>';
+
+        if (d && d.tersedia === false) {
+            html += '<div class="doc-empty"><i class="fas fa-triangle-exclamation"></i> ' +
+                'Tabel dokumen tanda tangan belum tersedia di server.</div>';
+        }
+
+        // --- Dokumen yang sudah dikirim ke TTD ---
+        html += '<div class="doc-block">' +
+            '<div class="doc-block-head"><span><i class="fas fa-pen-nib"></i> Dokumen Terkirim ke Tanda Tangan</span>' +
+                '<span>' + dokumen.length + '</span></div>';
+
+        if (!dokumen.length) {
+            html += '<div class="doc-empty">Belum ada dokumen yang dikirim ke antrean tanda tangan.</div>';
+        } else {
+            html += dokumen.map(function (x) {
+                var sudah = x.status === 'ditandatangani';
+                var sub = [];
+                if (x.tanggal) sub.push(fmtTanggal(x.tanggal));
+                sub.push(sudah ? 'Ditandatangani' : 'Menunggu tanda tangan');
+                if (x.kode_verifikasi) sub.push('Kode ' + x.kode_verifikasi);
+
+                return '<div class="doc-row">' +
+                    '<span class="doc-ico"><i class="fas ' + ikonDokumen(x.jenis) + '"></i></span>' +
+                    '<span class="doc-main">' +
+                        '<span class="doc-title">' + esc(x.jenis || 'Dokumen') +
+                            (x.nomor ? ' <b>' + esc(x.nomor) + '</b>' : '') + '</span>' +
+                        '<span class="doc-sub">' + esc(sub.join(' · ')) + '</span>' +
+                    '</span>' +
+                    '<span class="doc-badge ' + (sudah ? 'ok' : 'wait') + '">' +
+                        (sudah ? 'Ditandatangani' : 'Menunggu TTD') + '</span>' +
+                    '<button type="button" class="action-btn" data-pratinjau="' + angka(x.id) + '" ' +
+                        'data-pemilik="' + angka(r.pemilik_id || 0) + '" title="Pratinjau dokumen">' +
+                        '<i class="fas fa-eye"></i></button>' +
+                '</div>';
+            }).join('');
+        }
+        html += '</div>';
+
+        // --- Data per modul ---
+        html += '<div class="doc-block">' +
+            '<div class="doc-block-head"><span><i class="fas fa-list-check"></i> Data per Modul</span>' +
+                '<span>' + entri.length + '</span></div>';
+
+        if (!entri.length) {
+            html += '<div class="doc-empty">Akun ini belum membuat data pada modul mana pun.</div>';
+        } else {
+            var batas = 150;
+            var tampil = entri.slice(0, batas);
+
+            Object.keys(MODUL).forEach(function (key) {
+                var baris = tampil.filter(function (x) { return x.modul === key; });
+                if (!baris.length) return;
+
+                html += '<div class="doc-group">' +
+                    '<div class="doc-group-head"><span><i class="fas ' + MODUL[key].icon + '"></i> ' +
+                        esc(MODUL[key].label) + '</span><b>' + baris.length + '</b></div>';
+
+                html += baris.map(function (x) {
+                    var sub = [];
+                    if (x.tanggal) sub.push(fmtTanggal(x.tanggal));
+                    if (x.judul && x.judul !== x.nomor) sub.push(x.judul);
+                    if (x.nilai !== null && x.nilai !== undefined) sub.push(rupiah(x.nilai));
+
+                    return '<div class="doc-row">' +
+                        '<span class="doc-ico"><i class="fas ' + ikonDokumen(x.jenis) + '"></i></span>' +
+                        '<span class="doc-main">' +
+                            '<span class="doc-title">' + esc(x.jenis) +
+                                (x.nomor ? ' <b>' + esc(x.nomor) + '</b>' : '') + '</span>' +
+                            '<span class="doc-sub">' + esc(sub.join(' · ') || 'Tanpa tanggal') + '</span>' +
+                        '</span>' +
+                        (x.status ? '<span class="doc-badge">' + esc(labelStatus(x.status)) + '</span>'
+                                  : '<span></span>') +
+                        badgeTtd(x) +
+                    '</div>';
+                }).join('');
+
+                html += '</div>';
+            });
+
+            if (entri.length > batas) {
+                html += '<div class="doc-more">Menampilkan ' + batas + ' dari ' + entri.length +
+                    ' entri terbaru.</div>';
+            }
+            if (r.dibatasi) {
+                html += '<div class="doc-more">Sebagian modul memiliki lebih dari 100 entri; ' +
+                    'daftar pada modul tersebut dibatasi.</div>';
+            }
+        }
+        html += '</div>';
+
+        return html;
+    }
+
+    function muatDokumen(userId) {
+        var wrap = el('detailDokumenBody');
+        if (!wrap) return;
+
+        DOKUMEN_AKTIF = Number(userId);
+        wrap.innerHTML = '<div class="doc-empty"><i class="fas fa-spinner fa-spin"></i> Memuat dokumen...</div>';
+
+        fetch('../api/monitoring_dokumen.php?user_id=' + encodeURIComponent(userId), { cache: 'no-store' })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (DOKUMEN_AKTIF !== Number(userId)) return; // modal sudah menampilkan akun lain
+                if (!d || !d.success) {
+                    wrap.innerHTML = '<div class="doc-empty"><i class="fas fa-triangle-exclamation"></i> ' +
+                        esc((d && d.message) || 'Gagal memuat dokumen mahasiswa.') + '</div>';
+                    return;
+                }
+                d.ringkasan = d.ringkasan || {};
+                d.ringkasan.pemilik_id = userId;
+                wrap.innerHTML = htmlDokumen(d);
+            })
+            .catch(function (err) {
+                if (DOKUMEN_AKTIF !== Number(userId)) return;
+                console.error('Monitoring: gagal memuat dokumen', err);
+                wrap.innerHTML = '<div class="doc-empty"><i class="fas fa-triangle-exclamation"></i> ' +
+                    'Gagal menghubungi server saat memuat dokumen.</div>';
+            });
+    }
+
+    function bukaPratinjau(userId, dokumenId) {
+        var frame = el('pratinjauFrame');
+        if (!frame) return;
+
+        el('pratinjauTitle').textContent = 'Pratinjau Dokumen';
+        el('pratinjauSubtitle').textContent = 'Memuat isi dokumen...';
+        frame.srcdoc = '';
+        el('modalPratinjau').hidden = false;
+        document.body.classList.add('modal-open');
+
+        fetch('../api/monitoring_dokumen.php?user_id=' + encodeURIComponent(userId) +
+              '&dokumen_id=' + encodeURIComponent(dokumenId), { cache: 'no-store' })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (!d || !d.success) {
+                    throw new Error((d && d.message) || 'Dokumen tidak dapat dibuka.');
+                }
+                var doc = d.dokumen || {};
+
+                el('pratinjauTitle').textContent =
+                    (doc.jenis || 'Dokumen') + (doc.nomor ? ' ' + doc.nomor : '');
+
+                var ket = [];
+                if (doc.tanggal) ket.push(fmtTanggal(doc.tanggal));
+                ket.push(doc.status === 'ditandatangani' ? 'Sudah ditandatangani' : 'Menunggu tanda tangan');
+                if (doc.kode_verifikasi) ket.push('Kode ' + doc.kode_verifikasi);
+                el('pratinjauSubtitle').textContent = ket.join(' · ');
+
+                frame.srcdoc = doc.konten_html ||
+                    '<p style="font-family:sans-serif;padding:24px;color:#64748b">Dokumen belum memiliki konten.</p>';
+            })
+            .catch(function (err) {
+                console.error('Monitoring: gagal membuka dokumen', err);
+                el('pratinjauSubtitle').textContent = (err && err.message)
+                    ? err.message
+                    : 'Gagal membuka dokumen.';
+            });
+    }
+
+    function tutupPratinjau() {
+        var modal = el('modalPratinjau');
+        if (!modal || modal.hidden) return;
+        modal.hidden = true;
+        var frame = el('pratinjauFrame');
+        if (frame) frame.srcdoc = '';
+        if (el('modalDetail').hidden) document.body.classList.remove('modal-open');
     }
 
     // ------------------------------------------------------------
@@ -260,6 +496,9 @@
                     '<button type="button" class="action-btn" data-detail="' + angka(u.id) + '" title="Detail pengguna">' +
                         '<i class="fas fa-eye"></i>' +
                     '</button>' +
+                    '<button type="button" class="action-btn" data-dokumen="' + angka(u.id) + '" title="Dokumen yang dikerjakan">' +
+                        '<i class="fas fa-folder-open"></i>' +
+                    '</button>' +
                     (BISA_UBAH_PERAN
                         ? '<button type="button" class="action-btn" data-detail="' + angka(u.id) + '" title="Ubah peran">' +
                             '<i class="fas fa-user-shield"></i>' +
@@ -406,7 +645,7 @@
     // ------------------------------------------------------------
     // Modal detail
     // ------------------------------------------------------------
-    function bukaDetail(u) {
+    function bukaDetail(u, fokusDokumen) {
         var p = u.progres || {};
         var modul = p.modul || {};
         var rincian = p.rincian || [];
@@ -455,9 +694,27 @@
             html += '</ul></div>';
         });
 
+        // Hasil dokumen yang benar-benar dikerjakan akun ini (dimuat terpisah
+        // karena bisa berisi banyak baris dan konten dokumen).
+        html += '<div class="detail-dokumen" id="detailDokumen">' +
+            '<div class="detail-dokumen-head">' +
+                '<span><i class="fas fa-folder-open"></i> Hasil Dokumen yang Dikerjakan</span>' +
+            '</div>' +
+            '<div id="detailDokumenBody"></div>' +
+        '</div>';
+
         el('modalBody').innerHTML = html;
         el('modalDetail').hidden = false;
         document.body.classList.add('modal-open');
+
+        muatDokumen(u.id);
+
+        if (fokusDokumen) {
+            requestAnimationFrame(function () {
+                var bagian = el('detailDokumen');
+                if (bagian) bagian.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
     }
 
     function tutupDetail() {
@@ -614,29 +871,48 @@
         el('btnExport').addEventListener('click', unduhCsv);
 
         el('tbodyMonitoring').addEventListener('click', function (e) {
-            var btn = e.target.closest('[data-detail]');
+            var btn = e.target.closest('[data-detail], [data-dokumen]');
             if (!btn || !DATA) return;
 
-            var id = Number(btn.getAttribute('data-detail'));
+            var fokusDokumen = btn.hasAttribute('data-dokumen');
+            var id = Number(btn.getAttribute(fokusDokumen ? 'data-dokumen' : 'data-detail'));
             var u = (DATA.pengguna || []).filter(function (x) {
                 return Number(x.id) === id;
             })[0];
 
-            if (u) bukaDetail(u);
+            if (u) bukaDetail(u, fokusDokumen);
         });
 
         el('modalBody').addEventListener('click', function (e) {
             var btn = e.target.closest('[data-simpan-peran]');
-            if (!btn) return;
-            simpanPeran(btn);
+            if (btn) {
+                simpanPeran(btn);
+                return;
+            }
+
+            var pv = e.target.closest('[data-pratinjau]');
+            if (!pv) return;
+
+            var pemilik = Number(pv.getAttribute('data-pemilik')) || DOKUMEN_AKTIF;
+            bukaPratinjau(pemilik, Number(pv.getAttribute('data-pratinjau')));
         });
 
         document.querySelectorAll('[data-close]').forEach(function (node) {
             node.addEventListener('click', tutupDetail);
         });
 
+        document.querySelectorAll('[data-close-pratinjau]').forEach(function (node) {
+            node.addEventListener('click', tutupPratinjau);
+        });
+
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && !el('modalDetail').hidden) tutupDetail();
+            if (e.key !== 'Escape') return;
+            // Tutup lapisan paling atas lebih dulu.
+            if (!el('modalPratinjau').hidden) {
+                tutupPratinjau();
+                return;
+            }
+            if (!el('modalDetail').hidden) tutupDetail();
         });
 
         load();

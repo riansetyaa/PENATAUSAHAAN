@@ -198,4 +198,18 @@
     // Render sinkron: script ini dimuat SETELAH elemen <aside> dan
     // SEBELUM js/dashboard.js (yang langsung mengambil elemen & pasang listener).
     render();
+
+    // Muat modul notifikasi dokumen (lonceng topbar) sekali per halaman.
+    // Dimuat dari sini agar semua halaman aplikasi ikut mendapat fitur
+    // tanpa perlu menambah <script> satu per satu.
+    (function muatNotifikasi() {
+        if (!document.querySelector('.topbar-right')) return;
+        if (document.getElementById('simtkdNotifJs')) return;
+
+        var s = document.createElement('script');
+        s.id = 'simtkdNotifJs';
+        s.src = posisi().base + 'js/notifikasi-dokumen.js';
+        s.async = true;
+        document.head.appendChild(s);
+    })();
 })();

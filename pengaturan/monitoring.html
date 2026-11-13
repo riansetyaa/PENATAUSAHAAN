@@ -231,6 +231,85 @@
         .detail-langkah li span { flex: 1; }
         .detail-langkah li b { font-weight: 700; color: #475569; }
 
+        /* ===== Hasil dokumen mahasiswa ===== */
+        .detail-dokumen {
+            margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px;
+        }
+        .detail-dokumen-head {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; font-size: 13px; font-weight: 800; color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .detail-dokumen-head i { color: #1d3a6e; margin-right: 4px; }
+
+        .doc-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+        .doc-chip {
+            font-size: 11px; font-weight: 600; padding: 4px 9px;
+            border-radius: 999px; background: #eef2f9; color: #31527f;
+        }
+        .doc-chip b { font-weight: 800; }
+        .doc-chip.done { background: #e7f6ec; color: #166534; }
+        .doc-chip.wait { background: #fff7e6; color: #92400e; }
+
+        .doc-block { margin-top: 14px; }
+        .doc-block-head {
+            display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+            font-size: 12px; font-weight: 800; color: #1f2937; margin-bottom: 4px;
+        }
+        .doc-block-head i { color: #1d3a6e; margin-right: 4px; }
+        .doc-block-head span { font-weight: 700; color: #94a3b8; }
+
+        .doc-group { margin-top: 10px; }
+        .doc-group-head {
+            display: flex; justify-content: space-between; gap: 8px;
+            padding: 5px 0 4px; border-bottom: 1px dashed var(--border);
+            font-size: 10.5px; font-weight: 800; letter-spacing: .4px;
+            text-transform: uppercase; color: #64748b;
+        }
+        .doc-group-head b { color: #475569; }
+
+        .doc-row {
+            display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto;
+            align-items: center; gap: 10px;
+            padding: 7px 2px; border-bottom: 1px solid #f1f5f9; font-size: 12px;
+        }
+        .doc-row:last-child { border-bottom: none; }
+        .doc-ico {
+            width: 24px; height: 24px; border-radius: 7px;
+            background: #eef2f9; color: #1d3a6e;
+            display: flex; align-items: center; justify-content: center; font-size: 10.5px;
+        }
+        .doc-main { min-width: 0; }
+        .doc-title {
+            display: block; font-weight: 600; color: #1f2937;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .doc-title b { font-weight: 700; }
+        .doc-sub {
+            display: block; font-size: 10.5px; color: #94a3b8;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .doc-badge {
+            font-size: 10px; font-weight: 700; white-space: nowrap;
+            padding: 3px 7px; border-radius: 999px;
+            background: #f1f5f9; color: #64748b;
+        }
+        .doc-badge.ok   { background: #e7f6ec; color: #166534; }
+        .doc-badge.wait { background: #fff7e6; color: #92400e; }
+        .doc-badge.none { background: #f1f5f9; color: #94a3b8; }
+        .doc-row .action-btn { width: 26px; height: 26px; font-size: 11px; }
+        .doc-empty { padding: 12px 0; font-size: 12px; color: #94a3b8; }
+        .doc-more { padding: 8px 0; font-size: 11px; color: #64748b; }
+
+        /* ===== Pratinjau dokumen ===== */
+        #modalPratinjau { z-index: 2100; }
+        .pratinjau-box { width: min(980px, 100%); }
+        .pratinjau-body { padding: 0; background: #eef1f6; }
+        .pratinjau-frame {
+            display: block; width: 100%; height: min(70vh, 720px);
+            border: 0; background: #fff;
+        }
+
         @media (max-width: 768px) {
             .monitor-toolbar { padding: 12px 14px; }
             .monitor-toolbar select, .monitor-search { flex: 1 1 100%; }
@@ -269,7 +348,6 @@
             <div class="topbar-right">
                 <div class="topbar-item notification">
                     <i class="fas fa-bell"></i>
-                    <span class="badge">3</span>
                 </div>
                 <div class="topbar-item">
                     <i class="fas fa-calendar-alt"></i>
@@ -289,7 +367,7 @@
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Monitoring Pengguna</h1>
-                    <p class="page-subtitle">Pantau kehadiran login dan progres pengerjaan setiap akun mahasiswa.</p>
+                    <p class="page-subtitle">Pantau kehadiran login, progres pengerjaan, dan hasil dokumen setiap akun mahasiswa.</p>
                 </div>
                 <div class="page-actions">
                     <button class="btn btn-outline" id="btnRefresh"><i class="fas fa-sync-alt"></i> Muat Ulang</button>
@@ -318,7 +396,7 @@
 
                 <div class="monitor-note">
                     <i class="fas fa-circle-info"></i>
-                    <span>Progres dihitung dari data yang <strong>dibuat oleh masing-masing akun</strong> (kolom <em>user_id</em>), bukan dari data instansi. Akun yang memakai instansi sama tetap memiliki progres masing-masing. Perubahan peran hanya dapat dilakukan oleh <strong>Admin Dinas</strong>.</span>
+                    <span>Progres dihitung dari data yang <strong>dibuat oleh masing-masing akun</strong> (kolom <em>user_id</em>), bukan dari data instansi. Akun yang memakai instansi sama tetap memiliki progres masing-masing. Klik ikon <strong>folder</strong> pada kolom aksi untuk melihat hasil dokumen yang dikerjakan akun tersebut, termasuk pratinjau dokumen yang sudah dikirim ke tanda tangan. Perubahan peran hanya dapat dilakukan oleh <strong>Admin Dinas</strong>.</span>
                 </div>
 
                 <!-- Kartu ringkasan -->
@@ -463,6 +541,25 @@
                 </button>
             </div>
             <div class="monitor-modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Modal pratinjau dokumen (read-only, sandbox) -->
+    <div class="monitor-modal" id="modalPratinjau" hidden>
+        <div class="monitor-modal-backdrop" data-close-pratinjau="1"></div>
+        <div class="monitor-modal-box pratinjau-box" role="dialog" aria-modal="true" aria-labelledby="pratinjauTitle">
+            <div class="monitor-modal-head">
+                <div>
+                    <h3 id="pratinjauTitle">Pratinjau Dokumen</h3>
+                    <p id="pratinjauSubtitle">Memuat isi dokumen...</p>
+                </div>
+                <button type="button" class="monitor-modal-close" data-close-pratinjau="1" aria-label="Tutup">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="monitor-modal-body pratinjau-body">
+                <iframe id="pratinjauFrame" class="pratinjau-frame" sandbox="" title="Pratinjau dokumen"></iframe>
+            </div>
         </div>
     </div>
 

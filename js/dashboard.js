@@ -346,12 +346,8 @@
     // ==========================================
     // Notification click
     // ==========================================
-    const notifBtn = document.querySelector('.topbar-item.notification');
-    if (notifBtn) {
-        notifBtn.addEventListener('click', function () {
-            showToast('Anda memiliki 3 notifikasi baru.', 'warning');
-        });
-    }
+    // Ditangani oleh js/notifikasi-dokumen.js (daftar dokumen yang belum
+    // dikirim ke Tanda Tangan Dokumen), bukan lagi toast statis.
 
     // ==========================================
     // Logout (konfirmasi)
