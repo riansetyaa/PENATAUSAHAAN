@@ -7,6 +7,7 @@
  *   GET ?status=aktif&q=   : daftar STS + jumlah per status
  *   GET ?id=X              : detail STS (termasuk rincian STBP)
  *   POST action=create     : buat STS baru (berisi pilihan STBP)
+ *   POST action=delete     : hapus STS (status dihapus, STBP bisa dipakai lagi)
  *
  * Wajib login. Respons JSON.
  */
@@ -277,6 +278,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $body = $_POST;
     }
     $action = $body['action'] ?? 'create';
+
+    if ($action === 'delete') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+
+        $stmtCur = $pdo->prepare("SELECT id, status, nomor_sts FROM sts WHERE id = ?" . ($skpd !== '' ? " AND skpd = ?" : ""));
+        $stmtCur->execute($skpd !== '' ? [$id, $skpd] : [$id]);
+        $cur = $stmtCur->fetch();
+        if (!$cur) {
+            jsonResponse(false, 'STS tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+        if ((string) $cur['status'] === 'dihapus') {
+            jsonResponse(false, 'STS ini sudah dihapus.', [], 422);
+        }
+
+        $upd = $pdo->prepare("UPDATE sts SET status = 'dihapus' WHERE id = ?" . ($skpd !== '' ? " AND skpd = ?" : ""));
+        $params = [$id];
+        if ($skpd !== '') {
+            $params[] = $skpd;
+        }
+        $upd->execute($params);
+
+        jsonResponse(true, 'STS ' . (string) $cur['nomor_sts'] . ' berhasil dihapus. STBP di dalamnya bisa dipilih lagi.', [
+            'id'     => $id,
+            'status' => 'dihapus',
+        ]);
+    }
 
     if ($action !== 'create') {
         jsonResponse(false, 'Aksi tidak dikenali.', [], 422);
