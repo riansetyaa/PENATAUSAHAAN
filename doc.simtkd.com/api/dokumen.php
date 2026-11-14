@@ -17,7 +17,7 @@
  *   GET  ?action=ttd_gambar_saya  : gambar tanda tangan tersimpan user
  *   POST ?action=ttd_gambar       : simpan gambar TTD (base64 PNG)
  *   POST ?action=ttd              : tanda tangani dokumen (id, qr opsional)
- *   POST ?action=hapus            : hapus dokumen milik user (menunggu_ttd maupun sudah ditandatangani)
+ *   POST ?action=hapus            : hapus dokumen milik user yang masih menunggu TTD
  *   GET  ?action=verify&kode=     : PUBLIK - cek keaslian dokumen
  */
 
@@ -575,7 +575,7 @@ if ($action === 'ttd') {
     }
 }
 
-// ---------- Hapus dokumen (hanya milik user & masih menunggu TTD) ----------
+// ---------- Hapus dokumen milik user yang masih bisa ditandatangani ----------
 if ($action === 'hapus' || $action === 'delete') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         jsonOut(false, 'Metode request tidak diizinkan.', [], 405);
@@ -593,6 +593,10 @@ if ($action === 'hapus' || $action === 'delete') {
         if (!$d) {
             $pdo->rollBack();
             jsonOut(false, 'Dokumen tidak ditemukan atau bukan milik Anda.', [], 404);
+        }
+        if ((string) ($d['status'] ?? '') !== 'menunggu_ttd') {
+            $pdo->rollBack();
+            jsonOut(false, 'Hanya dokumen yang masih bisa ditandatangani yang dapat dihapus.', [], 409);
         }
         // Hapus catatan penandatangan terlebih dahulu
         $pdo->prepare("DELETE FROM dokumen_ttd WHERE dokumen_id = ?")->execute([$id]);

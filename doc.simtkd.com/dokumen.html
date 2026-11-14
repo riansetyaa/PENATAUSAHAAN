@@ -114,6 +114,7 @@
                     </div>
                     <div class="btn-row mt">
                         <button type="button" class="btn btn-green btn-block" id="btnTtd"><i class="fas fa-pen-nib"></i> Tanda Tangan Dokumen</button>
+                        <button type="button" class="btn btn-danger-outline btn-block" id="btnHapusDok" style="display:none;"><i class="fas fa-trash"></i> Hapus Dokumen</button>
                     </div>
                     <div id="qrBox" style="position:absolute;left:-9999px;" aria-hidden="true"></div>
                 </div>
@@ -246,6 +247,8 @@
                         btnTtd.innerHTML = '<i class="fas fa-pen-nib"></i> Tanda Tangan Dokumen';
                     }
                 }
+                var btnHapus = document.getElementById('btnHapusDok');
+                if (btnHapus) btnHapus.style.display = '';
             }
         }
 
@@ -636,6 +639,34 @@
                 } catch (e) { resolve(''); }
             });
         }
+
+        // Hapus dokumen yang masih bisa ditandatangani (belum selesai)
+        document.getElementById('btnHapusDok').addEventListener('click', function () {
+            if (!id) return;
+            var d = detailCache || {};
+            if (d.status === 'ditandatangani') {
+                toast('Dokumen yang sudah ditandatangani tidak dihapus dari halaman ini.');
+                return;
+            }
+            var judul = d.judul || d.nomor || 'dokumen ini';
+            if (!confirm('Hapus dokumen "' + judul + '"?\n\nDokumen yang masih menunggu tanda tangan akan dihapus dan tidak dapat dikembalikan.')) return;
+            var btn = this;
+            btn.disabled = true;
+            postForm(T.url(T.endpoint), { action: 'hapus', id: String(id) })
+                .then(function (res) {
+                    if (!res.success) {
+                        toast(res.message || 'Gagal menghapus dokumen.');
+                        btn.disabled = false;
+                        return;
+                    }
+                    toast('Dokumen berhasil dihapus.');
+                    setTimeout(function () { window.location.href = T.url('index.html'); }, 600);
+                })
+                .catch(function () {
+                    toast('Gagal menghapus dokumen (jaringan).');
+                    btn.disabled = false;
+                });
+        });
 
         // ===== Tanda tangani dokumen =====
         document.getElementById('btnTtd').addEventListener('click', function () {
