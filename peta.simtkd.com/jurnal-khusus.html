@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Jurnal Khusus - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #16305a; --navy-dark: #0e2140; --navy-mid: #1d3a6e;
+            --blue: #1f6feb; --green: #16a34a; --green-dark: #15803d;
+            --bg: #eef1f6; --card: #ffffff; --border: #d8dee9;
+            --text: #1f2937; --muted: #6b7280;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 58px; box-shadow: 0 2px 6px rgba(0,0,0,.2); position: relative; z-index: 20; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .sidebar { width: 236px; background: var(--navy-dark); color: #cbd5e1; flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px; transition: margin-left .25s ease; }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: #7d8db1; padding: 14px 18px 6px; }
+        .side-link { display: flex; align-items: center; gap: 11px; padding: 10px 18px; color: #cbd5e1; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .side-group .side-link { cursor: pointer; }
+        .side-arrow { margin-left: auto; font-size: 11px; transition: transform .2s; color: #7d8db1; }
+        .side-group.open .side-arrow { transform: rotate(90deg); }
+        .side-sub { display: none; padding-left: 10px; }
+        .side-sub.open { display: block; }
+        .side-sub .side-link { padding: 8px 16px; font-size: 13px; color: #9fb0d3; }
+        .side-sub .side-link i { font-size: 12px; }
+        .side-sub .side-link:hover { color: #fff; }
+        .side-sub .side-link.active { color: #fff; background: var(--navy-mid); border-left-color: #4c9aff; }
+        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back { background: var(--navy); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+        .btn-back:hover { background: var(--navy-mid); }
+        .footer { text-align: center; padding: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+    </style>
+    <style>
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; max-width: 780px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 18px; }
+        .card-head { padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .card-body { padding: 16px 18px; }
+        .filter-grid { display: grid; gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select, .filter-field input { height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%; }
+        .filter-field select:focus, .filter-field input:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .filter-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; height: 36px; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: var(--green-dark); }
+        .btn-dark { background: var(--navy-mid); color: #fff; }
+        .btn-dark:hover { background: var(--navy); }
+        .btn-muted { background: #e2e8f0; color: var(--text); }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn-mini { border: 1px solid var(--border); background: #fff; color: var(--muted); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+        .btn-mini:hover { color: var(--blue); border-color: var(--blue); }
+        .btn-mini.danger:hover { color: #dc2626; border-color: #dc2626; }
+        .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+        .badge-balance { background: #dcfce7; color: #15803d; }
+        .badge-unbalance { background: #fee2e2; color: #b91c1c; }
+        .badge-info { background: #e0f2fe; color: #075985; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+        .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(16,24,40,.06); }
+        .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; }
+        .stat .val { font-size: 17px; font-weight: 700; color: var(--navy); margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .stat.income .val { color: #15803d; }
+        .stat.expense .val { color: #b45309; }
+        .preview-label { font-weight: 700; color: var(--navy); font-size: 13.5px; margin: 6px 0 10px; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99; background: var(--navy-dark); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none; max-width: 440px; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        .ident-line { font-size: 12px; color: var(--muted); margin-top: 8px; }
+        .ident-line b { color: var(--navy); }
+        @media (max-width: 1024px) { .filter-grid { grid-template-columns: repeat(2, 1fr) !important; } .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; } .filter-grid { grid-template-columns: 1fr !important; } .stat-grid { grid-template-columns: 1fr; } }
+    </style>
+    <style>
+        /* ===== Tabel isian manual (kolom mengikuti blanko) ===== */
+        .table-wrap { overflow-x: auto; padding: 2px; }
+        table.sec { width: 100%; border-collapse: collapse; font-size: 12.5px; border: 1px solid #aab8cc; }
+        table.sec th, table.sec td { border: 1px solid #ccd6e4; padding: 2px 4px; }
+        table.sec thead th { background: #eef2f7; color: #24384f; text-align: center; padding: 5px 6px; border-color: #aab8cc; font-size: 11px; font-weight: 700; vertical-align: middle; }
+        table.sec thead tr.kode th { background: #f5f8fc; font-size: 10.5px; font-weight: 600; color: #475569; }
+        table.sec tbody td { vertical-align: middle; }
+        table.sec tbody td.batas, table.sec thead th.batas, table.sec tfoot td.batas { border-left: 1px solid #aab8cc; }
+        table.sec tfoot td { background: #f6f8fb; font-weight: 700; color: #24384f; text-align: right; }
+        table.sec input { width: 100%; border: 1px solid transparent; background: transparent; padding: 5px 6px; font-size: 12.5px; font-family: inherit; color: var(--text); border-radius: 4px; }
+        table.sec input:hover { border-color: #93a8c6; background: #fff; }
+        table.sec input:focus { outline: none; border-color: var(--blue); background: #fff; box-shadow: 0 0 0 2px #dbeafe; }
+        table.sec input.num { text-align: right; font-variant-numeric: tabular-nums; }
+        table.sec input.inKode { text-align: center; font-size: 10.5px; font-weight: 600; color: #1d4ed8; }
+        table.sec tbody tr.dirty td { background: #fffbeb; border-color: #efd7a0; }
+        table.sec tbody tr.timpang td:first-child { box-shadow: inset 3px 0 0 #dc2626; }
+        .btn-sm { height: 30px; padding: 6px 12px; font-size: 12px; }
+
+        /* ===== Blanko Buku Jurnal Khusus (pratinjau & cetak) ===== */
+        #jkDoc { width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 24px 26px; margin: 0 auto 18px; color: #000; font-family: "Times New Roman", Times, serif; font-size: 12.5px; line-height: 1.35; overflow-x: auto; }
+        #jkDoc .jk-head { text-align: center; margin-bottom: 8px; }
+        #jkDoc .jk-head .pem { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+        #jkDoc .jk-head .title { font-size: 14.5px; font-weight: 700; }
+        #jkDoc .jk-ident { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin: 8px 0 4px; }
+        #jkDoc .jk-ident table { border-collapse: collapse; }
+        #jkDoc .jk-ident td { padding: 0; vertical-align: top; }
+        #jkDoc .jk-ident td.lbl { width: 74px; font-weight: 700; }
+        #jkDoc .jk-ident td.titik { width: 12px; }
+        #jkDoc .jk-satuan { font-weight: 700; }
+        #jkDoc table.jk { width: 100%; border-collapse: collapse; }
+        #jkDoc table.jk th, #jkDoc table.jk td { border: 1px solid #000; padding: 2px 5px; font-size: 11.5px; vertical-align: middle; }
+        #jkDoc table.jk thead th { font-weight: 700; text-align: center; }
+        #jkDoc table.jk td.c { text-align: center; }
+        #jkDoc table.jk td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        #jkDoc table.jk tfoot td { font-weight: 700; }
+        #jkDoc table.jk tfoot td.num { text-align: right; }
+        #jkDoc .jk-signs { margin-top: 26px; display: flex; justify-content: flex-end; }
+        #jkDoc .jk-sign { text-align: center; min-width: 340px; }
+        #jkDoc .jk-sign p { margin: 0; line-height: 1.5; }
+        #jkDoc .jk-sign .sig { height: 58px; }
+        #jkDoc .jk-sign .name { font-weight: 700; }
+        #jkDoc .jk-sign .nip { font-size: 11.5px; }
+        @media print {
+            @page { size: A4 landscape; margin: 12mm; }
+            body { background: #fff !important; display: block; }
+            .topbar, .breadcrumb-bar, .sidebar, .footer, #toast, .page-head, .card, .stat-grid, .preview-label { display: none !important; }
+            .content { padding: 0 !important; }
+            #jkDoc { display: block !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand"><b>AKLAP · SIM-TKD</b><span>Aplikasi Laporan Akuntansi Pemerintahan</span></div>
+        </div>
+        <div class="topbar-right">
+            <div class="region"><b id="regionProvinsi">-</b><span id="regionKota">-</span></div>
+            <div class="topbar-user"><div class="avatar" id="regionAvatar">?</div><span id="regionNama" style="font-size:13px;">-</span></div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb"><i class="fas fa-house"></i> <a href="index.html">Home</a><i class="fas fa-chevron-right"></i><span>Jurnal</span><i class="fas fa-chevron-right"></i><span class="current">Buku Jurnal Khusus</span></div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>Buku Jurnal Khusus</h1>
+                        <p><strong>Pilih jenis jurnal</strong> yang ingin dibuat, lalu isi <strong>manual</strong> seperti blanko Modul-3E-LK:
+                           <strong>tiap kolom kode akun</strong>, Tgl, Nomor Dokumen, Uraian, dan nilainya. Kode akun pada blanko hanya
+                           menjadi <em>petunjuk</em> (tulisan abu-abu) — kode yang dipakai adalah yang Anda isi. Tombol
+                           <em>Isi Kode Blanko</em> mengisi semua kolom kode sesuai blanko sekaligus (tetap bisa diubah).
+                           Untuk jurnal dua sisi bebas, gunakan <a href="jurnal-umum.html" style="color:var(--blue);">Jurnal Umum</a>.</p>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <input type="text" id="fNamaTtd" placeholder="Nama penandatangan (dari Profil)" title="Nama pada blok tanda tangan (Fungsi Akuntansi SKPKD)"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:230px;background:#fff;color:var(--text);">
+                        <input type="text" id="fNip" placeholder="NIP (dari Profil)" title="NIP pada blok tanda tangan — otomatis dari Profil, dapat ditimpa manual"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:190px;background:#fff;color:var(--text);">
+                        <button class="btn btn-muted" id="btnCetak"><i class="fas fa-print"></i> Cetak</button>
+                        <button class="btn btn-dark" id="btnKirimTtd"><i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-filter"></i> Jenis Jurnal &amp; Periode
+                        <span id="statusSimpan" style="margin-left:auto;font-weight:500;font-size:12px;color:#6b7280;">Belum dimuat</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="filter-field" style="grid-column: span 2;"><label>Jenis Jurnal (blanko)</label><select id="fJenis"></select></div>
+                            <div class="filter-field"><label>Bulan</label><select id="fBulan"></select></div>
+                            <div class="filter-field"><label>Tahun</label><select id="fTahun"></select></div>
+                            <div class="filter-field" style="grid-column: span 3;"><label>Riwayat periode tersimpan (jenis ini)</label><select id="fRiwayat"><option value="">— Periode baru (belum ada) —</option></select></div>
+                            <div class="filter-field"><label>&nbsp;</label><button class="btn btn-muted" id="btnMuatUlang"><i class="fas fa-rotate"></i> Muat Ulang</button></div>
+                        </div>
+                        <p class="ident-line" id="infoIdent"></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-pen-to-square"></i> Tabel Jurnal (isi manual)
+                        <span id="judulTabel" style="font-weight:500;color:var(--muted);font-size:12px;"></span>
+                        <span id="badgeSeimbang" class="badge badge-unbalance" style="margin-left:auto;">Belum seimbang</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="sec" id="tblJK">
+                            <thead id="theadJK"></thead>
+                            <tbody id="tbodyJK"></tbody>
+                            <tfoot id="tfootJK"></tfoot>
+                        </table>
+                    </div>
+                    <div class="card-body" style="border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" id="btnTambahBaris"><i class="fas fa-plus"></i> Tambah Baris</button>
+                        <button class="btn btn-muted btn-sm" id="btnRapikan"><i class="fas fa-broom"></i> Hapus Baris Kosong</button>
+                        <button class="btn btn-muted btn-sm" id="btnIsiKode" title="Isi semua kolom kode akun sesuai kode pada blanko (masih bisa diubah manual)"><i class="fas fa-wand-magic-sparkles"></i> Isi Kode Blanko</button>
+                        <button class="btn btn-muted btn-sm" id="btnKosongKode" title="Kosongkan semua kolom kode akun untuk diisi manual"><i class="fas fa-eraser"></i> Kosongkan Kode</button>
+                        <button class="btn btn-success btn-sm" id="btnSimpan"><i class="fas fa-floppy-disk"></i> Simpan Jurnal</button>
+                        <button class="btn btn-muted btn-sm" id="btnHapus"><i class="fas fa-trash"></i> Hapus Jurnal Periode Ini</button>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat"><div class="lbl">Jumlah Debet</div><div class="val" id="statDebet">Rp 0</div></div>
+                    <div class="stat income"><div class="lbl">Jumlah Kredit</div><div class="val" id="statKredit">Rp 0</div></div>
+                    <div class="stat expense"><div class="lbl">Selisih (D &minus; K)</div><div class="val" id="statSelisih">Rp 0</div></div>
+                    <div class="stat"><div class="lbl">Baris Tidak Seimbang</div><div class="val" id="statTimpang">0 baris</div></div>
+                </div>
+
+                <div class="preview-label"><i class="fas fa-file-invoice"></i> Pratinjau Blanko (hasil cetak)</div>
+                <div class="kas-doc" id="jkDoc"></div>
+
+            </div>
+
+            <footer class="footer">&copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+
+    <script>
+        // Profil ringkas di topbar
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = nama.trim().charAt(0).toUpperCase() || '?';
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+(function () {
+    'use strict';
+
+    var API = 'api/akuntansi.php';
+    var BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+                 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    var TPL = [];        // daftar jenis blanko dari API
+    var T = null;        // jenis blanko terpilih
+    var META = { kota: '', instansi: '', nama: '', nip: '' };
+    var kodeExtra = { debet: {}, kredit: {} };   // kode akun pada kolom kosong (manual)
+    var tersimpan = false, kotor = false, disentuh = {};
+    var dipilih = { jenis: '', tahun: '', bulan: '' };   // periode yang sedang dimuat
+
+    function el(id) { return document.getElementById(id); }
+    function esc(t) { var d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+    function toast(msg) { var t = el('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 3600); }
+    function urlAksi(action) { return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action; }
+    function fmtAngka(v) { return Number(v || 0).toLocaleString('id-ID'); }
+    function fmtRp(v) { return 'Rp ' + fmtAngka(v); }
+    function angkaMentah(teks) {
+        var s = String(teks == null ? '' : teks).replace(/[^\d-]/g, '');
+        if (s === '' || s === '-') return 0;
+        var n = parseInt(s, 10);
+        return isNaN(n) ? 0 : n;
+    }
+    function fmtTglPendek(s) {
+        if (!s) return '';
+        var p = String(s).split('-');
+        return p.length === 3 ? (p[2] + '-' + p[1] + '-' + p[0]) : String(s);
+    }
+    function slotDari(grup) { return (T && T[grup] && T[grup].kode) ? T[grup].kode.slice() : []; }
+    function kodeJudul(grup, i) {
+        var v = kodeExtra[grup][String(i + 1)];
+        return (v === undefined || v === null) ? '' : String(v);
+    }
+    function contohBaris(i) { return (T && T.contoh && T.contoh[i]) ? T.contoh[i] : ''; }
+    function judulPeriode() {
+        var bl = parseInt(el('fBulan').value, 10) || 0;
+        return (BULAN[bl] || '') + ' ' + String(el('fTahun').value || '');
+    }
+    function kopDaerah() {
+        var kota = String(META.kota || '').trim();
+        return kota !== '' ? ('PEMERINTAH ' + kota.toUpperCase()) : 'PEMERINTAH DAERAH';
+    }
+    function tanggalTtdTeks() {
+        var bl = parseInt(el('fBulan').value, 10) || 0, th = parseInt(el('fTahun').value, 10) || 0;
+        return new Date(th, bl, 0).getDate() + ' ' + (BULAN[bl] || '') + ' ' + th;
+    }
+
+    // ---- Isian manual (nama & NIP penandatangan) ----
+    function bacaSimpanan(kunci) { try { return (localStorage.getItem(kunci) || '').trim(); } catch (e) { return ''; } }
+    function tulisSimpanan(kunci, nilai) { try { if (nilai === '') localStorage.removeItem(kunci); else localStorage.setItem(kunci, nilai); } catch (e) {} }
+    function isiIsianManual() {
+        var eNama = el('fNamaTtd'), eNip = el('fNip');
+        if (!disentuh.fNamaTtd && eNama.value.trim() === '') eNama.value = bacaSimpanan('simtkd_nama_ttd') || (META.nama || '');
+        if (!disentuh.fNip && eNip.value.trim() === '') eNip.value = bacaSimpanan('simtkd_nip') || (META.nip || '');
+    }
+    function pasangIsianManual() {
+        [['fNamaTtd', 'simtkd_nama_ttd'], ['fNip', 'simtkd_nip']].forEach(function (p) {
+            var e = el(p[0]);
+            if (!e) return;
+            e.addEventListener('input', function () {
+                disentuh[p[0]] = true;
+                tulisSimpanan(p[1], e.value.trim());
+                renderDoc();
+            });
+        });
+    }
+
+    // ---- Pilihan bulan & tahun ----
+    function isiPilihan() {
+        var now = new Date();
+        el('fBulan').innerHTML = BULAN.map(function (b, i) {
+            return i === 0 ? '' : '<option value="' + i + '">' + b + '</option>';
+        }).join('');
+        el('fBulan').value = String(now.getMonth() + 1);
+        var opsi = '';
+        for (var t = now.getFullYear() - 2; t <= now.getFullYear() + 2; t++) opsi += '<option value="' + t + '">' + t + '</option>';
+        el('fTahun').innerHTML = opsi;
+        el('fTahun').value = String(now.getFullYear());
+    }
+
+    // ---- Muat daftar jenis blanko lalu periode terpilih ----
+    function muatTemplate(cb) {
+        fetch(urlAksi('jurnal_khusus_template'))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!(d && d.success) || !d.data || !d.data.length) {
+                    toast((d && d.message) || 'Gagal memuat jenis jurnal.');
+                    return;
+                }
+                // Blanko bergrup (mis. Konsolidator) punya halaman sendiri,
+                // jadi tidak ditampilkan di dropdown halaman ini.
+                TPL = (d.data || []).filter(function (t) { return !t.grup; });
+                if (!TPL.length) { toast('Tidak ada jenis jurnal untuk halaman ini.'); return; }
+                el('fJenis').innerHTML = TPL.map(function (t) {
+                    return '<option value="' + esc(t.key) + '">' + esc(t.judul) + '</option>';
+                }).join('');
+                T = TPL[0];
+                cb && cb();
+            })
+            .catch(function () { toast('Gagal terhubung ke server API.'); });
+    }
+
+    function namaKolom(grup, idx) {
+        var a = (T && T[grup] && T[grup].nama) ? T[grup].nama : [];
+        return String(a[idx] || '');
+    }
+
+    // Semua kolom kode akun diisi MANUAL; kode blanko hanya jadi petunjuk (placeholder).
+    function selKode(grup, kode, idx) {
+        var slot = String(idx + 1);
+        var v = kodeExtra[grup][slot];
+        v = (v === undefined || v === null) ? '' : String(v);
+        var nama = namaKolom(grup, idx);
+        var petunjuk = (kode + (nama !== '' ? ' ' + nama : '')).trim();
+        var judul = 'Kode akun kolom ini diisi manual' + (petunjuk !== '' ? (' (blanko: ' + petunjuk + ')') : ' (kolom bebas pada blanko)');
+        return '<th class="batas" style="min-width:112px;">' +
+            '<input type="text" class="inKode" data-kode-grup="' + grup + '" data-kode-slot="' + slot + '" data-kode-blanko="' + esc(kode) +
+            '" value="' + esc(v) + '" placeholder="' + esc(petunjuk !== '' ? petunjuk : '(kode akun)') + '" title="' + esc(judul) + '">' +
+        '</th>';
+    }
+
+    function bangunThead() {
+        var nl = (T && T.nomor_label) ? T.nomor_label : ['Nomor Dokumen'];
+        var d = slotDari('debet'), k = slotDari('kredit');
+        var r1 = '<tr>' +
+            '<th rowspan="2" style="width:106px;">Tgl</th>' +
+            (nl.length > 1 ? '<th style="width:66px;">' + esc(nl[0]) + '</th>'
+                           : '<th rowspan="2" style="width:98px;">' + esc(nl[0]) + '</th>') +
+            '<th rowspan="2" style="min-width:220px;">Uraian</th>' +
+            '<th class="batas" colspan="' + d.length + '">' + esc(T.debet.label) + '</th>' +
+            '<th class="batas" colspan="' + k.length + '">' + esc(T.kredit.label) + '</th>' +
+            '<th rowspan="2" style="width:48px;">Aksi</th>' +
+        '</tr>';
+        var r2 = '<tr class="kode">';
+        if (nl.length > 1) r2 += '<th>' + esc(nl[1]) + '</th>';
+        r2 += d.map(function (c, i) { return selKode('debet', c, i); }).join('');
+        r2 += k.map(function (c, i) { return selKode('kredit', c, i); }).join('');
+        r2 += '</tr>';
+        el('theadJK').innerHTML = r1 + r2;
+    }
+
+    // ---- Baris isian manual ----
+    function tambahBaris(data, barisKe, fokus) {
+        data = data || {};
+        var d = slotDari('debet'), k = slotDari('kredit');
+        var tr = document.createElement('tr');
+        var html = '<td><input type="date" data-kolom="tanggal" value="' + esc(data.tanggal || '') + '"></td>' +
+            '<td><input type="text" data-kolom="nomor_dok" autocomplete="off" placeholder="cth: 001" value="' + esc(data.nomor_dok || '') + '"></td>' +
+            '<td><input type="text" data-kolom="uraian" autocomplete="off" placeholder="' + esc(contohBaris(barisKe || 0)) + '" value="' + esc(data.uraian || '') + '"></td>';
+        d.forEach(function (c, i) {
+            var v = (data.debet && Number(data.debet[i])) || 0;
+            html += '<td' + (i === 0 ? ' class="batas"' : '') + '><input type="text" class="num" data-kolom="debet" data-slot="' + (i + 1) +
+                    '" inputmode="numeric" autocomplete="off" value="' + (v ? fmtAngka(v) : '') + '"></td>';
+        });
+        k.forEach(function (c, i) {
+            var v = (data.kredit && Number(data.kredit[i])) || 0;
+            html += '<td' + (i === 0 ? ' class="batas"' : '') + '><input type="text" class="num" data-kolom="kredit" data-slot="' + (i + 1) +
+                    '" inputmode="numeric" autocomplete="off" value="' + (v ? fmtAngka(v) : '') + '"></td>';
+        });
+        html += '<td style="text-align:center;"><button type="button" class="btn-mini danger" data-hapus="1" title="Hapus baris ini"><i class="fas fa-xmark"></i></button></td>';
+        tr.innerHTML = html;
+        el('tbodyJK').appendChild(tr);
+        if (fokus) { var f = tr.querySelector('input[data-kolom="tanggal"]'); if (f) f.focus(); }
+        return tr;
+    }
+
+    // ---- Baca & hitung isian ----
+    function getBaris() {
+        return Array.prototype.map.call(el('tbodyJK').querySelectorAll('tr'), function (tr) {
+            var o = { tanggal: '', nomor_dok: '', uraian: '', debet: [], kredit: [], total_debet: 0, total_kredit: 0 };
+            ['tanggal', 'nomor_dok', 'uraian'].forEach(function (c) {
+                var i = tr.querySelector('input[data-kolom="' + c + '"]');
+                o[c] = i ? String(i.value).trim() : '';
+            });
+            ['debet', 'kredit'].forEach(function (g) {
+                slotDari(g).forEach(function (c, idx) {
+                    var i = tr.querySelector('input[data-kolom="' + g + '"][data-slot="' + (idx + 1) + '"]');
+                    var v = angkaMentah(i ? i.value : '');
+                    o[g].push(v);
+                    if (g === 'debet') o.total_debet += v; else o.total_kredit += v;
+                });
+            });
+            return o;
+        });
+    }
+    function kosong(o) {
+        return o.tanggal === '' && o.nomor_dok === '' && o.uraian === '' && o.total_debet === 0 && o.total_kredit === 0;
+    }
+    function hitung() {
+        var baris = getBaris();
+        var nD = slotDari('debet').length, nK = slotDari('kredit').length;
+        var totD = [], totK = [], i;
+        for (i = 0; i < nD; i++) totD.push(0);
+        for (i = 0; i < nK; i++) totK.push(0);
+        var tD = 0, tK = 0, timpang = [];
+        baris.forEach(function (o, idx) {
+            for (var a = 0; a < nD; a++) totD[a] += o.debet[a] || 0;
+            for (var b = 0; b < nK; b++) totK[b] += o.kredit[b] || 0;
+            tD += o.total_debet; tK += o.total_kredit;
+            if (!kosong(o) && o.total_debet !== o.total_kredit) timpang.push(idx + 1);
+        });
+        return { baris: baris, totD: totD, totK: totK, tD: tD, tK: tK, timpang: timpang };
+    }
+
+    // ---- Baris Jumlah, statistik, dan penanda baris tidak seimbang ----
+    function renderTfoot() {
+        var h = hitung();
+        var html = '<tr><td colspan="3" style="text-align:right;">Jumlah</td>';
+        h.totD.forEach(function (v, i) { html += '<td class="num' + (i === 0 ? ' batas' : '') + '">' + (v ? fmtAngka(v) : '-') + '</td>'; });
+        h.totK.forEach(function (v, i) { html += '<td class="num' + (i === 0 ? ' batas' : '') + '">' + (v ? fmtAngka(v) : '-') + '</td>'; });
+        html += '<td></td></tr>';
+        el('tfootJK').innerHTML = html;
+
+        el('statDebet').textContent = fmtRp(h.tD);
+        el('statKredit').textContent = fmtRp(h.tK);
+        el('statSelisih').textContent = fmtRp(h.tD - h.tK);
+        el('statTimpang').textContent = h.timpang.length + ' baris';
+
+        var b = el('badgeSeimbang');
+        if (h.tD === 0 && h.tK === 0) { b.textContent = 'Belum ada angka'; b.className = 'badge badge-info'; }
+        else if (h.tD === h.tK) { b.textContent = 'Seimbang ✓ (D = K)'; b.className = 'badge badge-balance'; }
+        else { b.textContent = 'Belum seimbang (selisih ' + fmtRp(Math.abs(h.tD - h.tK)) + ')'; b.className = 'badge badge-unbalance'; }
+
+        Array.prototype.forEach.call(el('tbodyJK').querySelectorAll('tr'), function (tr, i) {
+            var o = h.baris[i];
+            if (o && !kosong(o) && o.total_debet !== o.total_kredit) tr.classList.add('timpang');
+            else tr.classList.remove('timpang');
+        });
+    }
+
+    // ---- Status penyimpanan ----
+    function tandaiKotor() {
+        kotor = true;
+        el('statusSimpan').textContent = 'Ada perubahan belum disimpan';
+        el('statusSimpan').style.color = '#b45309';
+    }
+    function tandaiSimpan(waktu) {
+        kotor = false; tersimpan = true;
+        el('statusSimpan').textContent = waktu ? ('Tersimpan · ' + waktu) : 'Tersimpan';
+        el('statusSimpan').style.color = '#15803d';
+    }
+    function tandaiBaru() {
+        kotor = false; tersimpan = false;
+        el('statusSimpan').textContent = 'Belum disimpan (periode baru)';
+        el('statusSimpan').style.color = '#6b7280';
+    }
+
+    // ---- Pratinjau blanko (sesuai blanko Modul-3E-LK) ----
+    function renderDoc() {
+        var doc = el('jkDoc');
+        if (!doc || !T) return;
+        var nl = (T.nomor_label || ['Nomor Dokumen']);
+        var d = slotDari('debet'), k = slotDari('kredit');
+        var h = hitung();
+        var isi = h.baris.filter(function (o) { return !kosong(o); });
+        var bl = parseInt(el('fBulan').value, 10) || 0;
+
+        var thead = '<thead>' +
+            '<tr><th rowspan="2" style="width:78px;">Tgl</th>' +
+            (nl.length > 1 ? '<th style="width:56px;">' + esc(nl[0]) + '</th>'
+                           : '<th rowspan="2" style="width:70px;">' + esc(nl[0]) + '</th>') +
+            '<th rowspan="2" style="width:250px;">Uraian</th>' +
+            '<th colspan="' + d.length + '">' + esc(T.debet.label) + '</th>' +
+            '<th colspan="' + k.length + '">' + esc(T.kredit.label) + '</th></tr>' +
+            '<tr>' + (nl.length > 1 ? '<th>' + esc(nl[1]) + '</th>' : '') +
+            d.map(function (c, i) { return '<th>' + esc(kodeJudul('debet', i)) + '</th>'; }).join('') +
+            k.map(function (c, i) { return '<th>' + esc(kodeJudul('kredit', i)) + '</th>'; }).join('') +
+            '</tr></thead>';
+
+        var body = '';
+        var tampil = isi.length ? isi : [null, null, null, null];   // blanko: 4 baris kosong
+        tampil.forEach(function (o) {
+            body += '<tr><td class="c">' + esc(o ? fmtTglPendek(o.tanggal) : '') + '</td>' +
+                '<td class="c">' + esc(o ? o.nomor_dok : '') + '</td>' +
+                '<td>' + esc(o ? o.uraian : '') + '</td>';
+            d.forEach(function (c, i) { var v = o ? (o.debet[i] || 0) : 0; body += '<td class="num">' + (v ? fmtAngka(v) : '-') + '</td>'; });
+            k.forEach(function (c, i) { var v = o ? (o.kredit[i] || 0) : 0; body += '<td class="num">' + (v ? fmtAngka(v) : '-') + '</td>'; });
+            body += '</tr>';
+        });
+
+        var foot = '<tr><td colspan="3" class="c">Jumlah</td>';
+        h.totD.forEach(function (v) { foot += '<td class="num">' + (v ? fmtAngka(v) : '-') + '</td>'; });
+        h.totK.forEach(function (v) { foot += '<td class="num">' + (v ? fmtAngka(v) : '-') + '</td>'; });
+        foot += '</tr>';
+
+        var kotaTtd = String(META.kota || '').trim() || 'Kota/Kabupaten';
+        var nm = el('fNamaTtd').value.trim(), nip = el('fNip').value.trim();
+
+        doc.innerHTML =
+            '<div class="jk-head">' +
+              '<div class="pem">' + esc(kopDaerah()) + '</div>' +
+              '<div class="title">' + esc(T.judul) + '</div>' +
+            '</div>' +
+            '<div class="jk-ident">' +
+              '<table>' +
+                '<tr><td class="lbl">SKPKD</td><td class="titik">:</td><td>' + esc(META.instansi || '-') + '</td></tr>' +
+                '<tr><td class="lbl">Bulan</td><td class="titik">:</td><td>' + esc(BULAN[bl] || '') + '</td></tr>' +
+              '</table>' +
+              '<div class="jk-satuan">' + esc(T.satuan) + '</div>' +
+            '</div>' +
+            '<table class="jk">' + thead + '<tbody>' + body + '</tbody><tfoot>' + foot + '</tfoot></table>' +
+            '<div class="jk-signs"><div class="jk-sign">' +
+              '<p>' + esc(kotaTtd) + ', ' + esc(tanggalTtdTeks()) + '</p>' +
+              '<p>Fungsi Akuntansi SKPKD</p>' +
+              '<div class="sig"></div>' +
+              '<p class="name">(' + esc(nm || '...........................') + ')</p>' +
+              '<p class="nip">' + esc(T.label_id || 'NIP') + ' : ' + esc(nip || '................') + '</p>' +
+            '</div></div>';
+    }
+
+    // ---- Baris identitas di atas tabel isian ----
+    function mukaIdent(periode) {
+        el('infoIdent').innerHTML = 'SKPKD <b>' + esc(META.instansi || '-') + '</b> · Periode <b>' + esc(periode || judulPeriode()) +
+            '</b> · satuan blanko <b>' + esc(T.satuan) + '</b> · kolom: <b>' + slotDari('debet').length + ' debet / ' +
+            slotDari('kredit').length + ' kredit</b>';
+    }
+
+    // ---- Muat dokumen 1 periode ----
+    function muat(jenis, tahun, bulan) {
+        if (jenis) {
+            for (var i = 0; i < TPL.length; i++) { if (TPL[i].key === jenis) { T = TPL[i]; break; } }
+            el('fJenis').value = T.key;
+        }
+        var th = tahun || parseInt(el('fTahun').value, 10) || new Date().getFullYear();
+        var bl = bulan || parseInt(el('fBulan').value, 10) || (new Date().getMonth() + 1);
+        el('fTahun').value = String(th);
+        el('fBulan').value = String(bl);
+        dipilih.jenis = T.key;
+        dipilih.tahun = String(th);
+        dipilih.bulan = String(bl);
+        var lblId = T.label_id || 'NIP';           // blanko Belanja/Beban memakai NIK
+        el('fNip').setAttribute('placeholder', lblId + ' (dari Profil)');
+        el('fNip').setAttribute('title', lblId + ' pada blok tanda tangan — otomatis dari Profil, dapat ditimpa manual');
+
+        kodeExtra = { debet: {}, kredit: {} };
+        el('tbodyJK').innerHTML = '';
+        bangunThead();
+        el('judulTabel').textContent = '— ' + T.judul + ' · ' + (BULAN[bl] || '') + ' ' + th;
+        mukaIdent((BULAN[bl] || '') + ' ' + th);
+        el('statusSimpan').textContent = 'Memuat…';
+        el('statusSimpan').style.color = '#6b7280';
+        renderTfoot(); renderDoc();
+
+        fetch(urlAksi('jurnal_khusus') + '&jenis=' + encodeURIComponent(T.key) + '&tahun=' + th + '&bulan=' + bl)
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!(d && d.success)) { toast((d && d.message) || 'Gagal memuat jurnal.'); tandaiBaru(); return; }
+                META.kota = d.kota || META.kota;
+                META.instansi = d.instansi || META.instansi;
+                META.nama = d.nama || META.nama;
+                META.nip = d.nip || META.nip;
+                mukaIdent((d.bulan_nama || BULAN[bl] || '') + ' ' + th);
+
+                kodeExtra = { debet: {}, kredit: {} };
+                ['debet', 'kredit'].forEach(function (g) {
+                    var asal = (d.kode_extra && d.kode_extra[g]) || {};
+                    Object.keys(asal).forEach(function (s) { kodeExtra[g][s] = asal[s]; });
+                });
+                bangunThead();      // kolom bebas bisa sudah berisi kode tersimpan
+
+                el('tbodyJK').innerHTML = '';
+                var baris = d.baris || [];
+                if (baris.length) {
+                    baris.forEach(function (b, i) { tambahBaris(b, i); });
+                    tandaiSimpan(d.updated_at ? String(d.updated_at).slice(0, 16).replace('T', ' ') : '');
+                } else {
+                    var n = Math.max(4, (T.contoh || []).length);
+                    for (var j = 0; j < n; j++) tambahBaris({}, j);
+                    tandaiBaru();
+                }
+                isiIsianManual();
+                renderTfoot(); renderDoc();
+            })
+            .catch(function () { toast('Gagal terhubung ke server API.'); tandaiBaru(); });
+    }
+
+    // ---- Riwayat periode tersimpan (jenis terpilih) ----
+    function muatDaftar() {
+        if (!T) return;
+        fetch(urlAksi('jurnal_khusus_daftar') + '&jenis=' + encodeURIComponent(T.key))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                var list = (d && d.data) || [];
+                el('fRiwayat').innerHTML = '<option value="">— Periode baru (belum ada) —</option>' + list.map(function (r) {
+                    return '<option value="' + r.tahun + '-' + r.bulan + '">' + esc(r.bulan_nama + ' ' + r.tahun + ' · ' + r.baris + ' baris') + '</option>';
+                }).join('');
+            })
+            .catch(function () {});
+    }
+
+    // ================= EVENT =================
+    function adaPerubahanBelumSimpan() {
+        if (!kotor) return false;
+        return !confirm('Ada perubahan yang belum disimpan. Lanjutkan dan buang perubahan?');
+    }
+
+    el('fJenis').addEventListener('change', function () {
+        var baru = this.value;
+        if (adaPerubahanBelumSimpan()) { el('fJenis').value = T.key; return; }
+        muat(baru); muatDaftar();
+    });
+    ['fBulan', 'fTahun'].forEach(function (id) {
+        el(id).addEventListener('change', function () {
+            if (adaPerubahanBelumSimpan()) {      // batal: kembalikan pilihan ke periode termuat
+                el('fTahun').value = dipilih.tahun;
+                el('fBulan').value = dipilih.bulan;
+                return;
+            }
+            muat(); muatDaftar();
+        });
+    });
+    el('fRiwayat').addEventListener('change', function () {
+        if (!this.value) return;
+        if (adaPerubahanBelumSimpan()) { this.value = ''; return; }
+        var p = String(this.value).split('-');
+        el('fTahun').value = p[0];
+        el('fBulan').value = String(parseInt(p[1], 10));
+        muat();
+    });
+    el('btnMuatUlang').addEventListener('click', function () {
+        if (adaPerubahanBelumSimpan()) return;
+        muat(); muatDaftar();
+    });
+
+    // Kode akun setiap kolom diisi manual (kepala tabel)
+    function kumpulKode() {
+        Array.prototype.forEach.call(el('theadJK').querySelectorAll('input.inKode'), function (inp) {
+            var grup = inp.getAttribute('data-kode-grup');
+            var slot = String(inp.getAttribute('data-kode-slot'));
+            kodeExtra[grup][slot] = String(inp.value).trim();
+        });
+    }
+    el('theadJK').addEventListener('input', function (e) {
+        var inp = e.target;
+        if (!inp || !inp.classList || !inp.classList.contains('inKode')) return;
+        var grup = inp.getAttribute('data-kode-grup');
+        var slot = String(inp.getAttribute('data-kode-slot'));
+        kodeExtra[grup][slot] = String(inp.value).trim();
+        tandaiKotor(); renderDoc();
+    });
+
+    el('btnIsiKode').addEventListener('click', function () {
+        Array.prototype.forEach.call(el('theadJK').querySelectorAll('input.inKode'), function (inp) {
+            var baku = inp.getAttribute('data-kode-blanko') || '';
+            if (baku !== '') inp.value = baku;
+        });
+        kumpulKode(); tandaiKotor(); renderDoc();
+        toast('Kode akun diisi sesuai blanko — masih bisa diubah manual.');
+    });
+    el('btnKosongKode').addEventListener('click', function () {
+        Array.prototype.forEach.call(el('theadJK').querySelectorAll('input.inKode'), function (inp) { inp.value = ''; });
+        kumpulKode(); tandaiKotor(); renderDoc();
+        toast('Kode akun dikosongkan — silakan isi manual.');
+    });
+
+    // Isian baris: kotor + hitung ulang + pratinjau
+    el('tbodyJK').addEventListener('input', function (e) {
+        var tr = e.target.closest('tr');
+        if (tr) tr.classList.add('dirty');
+        tandaiKotor(); renderTfoot(); renderDoc();
+    });
+    el('tbodyJK').addEventListener('change', function (e) {
+        var tr = e.target.closest('tr');
+        if (e.target.classList && e.target.classList.contains('num')) {
+            var n = angkaMentah(e.target.value);
+            e.target.value = n ? fmtAngka(n) : '';
+        }
+        if (tr) tr.classList.add('dirty');
+        tandaiKotor(); renderTfoot(); renderDoc();
+    });
+
+    // Enter: kolom berikutnya -> baris berikutnya -> tambah baris baru
+    el('tbodyJK').addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var inp = e.target;
+        if (!inp || String(inp.tagName).toUpperCase() !== 'INPUT') return;
+        e.preventDefault();
+        var tr = inp.closest('tr');
+        var daftar = Array.prototype.slice.call(tr.querySelectorAll('input'));
+        var idx = daftar.indexOf(inp);
+        if (idx > -1 && idx < daftar.length - 1) {
+            var berikut = daftar[idx + 1];
+            berikut.focus();
+            if (berikut.select) berikut.select();
+            return;
+        }
+        var trs = Array.prototype.slice.call(el('tbodyJK').querySelectorAll('tr'));
+        var barisBerikut = trs[trs.indexOf(tr) + 1] || tambahBaris({}, trs.length);
+        var f = barisBerikut.querySelector('input[data-kolom="tanggal"]');
+        if (f) f.focus();
+    });
+
+    // Hapus baris
+    el('tbodyJK').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-hapus]');
+        if (!b) return;
+        var tb = el('tbodyJK');
+        b.closest('tr').remove();
+        if (!tb.querySelectorAll('tr').length) tambahBaris({}, 0);
+        tandaiKotor(); renderTfoot(); renderDoc();
+    });
+
+    el('btnTambahBaris').addEventListener('click', function () {
+        var tb = el('tbodyJK');
+        var n = tb.querySelectorAll('tr').length;
+        tambahBaris({}, n, true);
+        tandaiKotor(); renderTfoot(); renderDoc();
+    });
+
+    el('btnRapikan').addEventListener('click', function () {
+        var tb = el('tbodyJK');
+        var h = hitung();
+        var trs = Array.prototype.slice.call(tb.querySelectorAll('tr'));
+        var adaKosong = false;
+        trs.forEach(function (tr, i) {
+            if (h.baris[i] && kosong(h.baris[i])) {
+                if (adaKosong) tr.remove();
+                else adaKosong = true;
+            }
+        });
+        if (!tb.querySelectorAll('tr').length) tambahBaris({}, 0);
+        tandaiKotor(); renderTfoot(); renderDoc();
+        toast('Baris kosong dirapikan (sisa 1 baris kosong).');
+    });
+
+    // ---- Simpan ----
+    el('btnSimpan').addEventListener('click', function () {
+        var btn = this;
+        var h = hitung();
+        var isi = h.baris.filter(function (o) { return !kosong(o); });
+        if (!isi.length) { toast('Jurnal belum berisi data.'); return; }
+        if (h.timpang.length && !confirm('Baris ke-' + h.timpang.join(', ') + ' belum seimbang (Jumlah Debet != Jumlah Kredit). Tetap simpan?')) return;
+
+        var btnAsli = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        var body = new URLSearchParams({
+            jenis: T.key,
+            tahun: String(el('fTahun').value),
+            bulan: String(el('fBulan').value),
+            baris: JSON.stringify(isi.map(function (o) {
+                return { tanggal: o.tanggal, nomor_dok: o.nomor_dok, uraian: o.uraian, debet: o.debet, kredit: o.kredit };
+            })),
+            kode_extra: JSON.stringify(kodeExtra)
+        });
+        fetch(urlAksi('jurnal_khusus_simpan'), { method: 'POST', body: body })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                btn.disabled = false; btn.innerHTML = btnAsli;
+                toast((d && d.message) || (d && d.success ? 'Tersimpan.' : 'Gagal menyimpan.'));
+                if (d && d.success) { muat(); muatDaftar(); }
+            })
+            .catch(function () {
+                btn.disabled = false; btn.innerHTML = btnAsli;
+                toast('Gagal terhubung ke server API.');
+            });
+    });
+
+    // ---- Hapus 1 periode ----
+    el('btnHapus').addEventListener('click', function () {
+        if (!tersimpan) { toast('Periode ini belum tersimpan.'); return; }
+        if (!confirm('Hapus ' + T.judul + ' ' + judulPeriode() + '? Seluruh baris periode ini akan dihapus.')) return;
+        var body = new URLSearchParams({
+            jenis: T.key, tahun: String(el('fTahun').value), bulan: String(el('fBulan').value)
+        });
+        fetch(urlAksi('jurnal_khusus_hapus'), { method: 'POST', body: body })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { toast((d && d.message) || 'Selesai.'); if (d && d.success) { muat(); muatDaftar(); } })
+            .catch(function () { toast('Gagal terhubung ke server API.'); });
+    });
+
+    // ---- Cetak ----
+    function cssCetak() {
+        return '*{margin:0;padding:0;box-sizing:border-box;font-family:"Times New Roman",Times,serif;}' +
+            'body{background:#fff;color:#000;font-size:11pt;}' +
+            '.jk-head{text-align:center;margin-bottom:8px;}' +
+            '.jk-head .pem{font-size:12.5pt;font-weight:bold;text-transform:uppercase;}' +
+            '.jk-head .title{font-size:13pt;font-weight:bold;}' +
+            '.jk-ident{display:flex;justify-content:space-between;gap:14px;margin:8px 0 4px;}' +
+            '.jk-ident td{padding:0;vertical-align:top;} .jk-ident td.lbl{width:74px;font-weight:bold;} .jk-ident td.titik{width:12px;}' +
+            '.jk-satuan{font-weight:bold;}' +
+            'table.jk{width:100%;border-collapse:collapse;}' +
+            'table.jk th,table.jk td{border:1px solid #000;padding:2px 5px;font-size:9.5pt;vertical-align:middle;}' +
+            'table.jk thead th{text-align:center;} table.jk td.c{text-align:center;} table.jk td.num{text-align:right;white-space:nowrap;}' +
+            'table.jk tfoot td{font-weight:bold;}' +
+            '.jk-signs{margin-top:26px;display:flex;justify-content:flex-end;}' +
+            '.jk-sign{text-align:center;min-width:340px;} .jk-sign p{margin:0;line-height:1.5;} .jk-sign .sig{height:58px;}' +
+            '.jk-sign .name{font-weight:bold;} .jk-sign .nip{font-size:10.5pt;}' +
+            '@page{size:A4 landscape;margin:12mm;}';
+    }
+
+    el('btnCetak').addEventListener('click', function () {
+        renderDoc();
+        setTimeout(function () { window.print(); }, 60);
+    });
+
+    // ---- Kirim ke Tanda Tangan (doc.simtkd.com) ----
+    el('btnKirimTtd').addEventListener('click', function () {
+        var btn = this;
+        var bl = parseInt(el('fBulan').value, 10) || 0, th = parseInt(el('fTahun').value, 10) || 0;
+        var tglTtd = th + '-' + String(bl).padStart(2, '0') + '-' + String(new Date(th, bl, 0).getDate()).padStart(2, '0');
+        var judul = T.judul + ' - ' + judulPeriode();
+
+        renderDoc();
+        var btnAsli = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+        var body = new URLSearchParams({
+            jenis: 'Buku Jurnal Khusus',
+            nomor: '',
+            judul: judul,
+            tanggal: tglTtd,
+            nip: el('fNip').value.trim(),
+            konten_html: '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(judul) + '</title><style>' + cssCetak() +
+                '</style></head><body style="margin:0;background:#fff;">' + el('jkDoc').innerHTML + '</body></html>'
+        });
+        body.append('penandatangan', JSON.stringify([
+            { user: 'self', urutan: 1, jabatan: 'Fungsi Akuntansi SKPKD', nama: el('fNamaTtd').value.trim() || META.nama || '' }
+        ]));
+
+        fetch(urlAksi('dokumen_kirim'), { method: 'POST', body: body })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d && d.success) {
+                    toast(d.message || 'Dokumen terkirim ke antrean tanda tangan.');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                    setTimeout(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                    }, 3000);
+                } else {
+                    btn.disabled = false; btn.innerHTML = btnAsli;
+                    toast((d && d.message) || 'Gagal mengirim dokumen.');
+                }
+            })
+            .catch(function () {
+                btn.disabled = false; btn.innerHTML = btnAsli;
+                toast('Gagal terhubung ke server API.');
+            });
+    });
+
+    // ================= INISIALISASI =================
+    pasangIsianManual();
+    isiPilihan();
+    renderTfoot(); renderDoc();
+    muatTemplate(function () { muat(); muatDaftar(); });
+})();
+    </script>
+
+</body>
+
+</html>

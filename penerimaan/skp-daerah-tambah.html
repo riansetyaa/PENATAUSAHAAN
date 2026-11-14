@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah SKP Daerah - SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- ================= OVERLAY (mobile) ================= -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Penerimaan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>SKP - Daerah</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Tambah</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item notification">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="topbar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate">--</span>
+                </div>
+                <div class="topbar-item user">
+                    <div class="user-avatar small">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span id="topbarUserName">Admin Dinas</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Tambah SKP Daerah</h1>
+                    <p class="page-subtitle">Buat Surat Ketetapan Pajak Daerah (SKP Daerah) baru</p>
+                </div>
+                <div class="page-actions">
+                    <a href="skp-daerah.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
+                </div>
+            </div>
+
+            <form id="formTambahSkp">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-receipt"></i> Data SKP Daerah</h3>
+                    </div>
+                    <div class="card-body form-page">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="skpd">SKPD</label>
+                                <input type="text" id="skpd" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="nomorSkp">Nomor SKP</label>
+                                <input type="text" id="nomorSkp" class="form-control" placeholder="Kosongkan untuk nomor otomatis">
+                                <p class="form-hint"><i class="fas fa-info-circle"></i> Contoh: SKP-2026-0001 / 973/001/2026</p>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tanggal">Tanggal Ketetapan</label>
+                                <input type="date" id="tanggal" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="jenisPajak">Jenis Pajak Daerah <span style="color:#e2542c;">*</span></label>
+                                <select id="jenisPajak" class="form-control" required>
+                                    <option value="">Memuat daftar akun penerimaan ...</option>
+                                </select>
+                                <p class="form-hint"><i class="fas fa-info-circle"></i> Daftar diambil dari <b>Pengaturan &rsaquo; Akun Penerimaan</b> (akun yang dicentang aktif).</p>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="namaPenyetor">Nama Penyetor (Wajib Pajak) <span style="color:#e2542c;">*</span></label>
+                                <input type="text" id="namaPenyetor" class="form-control" required
+                                    placeholder="Nama wajib pajak / penyetor">
+                                <p class="form-hint"><i class="fas fa-info-circle"></i> Nama ini otomatis menjadi <b>Nama Penyetor</b> pada saat pembuatan STBP.</p>
+                            </div>
+                            <div class="form-group">
+                                <label for="nilai">Nilai Ketetapan (Rp)</label>
+                                <div class="money-input">
+                                    <span>Rp</span>
+                                    <input type="text" id="nilai" class="form-control" inputmode="numeric" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="alamat">Alamat Wajib Pajak</label>
+                                <input type="text" id="alamat" class="form-control"
+                                    placeholder="Contoh: Jl. Manado No. 31">
+                            </div>
+                            <div class="form-group">
+                                <label for="npwpd">NPWPD</label>
+                                <input type="text" id="npwpd" class="form-control"
+                                    placeholder="Nomor Pokok Wajib Pajak Daerah">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="masaDari">Masa Pajak Dari</label>
+                                <input type="date" id="masaDari" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="masaAkhir">Masa Pajak Akhir</label>
+                                <input type="date" id="masaAkhir" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="jatuhTempo">Jatuh Tempo</label>
+                                <input type="date" id="jatuhTempo" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="objekPajak">Objek Pajak / Keterangan Penerimaan</label>
+                            <textarea id="objekPajak" class="form-control" rows="3"
+                                placeholder="Uraian objek pajak / dasar ketetapan ..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aksi -->
+                <div class="form-actions">
+                    <a href="skp-daerah.html" class="btn btn-outline"><i class="fas fa-times"></i> Batalkan</a>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan SKP Daerah</button>
+                </div>
+            </form>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span>
+        </footer>
+    </div>
+
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+        // ==========================================
+        // Halaman Tambah SKP Daerah
+        // ==========================================
+        (function () {
+            'use strict';
+
+            // ---------- Prefill SKPD dari sesi ----------
+            fetch('../api/session.php')
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!d.success) {
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    document.getElementById('skpd').value = d.user.instansi || '';
+                    document.getElementById('tanggal').value = new Date().toISOString().slice(0, 10);
+                })
+                .catch(function () { /* biarkan */ });
+
+            // ---------- Jenis pajak: diambil dari Akun Penerimaan (Pengaturan) ----------
+            function loadAkunPenerimaan() {
+                const sel = document.getElementById('jenisPajak');
+                fetch('../api/akun_penerimaan.php?aktif=1')
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        const rows = (data && data.success) ? (data.data || []) : [];
+                        sel.innerHTML = '';
+                        const first = document.createElement('option');
+                        first.value = '';
+                        first.textContent = rows.length
+                            ? '— Pilih Jenis Pajak (Akun Penerimaan) —'
+                            : 'Tidak ada akun aktif — centang akun di Pengaturan › Akun Penerimaan';
+                        sel.appendChild(first);
+                        rows.forEach(function (a) {
+                            const opt = document.createElement('option');
+                            opt.value = a.kode_akun;
+                            opt.dataset.nama = a.nama_akun;
+                            opt.textContent = a.nama_akun + ' (' + a.kode_akun + ')';
+                            sel.appendChild(opt);
+                        });
+                    })
+                    .catch(function () {
+                        sel.innerHTML = '';
+                        const err = document.createElement('option');
+                        err.value = '';
+                        err.textContent = 'Gagal memuat akun penerimaan';
+                        sel.appendChild(err);
+                    });
+            }
+            loadAkunPenerimaan();
+
+            // ---------- Format nominal rupiah ----------
+            function formatRupiahInput(val) {
+                var digits = String(val || '').replace(/\D/g, '').replace(/^0+/, '');
+                if (!digits) return '';
+                return Number(digits).toLocaleString('id-ID');
+            }
+            const nilaiInput = document.getElementById('nilai');
+            nilaiInput.addEventListener('input', function () {
+                nilaiInput.value = formatRupiahInput(nilaiInput.value);
+            });
+
+            // ---------- Submit ----------
+            document.getElementById('formTambahSkp').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const tanggal = document.getElementById('tanggal').value;
+                const nama = document.getElementById('namaPenyetor').value.trim();
+                const nilai = Number(String(nilaiInput.value || '').replace(/\D/g, ''));
+
+                // Jenis pajak = akun penerimaan terpilih (dari Pengaturan)
+                const selJenis = document.getElementById('jenisPajak');
+                const optJenis = selJenis.options[selJenis.selectedIndex];
+                const akunKode = selJenis.value;
+                const jenisNama = optJenis ? (optJenis.dataset.nama || '') : '';
+
+                if (!tanggal) { showToast('Tanggal ketetapan wajib diisi.', 'warning'); return; }
+                if (!akunKode) { showToast('Pilih Jenis Pajak dari daftar Akun Penerimaan terlebih dahulu.', 'warning'); return; }
+                if (!nama) { showToast('Nama Penyetor (Wajib Pajak) wajib diisi.', 'warning'); return; }
+                if (nilai <= 0) { showToast('Nilai ketetapan harus lebih dari 0.', 'warning'); return; }
+
+                const btnSubmit = this.querySelector('.btn-primary');
+                btnSubmit.disabled = true;
+
+                fetch('../api/skp.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'create',
+                        nomor_skp: document.getElementById('nomorSkp').value.trim(),
+                        tanggal: tanggal,
+                        akun_kode: akunKode,
+                        jenis_pajak: jenisNama,
+                        nama_penyetor: nama,
+                        alamat: document.getElementById('alamat').value.trim(),
+                        npwpd: document.getElementById('npwpd').value.trim(),
+                        objek_pajak: document.getElementById('objekPajak').value.trim(),
+                        nilai_keputusan: nilai,
+                        masa_pajak_dari: document.getElementById('masaDari').value,
+                        masa_pajak_akhir: document.getElementById('masaAkhir').value,
+                        jatuh_tempo: document.getElementById('jatuhTempo').value
+                    })
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    btnSubmit.disabled = false;
+                    if (data.success) {
+                        showToast(data.message + ' (Nomor: ' + (data.nomor || '') + ')', 'success');
+                        setTimeout(function () {
+                            window.location.href = 'skp-daerah-cetak.html?id=' + (data.id || '');
+                        }, 1300);
+                    } else {
+                        showToast(data.message || 'Gagal menyimpan SKP Daerah.', 'error');
+                    }
+                })
+                .catch(function () {
+                    btnSubmit.disabled = false;
+                    showToast('Terjadi kesalahan koneksi ke server.', 'error');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -2,15 +2,17 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPD - Belanja | SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .toast { position:fixed; top:auto; bottom:20px; right:20px; left:auto; height:auto; width:auto; min-width:0; max-width:420px; background:#2c3e50; color:#fff; padding:12px 18px; border-radius:8px; font-size:13px; opacity:0; transform:none; animation:none; transition:opacity .3s; z-index:9999; pointer-events:none; }
         .toast.show { opacity:1; pointer-events:auto; }
         .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px 16px; }
-        .form-grid label { font-size:12px; font-weight:600; color:#5a6c7d; display:block; margin-bottom:6px; }
+        .form-grid label { font-size:13px; font-weight:600; color:#5a6c7d; display:block; margin-bottom:6px; }
         .form-grid input, .form-grid select { width:100%; height:40px; border:1px solid #d0d5dd; border-radius:8px; padding:0 12px; font-size:13px; font-family:inherit; color:#1f2937; background:#fff; transition:border-color .2s ease, box-shadow .2s ease; }
         .form-grid input:focus, .form-grid select:focus { outline:none; border-color:#2c5aa0; box-shadow:0 0 0 3px rgba(44,90,160,.12); }
         .form-grid select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7a90' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:34px; cursor:pointer; }
@@ -21,45 +23,7 @@
     </style>
 </head>
 <body>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-logo"><img src="../img/Logo Polban.png" alt="Logo POLBAN"><div class="sidebar-title"><span class="title-main">SIM-TKD</span><span class="title-sub">Modul Edukasi</span></div></div><button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button></div>
-        <div class="sidebar-user"><div class="user-avatar"><i class="fas fa-user-tie"></i></div><div class="user-info"><span class="user-name" id="sidebarUserName">Admin Dinas</span><span class="user-role" id="sidebarUserRole">Dinas Kepemudaan dan Olahraga</span></div></div>
-        <nav class="sidebar-menu">
-            <span class="menu-label">MENU UTAMA</span>
-            <a href="../dashboard/dashboard.html" class="menu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-            <div class="menu-group" data-menu="penerimaan">
-                <a href="#" class="menu-item has-submenu"><i class="fas fa-arrow-down"></i><span>Penerimaan</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="../penerimaan/permohonan.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>Permohonan</span></a>
-                    <a href="../penerimaan/stbp-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>STBP</span></a>
-                    <a href="../penerimaan/sts-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>STS</span></a>
-                    <a href="../penerimaan/bku-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Penerimaan</span></a>
-                </div>
-            </div>
-            <div class="menu-group open" data-menu="belanja">
-                <a href="#" class="menu-item has-submenu active"><i class="fas fa-arrow-up"></i><span>Belanja</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="index.html" class="menu-item submenu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-                    <a href="rekanan.html" class="menu-item submenu-item"><i class="fas fa-handshake"></i><span>Daftar Rekanan</span></a>
-                    <a href="rekening.html" class="menu-item submenu-item"><i class="fas fa-university"></i><span>Rekening Bank SKPD</span></a>
-                    <a href="spd.html" class="menu-item submenu-item active"><i class="fas fa-file-invoice"></i><span>SPD</span></a>
-                    <a href="spp.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>SPP</span></a>
-                    <a href="spm.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>SPM</span></a>
-                    <a href="sp2d.html" class="menu-item submenu-item"><i class="fas fa-money-check-alt"></i><span>SP2D</span></a>
-                    <a href="lpj.html" class="menu-item submenu-item"><i class="fas fa-clipboard-check"></i><span>LPJ</span></a>
-                    <a href="pengajuan-tu.html" class="menu-item submenu-item"><i class="fas fa-paper-plane"></i><span>Pengajuan TU</span></a>
-                    <a href="npd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>NPD</span></a>
-                    <a href="besaran-up.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Besaran UP</span></a>
-                    <a href="kebijakan-spd.html" class="menu-item submenu-item"><i class="fas fa-gavel"></i><span>Kebijakan SPD</span></a>
-                    <a href="bku-belanja.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Belanja</span></a>
-                </div>
-            </div>
-            <a href="../api/aklap_go.php" class="menu-item"><i class="fas fa-book"></i><span>Akuntansi</span></a>
-            <span class="menu-label">AKUN</span>
-            <a href="../api/logout.php" class="menu-item menu-logout"><i class="fas fa-sign-out-alt"></i><span>Keluar</span></a>
-        </nav>
-        <div class="sidebar-footer"><span>&copy; 2026 SIM-TKD POLBAN</span></div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
     <div class="overlay" id="overlay"></div>
     <div class="main-wrapper">
         <header class="topbar">
@@ -76,6 +40,7 @@
             <div class="card" id="tab-pembuatan">
                 <div class="card-head"><i class="fas fa-file-invoice"></i> Tambah SPD</div>
                 <div class="card-body">
+                    <p id="infoKebijakan" style="display:none;font-size:12.5px;color:#16305a;background:#eef4ff;border:1px solid #c7d7f5;border-radius:8px;padding:9px 12px;margin:0 0 12px;"></p>
                     <div class="form-grid">
                         <div><label>Tanggal *</label><input type="date" id="tanggal"></div>
                         <div><label>Jenis SPD</label><select id="jenis"><option>Gaji</option><option>Barang &amp; Jasa</option><option>Modal</option><option>Lainnya</option></select></div>
@@ -99,12 +64,17 @@
         <footer class="footer"><span>&copy; 2026 SIM-TKD - Modul Edukasi | Politeknik Negeri Bandung</span></footer>
     </div>
     <div id="toast" class="toast"></div>
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
     <script src="../js/dashboard.js"></script>
+    <script src="../js/ttd-nip.js"></script>
+    <script src="../js/cetak-belanja.js"></script>
     <script>
         (function () {
             'use strict';
             var tbody = document.getElementById('tbodySpd');
             var curTab = 'pembuatan';
+            var dataRowCache = {};
             function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2400); }
             function esc(s) { var d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
             function rupiah(v) { return Number(v || 0).toLocaleString('id-ID'); }
@@ -117,8 +87,11 @@
                     .then(function (d) {
                         var data = (d && d.success) ? (d.data || []) : [];
                         if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9098a5;">Belum ada data SPD.</td></tr>'; return; }
+                        dataRowCache = {};
+                        data.forEach(function (r) { dataRowCache[r.id] = r; });
                         tbody.innerHTML = data.map(function (r, i) {
-                            var btn = r.status === 'belum_otorisasi' ? '<button class="btn btn-sm" data-otor="' + r.id + '">Otorisasi</button>' : '<span style="color:#6b7a90;">-</span>';
+                            var btn = '<button class="btn btn-sm" data-cetak="' + r.id + '"><i class="fas fa-print"></i> Cetak</button>';
+                            if (r.status === 'belum_otorisasi') btn += '<button class="btn btn-sm" data-otor="' + r.id + '">Otorisasi</button>';
                             return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.nomor_spd) + '</td><td>' + fmtTgl(r.tanggal) + '</td><td>' + esc(r.jenis || '-') + '</td><td>' + esc(r.periode || '-') + '</td><td class="num">' + rupiah(r.jumlah) + '</td><td>' + statusBadge(r.status) + '</td><td>' + btn + '</td></tr>';
                         }).join('');
                     })
@@ -128,22 +101,83 @@
                 fetch('../api/belanja.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
                     .then(function (r) { return r.json(); }).then(cb).catch(function () { toast('Gagal terhubung ke server.'); });
             }
+
+            // ===== Kebijakan SPD aktif: tampilkan info & isi periode otomatis =====
+            var kebPeriode = ''; // jenis periode dari kebijakan (mis. "Bulanan")
+            function muatKebijakan() {
+                fetch('../api/belanja.php?action=kebijakan_spd_list').then(function (r) { return r.json(); }).then(function (d) {
+                    var list = (d && d.success) ? (d.data || []) : [];
+                    var keb = null;
+                    for (var i = 0; i < list.length; i++) { if ((list[i].status || '') === 'aktif') { keb = list[i]; break; } }
+                    var info = document.getElementById('infoKebijakan');
+                    if (!keb) { info.style.display = 'none'; kebPeriode = ''; return; }
+                    kebPeriode = String(keb.jenis_periode || '');
+                    info.style.display = '';
+                    info.innerHTML = '<i class="fas fa-circle-info"></i> <b>Kebijakan SPD aktif:</b> ' + esc(keb.jenis_penerbitan || '-') + ' &middot; Periode <b>' + esc(kebPeriode) + '</b>' + (keb.tanggal ? ' &middot; Berlaku sejak ' + fmtTgl(keb.tanggal) : '') + '. Label periode diisi otomatis dari tanggal.';
+                    sinkronPeriode(); // jika tanggal sudah dipilih lebih dulu
+                }).catch(function () {});
+            }
+            function hitungPeriodeLokal(tgl, jenisPeriode) {
+                if (!tgl) return '';
+                var p = tgl.split('-'); if (p.length !== 3) return '';
+                var y = parseInt(p[0], 10), m = parseInt(p[1], 10);
+                var bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                if (jenisPeriode === 'Triwulanan') return 'Triwulan ' + ['I','II','III','IV'][Math.floor((m - 1) / 3)] + ' ' + y;
+                if (jenisPeriode === 'Tahunan') return String(y);
+                return bulan[m - 1] + ' ' + y;
+            }
+            function sinkronPeriode() {
+                if (!kebPeriode) return;
+                var inp = document.getElementById('periode');
+                inp.value = hitungPeriodeLokal(document.getElementById('tanggal').value, kebPeriode);
+            }
+            document.getElementById('tanggal').addEventListener('change', sinkronPeriode);
             document.getElementById('btnSimpan').addEventListener('click', function () {
+                sinkronPeriode(); // pastikan periode sesuai kebijakan sebelum kirim
                 post({ action: 'spd_create', tanggal: document.getElementById('tanggal').value, jenis: document.getElementById('jenis').value, periode: document.getElementById('periode').value, jumlah: document.getElementById('jumlah').value }, function (d) {
                     toast(d.message || (d.success ? 'Tersimpan.' : 'Gagal.')); if (d.success) { document.getElementById('tanggal').value = ''; document.getElementById('periode').value = ''; document.getElementById('jumlah').value = ''; load(); }
                 });
             });
             tbody.addEventListener('click', function (e) {
+                var c = e.target.closest('[data-cetak]');
+                if (c) { cetakSpd(parseInt(c.getAttribute('data-cetak'), 10)); return; }
                 var b = e.target.closest('[data-otor]'); if (!b) return;
                 post({ action: 'spd_otorisasi', id: parseInt(b.getAttribute('data-otor'), 10) }, function (d) { toast(d.message || (d.success ? 'Diotorisasi.' : 'Gagal.')); if (d.success) load(); });
             });
+
+            function cetakSpd(id) {
+                var r = dataRowCache[id];
+                if (!r) return;
+                var C = CetakBelanja;
+                C.bukaCetak({
+                    title: 'SPD - Surat Penyediaan Dana',
+                    judul: 'SURAT PENYEDIAAN DANA (SPD)',
+                    nomor: r.nomor_spd ? 'Nomor : ' + r.nomor_spd : '',
+                    fields: [
+                        ['Tanggal SPD', C.tgl(r.tanggal)],
+                        ['Jenis SPD', r.jenis || '-'],
+                        ['Periode', r.periode || '-'],
+                        ['Jumlah Dana (Rp)', C.rupiah(r.jumlah)],
+                        ['Status', r.status || '-']
+                    ],
+                    catatan: 'SPD diterbitkan sebagai dasar penyediaan dana untuk SPP/SPM/SP2D.',
+                    ttd: {
+                        left: { jabatan: 'Mengetahui,', nama: 'Kepala SKPD' },
+                        right: { jabatan: 'Kuasa Bendahara Umum Daerah (BUD)', nama: '(................................)' }
+                    },
+                    // Isian manual nama & NIP Kepala SKPD (di panel pengaturan cetak)
+                    identitas: { label: 'Nama Kepala SKPD', labelNip: 'NIP Kepala SKPD' },
+                    // Kirim ke antrean tanda tangan (doc.simtkd.com)
+                    dokumen: { jenis: 'SPD', refId: r.id, nomor: r.nomor_spd || '', tanggal: r.tanggal || '', url: new URL('../api/dokumen.php', location.href).toString() }
+                });
+            }
             document.querySelectorAll('.tab-btn').forEach(function (b) {
                 b.addEventListener('click', function () {
                     document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
                     b.classList.add('active'); curTab = b.getAttribute('data-tab'); load();
                 });
             });
-            load();
+            load(); muatKebijakan();
         })();
     </script>
 </body>

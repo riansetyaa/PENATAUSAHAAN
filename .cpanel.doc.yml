@@ -1,0 +1,7 @@
+# Deployment cPanel -> subdomain doc.simtkd.com (dokumen & tanda tangan elektronik)
+# Catatan: sesuaikan DEPLOYPATH dengan Document Root subdomain doc.simtkd.com di cPanel Anda.
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/simtkdco/public_html/doc.simtkd.com/
+    - /bin/cp -R doc.simtkd.com/. $DEPLOYPATH

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Pembantu per Rincian Objek - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --navy: #16305a; --navy-dark: #0e2140; --navy-mid: #1d3a6e; --blue: #1f6feb; --green: #16a34a; --green-dark: #15803d; --bg: #eef1f6; --card: #ffffff; --border: #d8dee9; --text: #1f2937; --muted: #6b7280; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 58px; box-shadow: 0 2px 6px rgba(0,0,0,.2); position: relative; z-index: 20; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .sidebar { width: 236px; background: var(--navy-dark); color: #cbd5e1; flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px; transition: margin-left .25s ease; }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: #7d8db1; padding: 14px 18px 6px; }
+        .side-link { display: flex; align-items: center; gap: 11px; padding: 10px 18px; color: #cbd5e1; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back { background: var(--navy); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+        .btn-back:hover { background: var(--navy-mid); }
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 18px; }
+        .card-head { padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 16px 18px; }
+        .filter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select, .filter-field input { height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%; }
+        .filter-field input:focus, .filter-field select:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .btn { border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; height: 36px; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-dark { background: #1f2937; color: #fff; }
+        .btn-dark:hover { background: #111827; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #f8fafc; }
+        .seg button { padding: 8px 18px; border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; font-family: inherit; }
+        .seg button.active { background: var(--blue); color: #fff; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th { background: #f1f5f9; color: #334155; text-align: center; padding: 10px 12px; border: 1px solid var(--border); font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px; }
+        thead th .urut { font-weight: 400; text-transform: none; }
+        tbody td { padding: 8px 12px; border: 1px solid #e2e8f0; vertical-align: top; }
+        tbody tr:hover { background: #f8fafc; }
+        .c { text-align: center; }
+        .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .tfoot td { font-weight: 700; background: #f8fafc; border: 1px solid var(--border); padding: 8px 12px; }
+        .footer { text-align: center; padding: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99; background: var(--navy-dark); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+
+        /* ===== Sheet dokumen (preview di layar + cetak) ===== */
+        #bppSheet { display: block; max-width: 900px; margin: 0 auto 20px; background: #fff; border: 1px solid #d7dde5; border-radius: 12px; padding: 28px; box-shadow: 0 8px 30px rgba(15,23,42,.06); color: #000; font-family: "Times New Roman", Times, serif; }
+        .bpp-head { text-align: center; font-size: 14px; }
+        .bpp-head p { margin: 0; font-weight: 700; text-transform: uppercase; }
+        .bpp-ident { font-size: 13px; margin: 14px 0 4px; }
+        .bpp-ident .row { display: flex; margin: 2px 0; }
+        .bpp-ident .lbl { display: inline-block; width: 170px; font-weight: 700; flex-shrink: 0; }
+        .bpp-table { width: 100%; border-collapse: collapse; font-size: 12px; color: #000; table-layout: fixed; }
+        .bpp-table th, .bpp-table td { border: 1pt solid #000; padding: 4px 6px; vertical-align: top; word-wrap: break-word; }
+        .bpp-table th { text-align: center; font-weight: 700; }
+        .bpp-table td.c { text-align: center; }
+        .bpp-table td.r { text-align: right; }
+        .bpp-table tr.data td { border-bottom-style: dotted; }
+        .bpp-table tr.total td { font-weight: 700; border-bottom-style: solid; background: #f8f8f8; }
+        .bpp-sign { margin-top: 24px; margin-left: auto; width: 320px; text-align: center; }
+        .bpp-sign p { margin: 0; line-height: 1.7; }
+        .bpp-sign .space { height: 64px; }
+        .bpp-sign .name { font-weight: bold; text-decoration: underline; }
+        @page { size: A4 portrait; margin: 14mm; }
+        @media print {
+            body { background: #fff !important; display: block; }
+            .topbar, .breadcrumb-bar, .sidebar, .footer, #toast, .page-head, .card, #printActions { display: none !important; }
+            .content { padding: 0 !important; }
+            #bppSheet { display: block !important; border: none; box-shadow: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand"><b>AKLAP · SIM-TKD</b><span>Aplikasi Laporan Akuntansi Pemerintahan</span></div>
+        </div>
+        <div class="topbar-right">
+            <div class="region"><b id="regionProvinsi">-</b><span id="regionKota">-</span></div>
+            <div class="topbar-user"><div class="avatar" id="regionAvatar">?</div><span id="regionNama" style="font-size:13px;">-</span></div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb"><i class="fas fa-house"></i> <a href="index.html">Home</a><i class="fas fa-chevron-right"></i><span class="current">Buku Pembantu per Rincian Objek</span></div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>Buku Pembantu per Rincian Objek</h1>
+                        <p>Rincian transaksi per objek rekening — pilih jenis (Penerimaan / Pengeluaran) untuk melihat format buku pembantu yang sesuai.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-filter"></i> Filter Buku Pembantu</div>
+                    <div class="card-body">
+                        <div class="filter-grid">
+                            <div class="filter-field">
+                                <label>Jenis Buku</label>
+                                <div class="seg" id="segJenis">
+                                    <button type="button" data-jenis="penerimaan" class="active"><i class="fas fa-arrow-down"></i> Penerimaan</button>
+                                    <button type="button" data-jenis="pengeluaran"><i class="fas fa-arrow-up"></i> Pengeluaran</button>
+                                </div>
+                            </div>
+                            <div class="filter-field"><label>Bulan</label><select id="fBulan"></select></div>
+                            <div class="filter-field"><label>Tahun</label><select id="fTahun"></select></div>
+                            <div class="filter-field"><label>Kode Rekening (Objek)</label><select id="fKode"></select></div>
+                            <div class="filter-field"><label>NIP Penandatangan (dari Profil)</label><input type="text" id="fNip" placeholder="cth: 198501012010011001" autocomplete="off"></div>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap;">
+                            <button class="btn btn-primary" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                            <button class="btn btn-dark" id="btnCetak"><i class="fas fa-print"></i> Cetak</button>
+                            <button class="btn btn-primary" id="btnKirimTtd"><i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bppSheet">
+                <div class="bpp-head">
+                    <p id="headInstansi">PEMERINTAH DAERAH</p>
+                    <p>BUKU PEMBANTU</p>
+                    <p id="headSub">PER RINCIAN OBYEK PENERIMAAN</p>
+                </div>
+                <div class="bpp-ident">
+                    <div class="row"><span class="lbl">SKPD</span>: <span id="identSkpd">.................</span></div>
+                    <div class="row"><span class="lbl">KODE REKENING</span>: <span id="identKode">.................</span></div>
+                    <div class="row"><span class="lbl">NAMA REKENING</span>: <span id="identNama">.................</span></div>
+                    <div class="row"><span class="lbl">JUMLAH ANGGARAN</span>: <span id="identAnggaran">.................</span></div>
+                    <div class="row"><span class="lbl">TAHUN ANGGARAN</span>: <span id="identTahunA">.................</span></div>
+                    <div class="row"><span class="lbl">PERIODE</span>: <span id="identPeriode">.................</span></div>
+                </div>
+                <div style="text-align:right;font-weight:700;font-size:13px;margin:2px 0 6px;">Halaman <span id="halNo">1</span></div>
+                <table class="bpp-table">
+                    <colgroup>
+                        <col style="width:8%">
+                        <col style="width:18%">
+                        <col style="width:16%">
+                        <col style="width:34%">
+                        <col style="width:24%">
+                    </colgroup>
+                    <thead id="bppHead"></thead>
+                    <tbody id="bppBody"></tbody>
+                    <tfoot id="bppFoot"></tfoot>
+                </table>
+                <div class="bpp-sign">
+                    <p><span id="signKota">-</span>, <span id="signTanggal">-</span></p>
+                    <p id="signJabatan">Bendahara Penerimaan PPKD</p>
+                    <div id="signTtd"></div>
+                    <p class="name" id="signNama">(..................)</p>
+                    <p id="signNip">NIP : ..................</p>
+                </div>
+            </div>
+            <footer class="footer">&copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script>
+        // Profil (pola sama dengan halaman AKLAP lain)
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var init = nama.trim().charAt(0).toUpperCase() || '?';
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = init;
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+    (function () {
+        'use strict';
+
+        var API = 'api/akuntansi.php';
+        var JENIS = 'penerimaan';
+        var lastData = null;
+        var BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+        function esc(t) { var d = document.createElement('div'); d.textContent = String(t || ''); return d.innerHTML; }
+        function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2400); }
+        function urlAksi(action) { return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action; }
+        function fmtRp(n) { n = Number(n) || 0; var neg = n < 0; var s = Math.abs(n).toFixed(2).replace(/\.00$/, ''); var parts = s.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.'); s = parts.join(','); return (neg ? '-' : '') + s + ',-'; }
+        function fmtTgl(s) { if (!s) return '-'; var p = String(s).split('-'); return parseInt(p[2], 10) + ' ' + BULAN[parseInt(p[1], 10) - 1] + ' ' + p[0]; }
+        function getBulan() { return parseInt(document.getElementById('fBulan').value, 10); }
+        function getTahun() { return parseInt(document.getElementById('fTahun').value, 10); }
+        function getKode()  { return document.getElementById('fKode').value; }
+
+        function bersihNama(v) { v = String(v || '').trim(); return /^[.\u2026]+$/.test(v) ? '' : v; }
+
+        // Isi teks elemen dengan aman: elemen yang tidak ada TIDAK boleh
+        // menggagalkan seluruh render dokumen.
+        function setTxt(id, teks) { var el = document.getElementById(id); if (el) el.textContent = teks; }
+        function setHtml(id, html) { var el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+        (function initFilter() {
+            var now = new Date();
+            var selT = document.getElementById('fTahun');
+            for (var i = now.getFullYear() + 1; i >= now.getFullYear() - 5; i--) {
+                var o = document.createElement('option');
+                o.value = i; o.textContent = i;
+                if (i === now.getFullYear()) o.selected = true;
+                selT.appendChild(o);
+            }
+            var selB = document.getElementById('fBulan');
+            for (var b = 1; b <= 12; b++) {
+                var ob = document.createElement('option');
+                ob.value = b; ob.textContent = BULAN[b - 1];
+                if (b === now.getMonth() + 1) ob.selected = true;
+                selB.appendChild(ob);
+            }
+        })();
+
+        function loadObyek() {
+            var sel = document.getElementById('fKode');
+            sel.innerHTML = '<option value="">Memuat...</option>';
+            fetch(urlAksi('buku_pembantu_obyek_list') + '&jenis=' + JENIS)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    sel.innerHTML = '';
+                    if (!d || !d.success || !(d.obyek || []).length) {
+                        sel.innerHTML = '<option value="">(Belum ada objek ' + (JENIS === 'penerimaan' ? 'penerimaan' : 'pengeluaran') + ' — input di Buku Kas dulu)</option>';
+                        renderKosong();
+                        return;
+                    }
+                    d.obyek.forEach(function (o) {
+                        var op = document.createElement('option');
+                        op.value = o.kode_akun;
+                        op.textContent = o.kode_akun + ' - ' + (o.nama_akun || '');
+                        sel.appendChild(op);
+                    });
+                    loadBuku();
+                })
+                .catch(function () { sel.innerHTML = '<option value="">(Gagal memuat)</option>'; });
+        }
+
+        function loadBuku() {
+            var kode = getKode();
+            if (!kode) { renderKosong(); return; }
+            fetch(urlAksi('buku_pembantu_list') + '&jenis=' + JENIS + '&kode_akun=' + encodeURIComponent(kode) + '&bulan=' + getBulan() + '&tahun=' + getTahun())
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!d || !d.success) { toast((d && d.message) || 'Gagal memuat data buku pembantu.'); renderKosong(); return; }
+                    lastData = d;
+                    renderBuku();
+                })
+                .catch(function () { toast('Gagal memuat (jaringan).'); });
+        }
+
+        function renderBuku() {
+            var d = lastData || {};
+            var rows = d.rows || [];
+            var isPen = (d.jenis === 'penerimaan');
+
+            document.getElementById('headSub').textContent = 'PER RINCIAN OBYEK ' + (isPen ? 'PENERIMAAN' : 'PENGELUARAN');
+            setTxt('identSkpd', d.skpd || '.................');
+            setTxt('identKode', d.kode_akun || '.................');
+            setTxt('identNama', d.nama_akun || '.................');
+            setTxt('identAnggaran', 'Rp ' + fmtRp(d.anggaran || 0));
+            setTxt('identTahunA', d.tahun);
+            setTxt('identPeriode', BULAN[d.bulan - 1] + ' ' + d.tahun);
+
+            // ===== Perbedaan format penerimaan vs pengeluaran =====
+            var kolomBukti = isPen ? 'No. BP PPKD' : 'No. SP2D &amp; Bukti Pengeluaran';
+            var kolomTgl   = isPen ? 'Tanggal Setor' : 'Tanggal';
+            var kolomJml   = isPen ? 'Jumlah (Rp)' : 'Pengeluaran (Rp)';
+            var jabatan    = isPen ? 'Bendahara Penerimaan PPKD' : 'Bendahara Pengeluaran PPKD';
+
+            setHtml('bppHead',
+                '<tr><th>No<br>Urut</th><th>' + kolomBukti + '</th><th>' + kolomTgl + '</th><th>' + (isPen ? 'No. NK &amp; Bukti<br>Penerimaan Lainnya' : 'Uraian') + '</th><th>' + kolomJml + '</th></tr>' +
+                '<tr><td class="c">1</td><td class="c">2</td><td class="c">3</td><td class="c">4</td><td class="c">5</td></tr>');
+
+            var html = '';
+            var no = 0;
+            rows.forEach(function (r) {
+                no++;
+                html += '<tr class="data">' +
+                    '<td class="c">' + no + '</td>' +
+                    '<td class="c">' + esc(r.no_bukti || '-') + '</td>' +
+                    '<td class="c">' + esc(fmtTgl(r.tanggal)) + '</td>' +
+                    '<td>' + esc(r.uraian || '-') + '</td>' +
+                    '<td class="r">' + fmtRp(r.jumlah) + '</td>' +
+                '</tr>';
+            });
+            var filler = Math.max(0, 8 - no);
+            for (var f = 0; f < filler; f++) {
+                html += '<tr class="data"><td class="c">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+            }
+            setHtml('bppBody', html);
+
+            setHtml('bppFoot',
+                '<tr class="total"><td colspan="4">Jumlah Bulan ini</td><td class="r">' + fmtRp(d.jumlah_bulan_ini || 0) + '</td></tr>' +
+                '<tr class="total"><td colspan="4">Jumlah s.d Bulan Lalu</td><td class="r">' + fmtRp(d.jumlah_sd_bulan_lalu || 0) + '</td></tr>' +
+                '<tr class="total"><td colspan="4">Jumlah s.d Bulan ini</td><td class="r">' + fmtRp(d.jumlah_sd_bulan_ini || 0) + '</td></tr>');
+
+            var bln = d.bulan, thn = d.tahun;
+            var akhirBulan = new Date(thn, bln, 0).getDate();
+            setTxt('signKota', (d.skpd || 'Cimahi').replace(/^KABUPATEN\s*/i, '') || 'Cimahi');
+            setTxt('signTanggal', akhirBulan + ' ' + BULAN[bln - 1] + ' ' + thn);
+            setTxt('signJabatan', jabatan);
+            var dots = '..........';
+            var nm = bersihNama(d.bendahara);
+            setTxt('signNama', '(' + dots + (nm || '') + dots + ')');
+            // NIP: pakai isian manual bila ada, jika tidak pakai NIP dari Profil (API)
+            var nipVal = String(document.getElementById('fNip').value || '').trim() || String(d.nip || '').trim();
+            setTxt('signNip', 'NIP : ' + (nipVal || '..................'));
+            setHtml('signTtd', '<div style="height:64px;"></div>');
+        }
+
+        function renderKosong() {
+            lastData = null;
+            var isPen = (JENIS === 'penerimaan');
+            setTxt('headSub', 'PER RINCIAN OBYEK ' + (isPen ? 'PENERIMAAN' : 'PENGELUARAN'));
+            setTxt('identSkpd', '.................');
+            setTxt('identKode', '.................');
+            setTxt('identNama', '.................');
+            setTxt('identAnggaran', '.................');
+            setTxt('identTahunA', '.................');
+            setTxt('identPeriode', '.................');
+            setTxt('signKota', '-');
+            setTxt('signTanggal', '-');
+            setTxt('signNama', '(..................)');
+            setTxt('signNip', 'NIP : ..................');
+            setHtml('signTtd', '<div style="height:64px;"></div>');
+            var html = '';
+            for (var f = 0; f < 8; f++) {
+                html += '<tr class="data"><td class="c">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+            }
+            setHtml('bppBody', html);
+            setHtml('bppFoot',
+                '<tr class="total"><td colspan="4">Jumlah Bulan ini</td><td class="r">' + fmtRp(0) + '</td></tr>' +
+                '<tr class="total"><td colspan="4">Jumlah s.d Bulan Lalu</td><td class="r">' + fmtRp(0) + '</td></tr>' +
+                '<tr class="total"><td colspan="4">Jumlah s.d Bulan ini</td><td class="r">' + fmtRp(0) + '</td></tr>');
+        }
+
+        document.getElementById('btnCetak').addEventListener('click', function () {
+            if (!lastData) { toast('Pilih jenis & objek, lalu muat data terlebih dahulu.'); return; }
+            window.print();
+        });
+
+        document.getElementById('btnKirimTtd').addEventListener('click', function () {
+            var btn = this;
+            if (!lastData) { toast('Pilih jenis & objek, lalu muat data terlebih dahulu.'); return; }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+            var d = lastData;
+            var isPen = (d.jenis === 'penerimaan');
+            var judul = 'Buku Pembantu per Rincian Objek ' + (isPen ? 'Penerimaan' : 'Pengeluaran') +
+                ' - ' + d.kode_akun + ' - ' + BULAN[d.bulan - 1] + ' ' + d.tahun;
+            var sheet = document.getElementById('bppSheet');
+            var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(judul) + '</title><style>' +
+                '.bpp-head{text-align:center;font-family:\'Times New Roman\',serif;} .bpp-head p{margin:0;font-weight:700;text-transform:uppercase;}' +
+                '.bpp-ident{font-size:13px;margin:14px 0 4px;font-family:\'Times New Roman\',serif;} .bpp-ident .row{display:flex;margin:2px 0;} .bpp-ident .lbl{display:inline-block;width:170px;font-weight:700;}' +
+                '.bpp-table{width:100%;border-collapse:collapse;font-family:\'Times New Roman\',serif;font-size:12px;color:#000;table-layout:fixed;} .bpp-table th,.bpp-table td{border:1pt solid #000;padding:4px 6px;vertical-align:top;word-wrap:break-word;} .bpp-table th{text-align:center;} .bpp-table td.c{text-align:center;} .bpp-table td.r{text-align:right;} .bpp-table tr.data td{border-bottom-style:dotted;} .bpp-table tr.total td{font-weight:700;background:#f8f8f8;}' +
+                '.bpp-sign{margin-top:24px;margin-left:auto;width:320px;text-align:center;font-family:\'Times New Roman\',serif;} .bpp-sign p{margin:0;line-height:1.7;} .bpp-sign .space{height:64px;} .bpp-sign .name{font-weight:bold;text-decoration:underline;}' +
+                'body{background:#fff;} @page{size:A4 portrait;margin:14mm;}' +
+                '</style></head><body style="margin:0;background:#fff;"><div id="docArea">' + sheet.outerHTML + '</div></body></html>';
+
+            var body = new URLSearchParams({
+                jenis: 'Buku Pembantu ' + (isPen ? 'Penerimaan' : 'Pengeluaran'),
+                nomor: '',
+                judul: judul,
+                tanggal: d.tahun + '-' + String(d.bulan).padStart(2, '0') + '-' + String(new Date(d.tahun, d.bulan, 0).getDate()).padStart(2, '0'),
+                konten_html: html
+            });
+            var namaB = bersihNama(d.bendahara);
+            if (namaB) {
+                body.append('penandatangan', JSON.stringify([
+                    { user: 'self', urutan: 1, jabatan: isPen ? 'Bendahara Penerimaan PPKD' : 'Bendahara Pengeluaran PPKD', nama: namaB }
+                ]));
+            }
+
+            fetch(urlAksi('dokumen_kirim'), { method: 'POST', body: body })
+                .then(function (res) { return res.json(); })
+                .then(function (r) {
+                    if (r && r.success) {
+                        btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                        toast(r.message || 'Dokumen terkirim ke antrean tanda tangan.');
+                        setTimeout(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan'; }, 3000);
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                        toast((r && r.message) || 'Gagal mengirim dokumen.');
+                    }
+                })
+                .catch(function () {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                    toast('Gagal terhubung ke server API.');
+                });
+        });
+
+        document.querySelectorAll('#segJenis button').forEach(function (b) {
+            b.addEventListener('click', function () {
+                document.querySelectorAll('#segJenis button').forEach(function (x) { x.classList.remove('active'); });
+                b.classList.add('active');
+                JENIS = b.getAttribute('data-jenis');
+                loadObyek();
+            });
+        });
+
+        var fNip = document.getElementById('fNip');
+        try { fNip.value = localStorage.getItem('simtkd_nip') || ''; } catch (e) {}
+        // Isi otomatis dari NIP Profil bila kolom masih kosong
+        fetch(urlAksi('profil'))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d && d.success && d.user && !fNip.value.trim() && d.user.nip) {
+                    fNip.value = String(d.user.nip);
+                    if (lastData) renderBuku();
+                }
+            })
+            .catch(function () { });
+        fNip.addEventListener('change', function () {
+            try { localStorage.setItem('simtkd_nip', fNip.value.trim()); } catch (e) {}
+            if (lastData) renderBuku();
+        });
+
+        document.getElementById('btnTampilkan').addEventListener('click', loadBuku);
+        document.getElementById('fKode').addEventListener('change', loadBuku);
+        document.getElementById('fBulan').addEventListener('change', loadBuku);
+        document.getElementById('fTahun').addEventListener('change', loadObyek);
+
+        loadObyek();
+    })();
+    </script>
+
+</body>
+</html>

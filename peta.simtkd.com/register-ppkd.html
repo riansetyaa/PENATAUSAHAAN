@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register SPP/SPM/SP2D - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #16305a; --navy-dark: #0e2140; --navy-mid: #1d3a6e;
+            --blue: #1f6feb; --green: #16a34a; --green-dark: #15803d;
+            --bg: #eef1f6; --card: #ffffff; --border: #d8dee9;
+            --text: #1f2937; --muted: #6b7280;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 58px; box-shadow: 0 2px 6px rgba(0,0,0,.2); position: relative; z-index: 20; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .sidebar { width: 236px; background: var(--navy-dark); color: #cbd5e1; flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px; transition: margin-left .25s ease; }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: #7d8db1; padding: 14px 18px 6px; }
+        .side-link { display: flex; align-items: center; gap: 11px; padding: 10px 18px; color: #cbd5e1; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .side-group .side-link { cursor: pointer; }
+        .side-arrow { margin-left: auto; font-size: 11px; transition: transform .2s; color: #7d8db1; }
+        .side-group.open .side-arrow { transform: rotate(90deg); }
+        .side-sub { display: none; padding-left: 10px; }
+        .side-sub.open { display: block; }
+        .side-sub .side-link { padding: 8px 16px; font-size: 13px; color: #9fb0d3; }
+        .side-sub .side-link i { font-size: 12px; }
+        .side-sub .side-link:hover { color: #fff; }
+        .side-sub .side-link.active { color: #fff; background: var(--navy-mid); border-left-color: #4c9aff; }
+        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back { background: var(--navy); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+        .btn-back:hover { background: var(--navy-mid); }
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; max-width: 660px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 18px; }
+        .card-head { padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 16px 18px; }
+        .filter-grid { display: grid; gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select, .filter-field input { height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%; }
+        .filter-field input:focus, .filter-field select:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .filter-actions { display: flex; gap: 10px; }
+        .btn { border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; height: 36px; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: var(--green-dark); }
+        .btn-dark { background: var(--navy-mid); color: #fff; }
+        .btn-dark:hover { background: var(--navy); }
+        .btn-muted { background: #e2e8f0; color: var(--text); }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn-mini { border: 1px solid var(--border); background: #fff; color: var(--muted); height: 30px; padding: 0 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; }
+        .btn-mini:hover { color: var(--blue); border-color: var(--blue); }
+        .btn-mini:disabled { opacity: .45; cursor: not-allowed; }
+        .table-wrap { overflow-x: auto; }
+        table.grid { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        table.grid thead th { background: #f1f5f9; color: #334155; text-align: center; padding: 8px 6px; border: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; }
+        table.grid tbody td { padding: 6px; border: 1px solid #edf0f5; vertical-align: middle; }
+        table.grid tbody tr.dirty td { background: #fffbeb; }
+        table.grid input[type="text"], table.grid input[type="date"] { width: 100%; height: 32px; border: 1px solid var(--border); border-radius: 6px; padding: 0 7px; font-size: 12.5px; background: #fff; color: var(--text); font-family: inherit; }
+        table.grid input:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        table.grid td.c { text-align: center; }
+        table.grid td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        table.grid .sub { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+        .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+        .badge-ok { background: #dcfce7; color: #15803d; }
+        .badge-part { background: #fef3c7; color: #b45309; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99; background: var(--navy-dark); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        .footer { text-align: center; padding: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+        @media (max-width: 1024px) { .filter-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; } .filter-grid { grid-template-columns: 1fr !important; } }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand"><b>AKLAP · SIM-TKD</b><span>Aplikasi Laporan Akuntansi Pemerintahan</span></div>
+        </div>
+        <div class="topbar-right">
+            <div class="region"><b id="regionProvinsi">-</b><span id="regionKota">-</span></div>
+            <div class="topbar-user"><div class="avatar" id="regionAvatar">?</div><span id="regionNama" style="font-size:13px;">-</span></div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb"><i class="fas fa-house"></i> <a href="index.html">Home</a><i class="fas fa-chevron-right"></i><span class="current">Register SPP/SPM/SP2D</span></div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>Register SPP/SPM/SP2D</h1>
+                        <p>Register Bendahara Pengeluaran PPKD. Kolom <strong>Jenis Belanja, Uraian, dan Jumlah</strong> terisi otomatis dari <a href="buku-pengeluaran-ppkd.html" style="color:var(--blue);">Buku Kas Pengeluaran PPKD</a> &mdash; Anda cukup mengisi <strong>Tanggal &amp; Nomor SPP, SPM, dan SP2D</strong> (serta Keterangan).</p>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <button class="btn btn-success" id="btnSimpanSemua" disabled><i class="fas fa-floppy-disk"></i> Simpan Perubahan</button>
+                        <button class="btn btn-muted" id="btnCetak"><i class="fas fa-print"></i> Cetak</button>
+                        <button class="btn btn-dark" id="btnKirimTtd"><i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan</button>
+                        <input type="text" id="fNip" placeholder="NIP (dari Profil)" style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:190px;background:#fff;color:var(--text);">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-filter"></i> Periode</div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(3, 1fr); max-width:640px;">
+                            <div class="filter-field"><label>Tanggal Awal</label><input type="date" id="fDari"></div>
+                            <div class="filter-field"><label>Tanggal Akhir</label><input type="date" id="fSampai"></div>
+                            <div class="filter-field">
+                                <label>&nbsp;</label>
+                                <div class="filter-actions">
+                                    <button class="btn btn-primary" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                                    <button class="btn btn-muted" id="btnReset"><i class="fas fa-eraser"></i> Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-table"></i> Daftar Transaksi Pengeluaran PPKD
+                        <span id="rowInfo" style="margin-left:auto;font-weight:500;font-size:12px;color:var(--muted);"></span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="grid">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="width:42px;">No.</th>
+                                    <th rowspan="2" style="width:120px;">Jenis Belanja</th>
+                                    <th colspan="2">SPP</th>
+                                    <th colspan="2">SPM</th>
+                                    <th colspan="2">SP2D</th>
+                                    <th rowspan="2" style="min-width:200px;">Uraian</th>
+                                    <th rowspan="2" style="width:120px;">Jumlah (Rp)</th>
+                                    <th rowspan="2" style="width:120px;">Ket</th>
+                                    <th rowspan="2" style="width:100px;">Aksi</th>
+                                </tr>
+                                <tr>
+                                    <th style="width:132px;">Tgl.</th><th style="width:112px;">No.</th>
+                                    <th style="width:132px;">Tgl.</th><th style="width:112px;">No.</th>
+                                    <th style="width:132px;">Tgl.</th><th style="width:112px;">No.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyReg"></tbody>
+                        </table>
+                    </div>
+                    <div class="card-body" id="regFooter" style="border-top:1px solid var(--border);"></div>
+                </div>
+                <style>
+                    /* ===== Dokumen Register SPP/SPM/SP2D (pratinjau & cetak) ===== */
+                    #regDoc { width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 26px 28px; margin: 0 auto 18px; color: #000; font-family: "Times New Roman", Times, serif; font-size: 12px; line-height: 1.45; overflow-x: auto; }
+                    #regDoc .reg-head { text-align: center; margin-bottom: 14px; }
+                    #regDoc .reg-head .modul { font-size: 10.5px; }
+                    #regDoc .reg-head .pem { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+                    #regDoc .reg-head .title { font-size: 14.5px; font-weight: 700; text-transform: uppercase; }
+                    #regDoc .reg-head .sub { font-size: 13px; font-weight: 700; text-transform: uppercase; }
+                    #regDoc table.reg { width: 100%; border-collapse: collapse; }
+                    #regDoc table.reg th, #regDoc table.reg td { border: 1px solid #000; padding: 4px 6px; font-size: 11px; vertical-align: top; }
+                    #regDoc table.reg th { text-align: center; font-weight: 700; }
+                    #regDoc table.reg th.garis { text-decoration: underline; }
+                    #regDoc table.reg td.c { text-align: center; }
+                    #regDoc table.reg td.num { text-align: right; white-space: nowrap; }
+                    #regDoc table.reg tbody tr.fill td { height: 21px; border-bottom-style: dotted; }
+                    #regDoc .reg-sign { margin-top: 24px; margin-left: auto; width: 340px; text-align: center; }
+                    #regDoc .reg-sign p { margin: 0; line-height: 1.6; }
+                    #regDoc .reg-sign .tgl { text-align: left; }
+                    #regDoc .reg-sign .sig { height: 74px; }
+                    #regDoc .reg-sign .name { font-weight: 700; text-decoration: underline; }
+                    #regDoc .reg-sign .nip { font-size: 11px; }
+                    @media print {
+                        @page { size: A4 landscape; margin: 12mm; }
+                        body { background: #fff !important; display: block; }
+                        .topbar, .breadcrumb-bar, .sidebar, .footer, #toast, .page-head, .card, .preview-label { display: none !important; }
+                        .content { padding: 0 !important; }
+                        #regDoc { display: block !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+                    }
+                </style>
+
+                <div class="preview-label" style="font-weight:700;color:var(--navy);font-size:13.5px;margin:6px 0 10px;">
+                    <i class="fas fa-file-invoice"></i> Pratinjau Dokumen Register (hasil cetak)
+                </div>
+                <div class="reg-doc" id="regDoc"></div>
+
+            </div>
+
+            <footer class="footer">&copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script>
+        // Profil ringkas di topbar (pola sama dengan halaman AKLAP lain)
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = nama.trim().charAt(0).toUpperCase() || '?';
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+(function () {
+    'use strict';
+
+    var API = 'api/akuntansi.php';
+    var DATA = [];   // model baris: turunan Buku Pengeluaran PPKD + isian register
+    var META = { instansi: '', kota: '', bendahara: '', nip: '', total_jumlah: 0, jumlah_lengkap: 0, total: 0 };
+    var BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    var KOLOM = ['spp_tgl','spp_no','spm_tgl','spm_no','sp2d_tgl','sp2d_no','ket'];
+    var BATAS = { spp_no: 64, spm_no: 64, sp2d_no: 64, ket: 120 };
+    var BARIS_MIN = 10;   // baris kosong bergaris titik pada dokumen (seperti blanko resmi)
+    var dirty = {};       // id -> true bila ada perubahan belum disimpan
+    var nipVal = '';
+
+    var tbody = document.getElementById('tbodyReg');
+
+    function esc(t) { var d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+    function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2600); }
+    function urlAksi(action) { return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action; }
+    function fmtRp(v) { return 'Rp ' + Number(v || 0).toLocaleString('id-ID'); }
+    function fmtTgl(s) {
+        if (!s) return '-';
+        var p = String(s).split('-');
+        if (p.length !== 3) return String(s);
+        return parseInt(p[2], 10) + ' ' + BULAN[parseInt(p[1], 10) - 1] + ' ' + p[0];
+    }
+    function fmtTglPendek(s) {
+        if (!s) return '';
+        var p = String(s).split('-');
+        return p.length === 3 ? p[2] + '-' + p[1] + '-' + p[0] : String(s);
+    }
+    function tanggalHariIni() {
+        var now = new Date();
+        return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    }
+    function lengkapBaris(r) {
+        return !!(r.spp_tgl && r.spp_no && r.spm_tgl && r.spm_no && r.sp2d_tgl && r.sp2d_no);
+    }
+    function cariBaris(id) {
+        for (var i = 0; i < DATA.length; i++) { if (DATA[i].id === id) return DATA[i]; }
+        return null;
+    }
+    function hitungLengkap() {
+        var n = 0;
+        for (var i = 0; i < DATA.length; i++) { if (lengkapBaris(DATA[i])) n++; }
+        return n;
+    }
+    function idDirty() {
+        var ids = [], k;
+        for (k in dirty) { if (dirty[k]) ids.push(parseInt(k, 10)); }
+        return ids;
+    }
+    function sinkronTombol() {
+        var n = idDirty().length;
+        var b = document.getElementById('btnSimpanSemua');
+        b.disabled = n === 0;
+        b.innerHTML = '<i class="fas fa-floppy-disk"></i> ' + (n > 0 ? 'Simpan Perubahan (' + n + ')' : 'Simpan Perubahan');
+    }
+    function urlList() {
+        var q = urlAksi('register_ppkd_list');
+        var d = document.getElementById('fDari').value;
+        var s = document.getElementById('fSampai').value;
+        if (d) q += '&dari=' + encodeURIComponent(d);
+        if (s) q += '&akhir=' + encodeURIComponent(s);
+        return q;
+    }
+
+    function terapkanNipProfil() {
+        var manual = '';
+        try { manual = (localStorage.getItem('simtkd_nip') || '').trim(); } catch (e) {}
+        var fNip = document.getElementById('fNip');
+        if (manual === '') { fNip.value = (META.nip || '').trim(); }
+        nipVal = fNip.value.trim();
+    }
+
+    function loadData() {
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:#9aa4b2;padding:24px;">Memuat data...</td></tr>';
+        fetch(urlList())
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (!(d && d.success)) {
+                    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:#b91c1c;padding:24px;">' + esc((d && d.message) || 'Gagal memuat data.') + '</td></tr>';
+                    document.getElementById('regFooter').innerHTML = '';
+                    return;
+                }
+                DATA = (d && d.data) || [];
+                META.instansi    = d.instansi || '';
+                META.kota        = d.kota || '';
+                META.bendahara   = d.bendahara || '';
+                META.nip         = d.nip || '';
+                META.total_jumlah   = Number(d.total_jumlah || 0);
+                META.jumlah_lengkap = Number(d.jumlah_lengkap || 0);
+                META.total          = Number(d.total || 0);
+                dirty = {};
+                terapkanNipProfil();
+                renderTabel();
+                renderDoc();
+                sinkronTombol();
+            })
+            .catch(function (err) {
+                if (window.console && console.error) console.error('Register PPKD: gagal memuat data', err);
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:#b91c1c;padding:24px;">Gagal memuat data. (detail di console: ' + esc((err && err.message) || 'unknown') + ')</td></tr>';
+                document.getElementById('regFooter').innerHTML = '';
+            });
+    }
+
+    function inputSel(kunci, r) {
+        var tipe = kunci.indexOf('_tgl') > -1 ? 'date' : 'text';
+        return '<input type="' + tipe + '" data-k="' + kunci + '" value="' + esc(r[kunci] || '') + '"' +
+               (tipe === 'date' ? '' : ' maxlength="' + (BATAS[kunci] || 64) + '"') + ' autocomplete="off">';
+    }
+    function renderTabel() {
+        if (!DATA.length) {
+            tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:#9aa4b2;padding:26px;">Belum ada transaksi pengeluaran PPKD pada periode ini.<br>Catat dulu transaksinya di halaman <a href="buku-pengeluaran-ppkd.html" style="color:#1f6feb;">Buku Kas Pengeluaran PPKD</a>.</td></tr>';
+        } else {
+            tbody.innerHTML = DATA.map(function (r, i) {
+                var ok = lengkapBaris(r);
+                return '<tr data-id="' + r.id + '" class="' + (dirty[r.id] ? 'dirty' : '') + '">' +
+                    '<td class="c">' + (i + 1) + '</td>' +
+                    '<td class="c">' + esc(r.kode_rekening || '-') + '<div class="sub">' + esc(fmtTglPendek(r.tanggal)) + '</div></td>' +
+                    '<td>' + inputSel('spp_tgl', r) + '</td>' +
+                    '<td>' + inputSel('spp_no', r) + '</td>' +
+                    '<td>' + inputSel('spm_tgl', r) + '</td>' +
+                    '<td>' + inputSel('spm_no', r) + '</td>' +
+                    '<td>' + inputSel('sp2d_tgl', r) + '</td>' +
+                    '<td>' + inputSel('sp2d_no', r) + '</td>' +
+                    '<td>' + esc(r.uraian || '-') + '</td>' +
+                    '<td class="num">' + fmtRp(r.jumlah) + '</td>' +
+                    '<td>' + inputSel('ket', r) + '</td>' +
+                    '<td class="c">' +
+                        '<span class="badge ' + (ok ? 'badge-ok' : 'badge-part') + '">' + (ok ? 'Lengkap' : 'Sebagian') + '</span>' +
+                        '<div style="margin-top:5px;"><button class="btn-mini" data-act="simpan" data-id="' + r.id + '"' + (dirty[r.id] ? '' : ' disabled') + '><i class="fas fa-floppy-disk"></i> Simpan</button></div>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+        }
+        document.getElementById('rowInfo').textContent = DATA.length + ' transaksi · ' + hitungLengkap() + ' baris lengkap';
+        renderFooter();
+    }
+
+    function perbaruiBaris(id) {
+        var tr = tbody.querySelector('tr[data-id="' + id + '"]');
+        if (tr) {
+            tr.classList.toggle('dirty', !!dirty[id]);
+            var b = tr.querySelector('[data-act="simpan"]');
+            if (b) b.disabled = !dirty[id];
+            var badge = tr.querySelector('.badge');
+            var ok = lengkapBaris(cariBaris(id) || {});
+            if (badge) { badge.className = 'badge ' + (ok ? 'badge-ok' : 'badge-part'); badge.textContent = ok ? 'Lengkap' : 'Sebagian'; }
+        }
+        document.getElementById('rowInfo').textContent = DATA.length + ' transaksi · ' + hitungLengkap() + ' baris lengkap';
+        renderFooter();
+        sinkronTombol();
+    }
+
+    function kumpulkan(id) {
+        var tr = tbody.querySelector('tr[data-id="' + id + '"]');
+        var out = {};
+        for (var i = 0; i < KOLOM.length; i++) {
+            var k = KOLOM[i];
+            var el = tr ? tr.querySelector('[data-k="' + k + '"]') : null;
+            out[k] = el ? String(el.value).trim() : '';
+        }
+        return out;
+    }
+
+    function renderFooter() {
+        var el = document.getElementById('regFooter');
+        var n = idDirty().length;
+        el.innerHTML =
+            '<p style="font-size:13px;"><strong>Total Pengeluaran Register</strong> ' + fmtRp(META.total_jumlah) +
+            ' &nbsp;·&nbsp; <span style="color:#6b7280;">' + DATA.length + ' transaksi, ' + hitungLengkap() + ' baris lengkap SPP/SPM/SP2D</span></p>' +
+            (n > 0
+                ? '<p style="font-size:12.5px;color:#b45309;"><i class="fas fa-triangle-exclamation"></i> ' + n + ' baris belum disimpan &mdash; klik <strong>Simpan Perubahan</strong>.</p>'
+                : '<p style="font-size:12.5px;color:#15803d;"><i class="fas fa-circle-check"></i> Semua perubahan sudah tersimpan.</p>');
+    }
+
+    tbody.addEventListener('input', function (e) {
+        var inp = e.target;
+        if (!inp || !inp.getAttribute) return;
+        var kunci = inp.getAttribute('data-k');
+        if (!kunci) return;
+        var tr = inp.closest ? inp.closest('tr') : null;
+        if (!tr) return;
+        var id = parseInt(tr.getAttribute('data-id'), 10);
+        var r = cariBaris(id);
+        if (!r) return;
+        r[kunci] = String(inp.value).trim();
+        dirty[id] = true;
+        perbaruiBaris(id);
+        renderDoc();
+    });
+    function periodeTeks() {
+        var d = document.getElementById('fDari').value;
+        var s = document.getElementById('fSampai').value;
+        if (d && s) return fmtTgl(d) + ' s.d. ' + fmtTgl(s);
+        if (d) return 'mulai ' + fmtTgl(d);
+        if (s) return 's.d. ' + fmtTgl(s);
+        return 'Seluruh Periode';
+    }
+
+    function namaKotaTgl() {
+        var kota = String(META.kota || '').trim() || '................';
+        var s = document.getElementById('fSampai').value || document.getElementById('fDari').value;
+        return kota + ', ' + fmtTgl(s || tanggalHariIni());
+    }
+
+    function namaBendahara() {
+        return String(META.bendahara || '').trim() || '................................';
+    }
+
+    function renderDoc() {
+        var doc = document.getElementById('regDoc');
+        if (!doc) return;
+        var kop = META.kota ? 'PEMERINTAH ' + String(META.kota).toUpperCase() : 'PEMERINTAH DAERAH';
+
+        var rows = DATA.map(function (r, i) {
+            return '<tr>' +
+                '<td class="c">' + (i + 1) + '</td>' +
+                '<td class="c">' + esc(r.kode_rekening || '') + '</td>' +
+                '<td class="c">' + esc(fmtTglPendek(r.spp_tgl)) + '</td>' +
+                '<td class="c">' + esc(r.spp_no || '') + '</td>' +
+                '<td class="c">' + esc(fmtTglPendek(r.spm_tgl)) + '</td>' +
+                '<td class="c">' + esc(r.spm_no || '') + '</td>' +
+                '<td class="c">' + esc(fmtTglPendek(r.sp2d_tgl)) + '</td>' +
+                '<td class="c">' + esc(r.sp2d_no || '') + '</td>' +
+                '<td>' + esc(r.uraian || '') + '</td>' +
+                '<td class="num">' + Number(r.jumlah || 0).toLocaleString('id-ID') + '</td>' +
+                '<td class="c">' + esc(r.ket || '-') + '</td>' +
+            '</tr>';
+        }).join('');
+        if (!rows) {
+            rows = '<tr><td class="c" colspan="11" style="padding:12px;">Belum ada transaksi pengeluaran PPKD pada periode ini.</td></tr>';
+        }
+
+        var filler = '';
+        for (var i = 0, n = Math.max(0, BARIS_MIN - DATA.length); i < n && i < 12; i++) {
+            filler += '<tr class="fill"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+        }
+        doc.innerHTML =
+            '<div class="reg-head">' +
+              '<div class="modul">Modul-3E-LK Output Penata SKPKD-Pemda</div>' +
+              '<div class="pem">' + esc(kop) + '</div>' +
+              '<div class="title">REGISTER SPP/SPM/SP2D</div>' +
+              '<div class="sub">BENDAHARA PENGELUARAN PPKD</div>' +
+            '</div>' +
+            '<table class="reg">' +
+              '<thead>' +
+                '<tr>' +
+                  '<th rowspan="2" style="width:4%;">No.</th>' +
+                  '<th rowspan="2" style="width:11%;">Jenis Belanja</th>' +
+                  '<th colspan="2">SPP</th>' +
+                  '<th colspan="2">SPM</th>' +
+                  '<th colspan="2">SP2D</th>' +
+                  '<th rowspan="2" class="garis" style="width:25%;">Uraian</th>' +
+                  '<th rowspan="2" class="garis" style="width:12%;">Jumlah (Rp)</th>' +
+                  '<th rowspan="2" class="garis" style="width:6%;">Ket</th>' +
+                '</tr>' +
+                '<tr>' +
+                  '<th style="width:9%;">Tgl.</th><th style="width:5.5%;">No.</th>' +
+                  '<th style="width:9%;">Tgl.</th><th style="width:5.5%;">No.</th>' +
+                  '<th style="width:9%;">Tgl.</th><th style="width:5.5%;">No.</th>' +
+                '</tr>' +
+                '<tr>' +
+                  '<td class="c">1</td><td class="c">2</td><td class="c">3</td><td class="c">4</td><td class="c">5</td>' +
+                  '<td class="c">6</td><td class="c">7</td><td class="c">8</td><td class="c">9</td><td class="c">10</td><td class="c">11</td>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' + rows + filler + '</tbody>' +
+            '</table>' +
+            '<div class="reg-sign">' +
+              '<p class="tgl">' + esc(namaKotaTgl()) + '</p>' +
+              '<p>Bendahara Pengeluaran PPKD</p>' +
+              '<div class="sig"></div>' +
+              '<p class="name">(' + esc(namaBendahara()) + ')</p>' +
+              '<p class="nip">NIP : ' + esc(nipVal || '..................') + '</p>' +
+            '</div>';
+    }
+
+    function cssCetak() {
+        return '*{margin:0;padding:0;box-sizing:border-box;font-family:"Times New Roman",Times,serif;}' +
+            'body{background:#fff;color:#000;font-size:12pt;}' +
+            '.reg-doc{width:100%;padding:14px;color:#000;}' +
+            '.reg-doc .reg-head{text-align:center;margin-bottom:12px;}' +
+            '.reg-doc .reg-head .modul{font-size:10pt;} .reg-doc .reg-head .pem{font-size:13pt;font-weight:bold;text-transform:uppercase;}' +
+            '.reg-doc .reg-head .title{font-size:13.5pt;font-weight:bold;text-transform:uppercase;}' +
+            '.reg-doc .reg-head .sub{font-size:12.5pt;font-weight:bold;text-transform:uppercase;}' +
+            '.reg-doc table.reg{width:100%;border-collapse:collapse;}' +
+            '.reg-doc table.reg th,.reg-doc table.reg td{border:1px solid #000;padding:4px 5px;font-size:9.5pt;vertical-align:top;}' +
+            '.reg-doc table.reg th{text-align:center;font-weight:bold;} .reg-doc table.reg th.garis{text-decoration:underline;}' +
+            '.reg-doc table.reg td.c{text-align:center;} .reg-doc table.reg td.num{text-align:right;white-space:nowrap;}' +
+            '.reg-doc table.reg tbody tr.fill td{height:20px;border-bottom-style:dotted;}' +
+            '.reg-doc .reg-sign{margin-top:30px;margin-left:auto;width:340px;text-align:center;font-size:11pt;}' +
+            '.reg-doc .reg-sign p{margin:0;line-height:1.6;} .reg-doc .reg-sign .tgl{text-align:left;}' +
+            '.reg-doc .reg-sign .sig{height:74px;} .reg-doc .reg-sign .name{font-weight:bold;text-decoration:underline;} .reg-doc .reg-sign .nip{font-size:10pt;}' +
+            '@page{size:A4 landscape;margin:12mm;}';
+    }
+    function simpan(id, cb, senyap) {
+        var r = cariBaris(id);
+        if (!r) { if (cb) cb(false); return; }
+        var v = kumpulkan(id);
+        var body = new URLSearchParams({ buku_kas_id: String(id) });
+        for (var i = 0; i < KOLOM.length; i++) { body.append(KOLOM[i], v[KOLOM[i]]); }
+
+        fetch(urlAksi('register_ppkd_simpan'), { method: 'POST', body: body })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (d && d.success) {
+                    for (var j = 0; j < KOLOM.length; j++) { r[KOLOM[j]] = v[KOLOM[j]]; }
+                    dirty[id] = false;
+                    perbaruiBaris(id);
+                    renderDoc();
+                    if (!senyap) toast(d.message || 'Register tersimpan.');
+                    if (cb) cb(true);
+                } else {
+                    if (!senyap) toast((d && d.message) || 'Gagal menyimpan register.');
+                    if (cb) cb(false);
+                }
+            })
+            .catch(function () {
+                if (!senyap) toast('Gagal terhubung ke server API.');
+                if (cb) cb(false);
+            });
+    }
+
+    function simpanSemua() {
+        var ids = idDirty();
+        if (!ids.length) { toast('Tidak ada perubahan untuk disimpan.'); return; }
+        var btn = document.getElementById('btnSimpanSemua');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        var i = 0, gagal = 0;
+        (function lanjut() {
+            if (i >= ids.length) {
+                sinkronTombol();
+                if (gagal) { toast(gagal + ' baris gagal disimpan. Coba lagi.'); loadData(); return; }
+                toast(ids.length + ' baris register tersimpan.');
+                return;
+            }
+            simpan(ids[i++], function (ok) { if (!ok) gagal++; lanjut(); }, true);
+        })();
+    }
+
+    document.getElementById('btnSimpanSemua').addEventListener('click', simpanSemua);
+
+    tbody.addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest('[data-act="simpan"]') : null;
+        if (!btn) return;
+        simpan(parseInt(btn.getAttribute('data-id'), 10));
+    });
+
+    document.getElementById('btnTampilkan').addEventListener('click', function () {
+        var n = idDirty().length;
+        if (n && !confirm('Ada ' + n + ' baris yang belum disimpan. Tampilkan ulang periode sekarang? (perubahan yang belum disimpan akan hilang)')) return;
+        loadData();
+    });
+
+    document.getElementById('btnReset').addEventListener('click', function () {
+        document.getElementById('fDari').value = '';
+        document.getElementById('fSampai').value = '';
+        loadData();
+    });
+
+    document.getElementById('fSampai').addEventListener('change', renderDoc);
+    document.getElementById('fDari').addEventListener('change', renderDoc);
+
+    var fNip = document.getElementById('fNip');
+    try { fNip.value = localStorage.getItem('simtkd_nip') || ''; } catch (e) {}
+    fNip.addEventListener('change', function () {
+        nipVal = fNip.value.trim();
+        try { localStorage.setItem('simtkd_nip', nipVal); } catch (e) {}
+        renderDoc();
+    });
+
+    document.getElementById('btnCetak').addEventListener('click', function () {
+        if (!DATA.length) { toast('Belum ada transaksi untuk dicetak.'); return; }
+        renderDoc();
+        setTimeout(function () { window.print(); }, 60);
+    });
+
+    document.getElementById('btnKirimTtd').addEventListener('click', function () {
+        var btn = this;
+        if (!DATA.length) { toast('Belum ada transaksi untuk dikirim.'); return; }
+        if (idDirty().length) { toast('Simpan dulu perubahan Anda sebelum mengirim dokumen.'); return; }
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+        renderDoc();
+        var body = new URLSearchParams({
+            jenis: 'Register SPP/SPM/SP2D',
+            nomor: '',
+            judul: 'Register SPP/SPM/SP2D - ' + periodeTeks(),
+            tanggal: tanggalHariIni(),
+            konten_html: '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Register SPP/SPM/SP2D</title><style>' +
+                cssCetak() + '</style></head><body style="margin:0;background:#fff;">' +
+                document.getElementById('regDoc').innerHTML + '</body></html>'
+        });
+        body.append('penandatangan', JSON.stringify([
+            { user: 'self', urutan: 1, jabatan: 'Bendahara Pengeluaran PPKD', nama: META.bendahara || '' }
+        ]));
+
+        fetch(urlAksi('dokumen_kirim'), { method: 'POST', body: body })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (d && d.success) {
+                    toast(d.message || 'Dokumen terkirim ke antrean tanda tangan.');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                    setTimeout(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan'; }, 3000);
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                    toast((d && d.message) || 'Gagal mengirim dokumen.');
+                }
+            })
+            .catch(function () {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                toast('Gagal terhubung ke server API.');
+            });
+    });
+
+    sinkronTombol();
+    loadData();
+})();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+

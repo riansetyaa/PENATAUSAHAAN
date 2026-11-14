@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak SKP Daerah - SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== Toolbar cetak ===== */
+        .print-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* ===== Dokumen SKP Daerah ===== */
+        .skp-sheet {
+            max-width: none;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px 48px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+            color: #0f172a;
+            line-height: 1.7;
+            position: relative;
+        }
+        /* ===== Dokumen SKP Daerah (format resmi) ===== */
+        .skp-doc {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            color: #000;
+            background: #ffffff;
+        }
+        .skp-doc td {
+            border: 1pt solid #000;
+            padding: 3px 7px;
+            vertical-align: top;
+        }
+        .skp-doc p { margin: 1px 0; line-height: 1.55; }
+        .skp-doc .c { text-align: center; }
+        .skp-doc .r { text-align: right; }
+        .skp-doc .b { font-weight: 700; }
+        .skp-doc .u { text-decoration: underline; }
+        .skp-doc td.cut {
+            border: none;
+            border-top: 1pt dashed #000;
+            text-align: center;
+            font-weight: 700;
+            padding: 3px 0;
+        }
+        .skp-doc .ttd-slot { min-height: 56px; }
+        .skp-doc .ttd-slot img { max-width: 190px; max-height: 58px; display: block; margin: 0 auto; }
+        .skp-notfound {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        /* ===== Saat mencetak: hanya dokumen, potret ===== */
+        @page {
+            size: A4 portrait;
+            margin: 14mm;
+        }
+
+        /* ===== Saat mencetak: hanya dokumen ===== */
+        @media print {
+            .sidebar, .topbar, .footer, .overlay, .print-toolbar { display: none !important; }
+            .main-wrapper { margin-left: 0 !important; }
+            .content { padding: 0 !important; margin: 0 !important; }
+            body { background: #ffffff !important; }
+            .skp-sheet {
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- ================= OVERLAY (mobile) ================= -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Penerimaan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>SKP - Daerah</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Cetak</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item notification">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="topbar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate">--</span>
+                </div>
+                <div class="topbar-item user">
+                    <div class="user-avatar small">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span id="topbarUserName">Admin Dinas</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="content">
+            <div class="print-toolbar">
+                <button class="btn btn-outline" onclick="history.back();"><i class="fas fa-arrow-left"></i> Kembali</button>
+                <button class="btn btn-success" id="btnCetak" onclick="window.print();"><i class="fas fa-print"></i> Cetak Sekarang</button>
+                <button class="btn btn-primary" id="btnKirimTtd"><i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan</button>
+            </div>
+
+            <!-- Status Dokumen Tidak Ditemukan -->
+            <div class="card skp-notfound" id="skpNotFound" style="display:none;">
+                <div class="empty-state">
+                    <div class="empty-illustration">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h3>Dokumen Tidak Tersedia</h3>
+                    <p>SKP Daerah yang Anda cari tidak ditemukan. Silakan buat SKP Daerah terlebih dahulu.</p>
+                    <div class="empty-actions">
+                        <a href="skp-daerah.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali ke Daftar</a>
+                        <a href="skp-daerah-tambah.html" class="btn btn-primary"><i class="fas fa-plus"></i> Buat SKP Daerah</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dokumen SKP Daerah (format resmi) -->
+            <div class="skp-sheet" id="skpSheet">
+                <table class="skp-doc">
+                    <tbody>
+                        <tr>
+                            <td colspan="2" style="width:40%;">
+                                <p class="c b">PEMERINTAH</p>
+                                <p class="c b" id="docInstansi">DAERAH</p>
+                            </td>
+                            <td style="width:35%;">
+                                <p class="c b">SURAT KETETAPAN PAJAK DAERAH (SKP-DAERAH)&nbsp;</p>
+                            </td>
+                            <td style="width:25%;">
+                                <p class="c"><span class="b">NO. URUT : </span><span id="docNomorUrut">&nbsp;</span></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><p><span class="b">MASA&nbsp;</span><span class="b">: </span><span id="fMasa">&nbsp;</span></p></td>
+                            <td><p>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><p><span class="b">TAHU</span><span class="b">N&nbsp;</span><span class="b">: </span><span id="fTahun">&nbsp;</span></p></td>
+                            <td><p>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><p><span class="b">NAMA : </span><span id="fNama">&nbsp;</span></p></td>
+                            <td><p>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><p><span class="b">ALAMAT : </span><span id="fAlamat">&nbsp;</span></p></td>
+                            <td><p>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><p><span class="b">NOMOR POKOK WAJIB PAJAK DAERAH (NPWPD)&nbsp;</span><span class="b">: </span><span id="fNpwpd">&nbsp;</span></p></td>
+                            <td><p>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><p><span class="b">TANGGAL JATUH TEMPO&nbsp;</span><span class="b">: </span><span id="fJatuh">&nbsp;</span></p></td>
+                            <td><p>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td style="width:12%;"><p class="c b">NO&nbsp;</p></td>
+                            <td style="width:28%;"><p class="c b">KODE REKENING&nbsp;</p></td>
+                            <td style="width:35%;"><p class="c b">URAIAN PAJAK DAERAH&nbsp;</p></td>
+                            <td style="width:25%;"><p class="c b">JUMLAH (Rp)&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td><p class="c b">1&nbsp;</p><p class="c b">2</p></td>
+                            <td><p class="c" id="fKode">&nbsp;</p></td>
+                            <td><p id="fUraian">&nbsp;</p></td>
+                            <td><p class="r" id="fJumlah">&nbsp;</p></td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="3">
+                                <p class="b">Jumlah Ketetapan Pokok Pajak</p>
+                                <p class="b">Jumlah Sanksi: a. Bunga&nbsp;</p>
+                                <p class="b">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b. Kenaikan</p>
+                                <p class="b">Jumlah Keseluruhan</p>
+                            </td>
+                            <td>
+                                <p class="r" id="fPokok">&nbsp;</p>
+                                <p class="r" id="fBunga">0,-</p>
+                                <p class="r" id="fKenaikan">0,-</p>
+                                <p class="r" id="fTotal">&nbsp;</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p><span class="b">Dengan huruf :&nbsp;</span><span id="fHuruf">&nbsp;</span></p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="b u">PERHATIAN :</p></td>
+                        </tr>
+                        <tr>
+                            <td style="width:12%;"><p class="c b">1.&nbsp;</p></td>
+                            <td colspan="3"><p class="b">Harap penyetoran dilakukan pada Bank/ Bendahara Penerimaan&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td><p class="c b">2.&nbsp;</p></td>
+                            <td colspan="3"><p class="b">Apabila SKP ini tidak atau kurang dibayar lewat waktu paling lama 30 hari setelah SKP diterima (tanggal jatuh tempo) dikenakan sanksi administrasi berupa bunga sebesar 2 % perbulan</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="c"><span class="b" id="signKota">Kabupaten</span><span id="signTanggal">&nbsp;</span></p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="c b">Pengguna Anggaran&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><div class="ttd-slot" data-urut="1"></div></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="c u" id="signName">. &hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;..</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="c" data-nip-ttd style="font-size:11px;">NIP. ..............................</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="cut">_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ potong di sini_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ &nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="r b">&nbsp;NO. URUT : <span id="stubNomor">001</span>&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="c b">TANDA TERIMA&nbsp;</p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p><span class="b">NAMA. : </span><span id="stubNama">&nbsp;</span></p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p><span class="b">ALAMAT &nbsp; &nbsp;:</span> <span id="stubAlamat">&nbsp;</span></p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p><span class="b">NPWPD. &nbsp; &nbsp;:</span> <span id="stubNpwpd">&nbsp;</span></p></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><p class="c b">( <span id="stubSign">&nbsp;</span> )&nbsp;</p></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span>
+        </footer>
+    </div>
+
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/ttd-nip.js"></script>
+    <script>
+        // ==========================================
+        // Halaman Cetak SKP Daerah
+        // ==========================================
+        (function () {
+            'use strict';
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = String(str || '');
+                return div.innerHTML;
+            }
+
+            function formatRupiah(v) {
+                return Number(v || 0).toLocaleString('id-ID');
+            }
+
+            function formatTanggal(s) {
+                if (!s) return '-';
+                const p = String(s).split('-');
+                const b = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                           'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return parseInt(p[2], 10) + ' ' + b[parseInt(p[1], 10) - 1] + ' ' + p[0];
+            }
+
+            // Ubah angka menjadi terbilang bahasa Indonesia
+            function terbilang(n) {
+                const angka = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam',
+                               'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+                function urai(x) {
+                    if (x < 12) return angka[x];
+                    if (x < 20) return urai(x - 10) + ' belas';
+                    if (x < 100) return urai(Math.floor(x / 10)) + ' puluh ' + urai(x % 10);
+                    if (x < 200) return 'seratus ' + urai(x - 100);
+                    if (x < 1000) return urai(Math.floor(x / 100)) + ' ratus ' + urai(x % 100);
+                    if (x < 2000) return 'seribu ' + urai(x - 1000);
+                    if (x < 1000000) return urai(Math.floor(x / 1000)) + ' ribu ' + urai(x % 1000);
+                    if (x < 1000000000) return urai(Math.floor(x / 1000000)) + ' juta ' + urai(x % 1000000);
+                    if (x < 1000000000000) return urai(Math.floor(x / 1000000000)) + ' miliar ' + urai(x % 1000000000);
+                    return urai(Math.floor(x / 1000000000000)) + ' triliun ' + urai(x % 1000000000000);
+                }
+                const raw = Number(n);
+                const absRaw = Math.floor(Math.abs(isFinite(raw) ? raw : 0));
+                const words = urai(absRaw).replace(/\s+/g, ' ').trim();
+                const teks = (!words || words === 'nol') ? 'nol rupiah' : words + ' rupiah';
+                return (raw < 0 ? 'minus ' + teks : teks);
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            // ==== Kirim ke antrean tanda tangan (doc.simtkd.com) ====
+            var metaTtd = { jenis: 'SKP Daerah', refId: id, nomor: '', tanggal: '', judul: '', penandatangan: [] };
+
+            function kirimTtd() {
+                var btn = document.getElementById('btnKirimTtd');
+                var sheet = document.getElementById('skpSheet');
+                if (!btn || !sheet) return;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+                var cssText = '';
+                try {
+                    var linkCss = document.querySelector('link[href*="dashboard.css"]');
+                    var req = new XMLHttpRequest();
+                    req.open('GET', linkCss ? linkCss.getAttribute('href') : '../css/dashboard.css', false);
+                    req.send();
+                    if (req.status >= 200 && req.status < 300) cssText += req.responseText;
+                } catch (e) { /* abaikan */ }
+                document.querySelectorAll('style').forEach(function (st) { cssText += '\n' + st.textContent; });
+                cssText += '\n.skp-sheet{position:relative;}\n#docArea .ttd-slot img{max-width:200px;max-height:64px;display:block;}\n';
+
+                var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml(metaTtd.judul) + '</title><style>' + cssText + '</style></head>' +
+                    '<body style="margin:0;background:#fff;"><div id="docArea">' + sheet.outerHTML + '</div></body></html>';
+
+                var body = new URLSearchParams();
+                body.append('action', 'kirim');
+                body.append('jenis', metaTtd.jenis);
+                body.append('ref_id', String(metaTtd.refId || ''));
+                body.append('nomor', metaTtd.nomor || '');
+                body.append('judul', metaTtd.judul || '');
+                body.append('tanggal', metaTtd.tanggal || '');
+                body.append('konten_html', html);
+                if (metaTtd.penandatangan && metaTtd.penandatangan.length) {
+                    body.append('penandatangan', JSON.stringify(metaTtd.penandatangan));
+                }
+
+                fetch('../api/dokumen.php', { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        if (d && d.success) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                            var t = document.createElement('div');
+                            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0e2140;color:#fff;padding:12px 18px;border-radius:8px;z-index:9999;font:13px -apple-system,system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25)';
+                            t.textContent = d.message || 'Dokumen terkirim ke antrean tanda tangan.';
+                            document.body.appendChild(t);
+                            setTimeout(function () { t.remove(); }, 4000);
+                        } else {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                            alert((d && d.message) || 'Gagal mengirim dokumen.');
+                        }
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                        alert('Gagal mengirim (jaringan).');
+                    });
+            }
+
+            function showNotFound() {
+                document.getElementById('skpNotFound').style.display = 'block';
+                document.getElementById('skpSheet').style.display = 'none';
+            }
+
+            if (!id) {
+                showNotFound();
+                return;
+            }
+
+            fetch('../api/skp.php?id=' + encodeURIComponent(id))
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data || !data.success || !data.skp) {
+                        showNotFound();
+                        return;
+                    }
+                    var s = data.skp;
+                    // Kop dokumen
+                    document.getElementById('docInstansi').textContent = (s.skpd || 'DAERAH').toUpperCase();
+                    document.getElementById('docNomorUrut').textContent = s.nomor_skp || '';
+                    metaTtd.nomor = s.nomor_skp || '';
+                    metaTtd.tanggal = s.tanggal || '';
+                    metaTtd.judul = 'SKP Daerah - ' + (s.nomor_skp || id);
+
+                    // Identitas wajib pajak
+                    var masa = '';
+                    if (s.masa_pajak_dari && s.masa_pajak_akhir) {
+                        masa = formatTanggal(s.masa_pajak_dari) + ' s.d. ' + formatTanggal(s.masa_pajak_akhir);
+                    } else if (s.masa_pajak_dari || s.masa_pajak_akhir) {
+                        masa = formatTanggal(s.masa_pajak_dari || s.masa_pajak_akhir);
+                    }
+                    document.getElementById('fMasa').textContent = masa || '-';
+                    document.getElementById('fTahun').textContent =
+                        String(s.masa_pajak_dari || s.masa_pajak_akhir || s.tanggal || '').split('-')[0] || '-';
+                    document.getElementById('fNama').textContent = s.nama_penyetor || '-';
+                    document.getElementById('fAlamat').textContent = s.alamat || '-';
+                    document.getElementById('fNpwpd').textContent = s.npwpd || '-';
+                    document.getElementById('fJatuh').textContent = formatTanggal(s.jatuh_tempo);
+
+                    // Rincian ketetapan (satu baris: akun penerimaan terpilih di SKP)
+                    var rp = function (n) { return Number(n || 0).toLocaleString('id-ID') + ',-'; };
+                    document.getElementById('fKode').textContent = s.akun_kode || '-';
+                    document.getElementById('fUraian').textContent = s.jenis_pajak || '-';
+                    document.getElementById('fJumlah').textContent = rp(s.nilai_keputusan);
+                    document.getElementById('fPokok').textContent = rp(s.nilai_keputusan);
+                    document.getElementById('fBunga').textContent = '0,-';
+                    document.getElementById('fKenaikan').textContent = '0,-';
+                    document.getElementById('fTotal').textContent = rp(s.nilai_keputusan);
+                    document.getElementById('fHuruf').textContent = terbilang(s.nilai_keputusan);
+
+                    // Tanda tangan Pengguna Anggaran
+                    document.getElementById('signKota').textContent = s.skpd || 'Kabupaten';
+                    document.getElementById('signTanggal').textContent = ', ' + formatTanggal(s.tanggal);
+                    document.getElementById('signName').textContent = s.dibuat_oleh || '. ……………………';
+
+                    // Bagian TANDA TERIMA (sisi potong)
+                    document.getElementById('stubNomor').textContent = s.nomor_skp || '';
+                    document.getElementById('stubNama').textContent = s.nama_penyetor || '';
+                    document.getElementById('stubAlamat').textContent = s.alamat || '';
+                    document.getElementById('stubNpwpd').textContent = s.npwpd || '';
+                    document.getElementById('stubSign').textContent = s.nama_penyetor || '';
+
+                    // Penandatangan dokumen SKP Daerah
+                    metaTtd.penandatangan = [{
+                        user: 'self',
+                        urutan: 1,
+                        jabatan: 'Pengguna Anggaran',
+                        nama: s.dibuat_oleh || ''
+                    }];
+                })
+                .catch(function () {
+                    showNotFound();
+                });
+
+            // ==== Kirim ke Tanda Tangan ====
+            var btnTtd = document.getElementById('btnKirimTtd');
+            if (btnTtd) btnTtd.addEventListener('click', kirimTtd);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPJ Bendahara Penerimaan - SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* ===== Toolbar cetak ===== */
+        .print-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .print-toolbar .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .print-toolbar .filter-group label { font-size: 13px; color: #0f172a; font-weight: 600; }
+        .print-toolbar .filter-group input[type="date"],
+        .print-toolbar .filter-group input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid #d7dde5;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* ===== Dokumen LPJ Bendahara Penerimaan (format resmi) ===== */
+        .lpj-sheet {
+            max-width: none;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d7dde5;
+            border-radius: 12px;
+            padding: 32px 36px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+            color: #000;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 14px;
+        }
+        .lpj-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0 0 16px;
+        }
+        .lpj-info {
+            border-collapse: collapse;
+            margin: 0 0 18px;
+        }
+        .lpj-info td { padding: 1px 8px 1px 0; }
+        .lpj-info td.lbl { width: 90px; }
+        .lpj-info td.sep { width: 10px; }
+        .lpj-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .lpj-table td { padding: 2px 4px; vertical-align: bottom; }
+        .lpj-table td.no { width: 5%; }
+        .lpj-table td.gap { width: 12%; }
+        .lpj-table td.rp { width: 8%; white-space: nowrap; }
+        .lpj-table td.num {
+            width: 22%;
+            text-align: right;
+            white-space: nowrap;
+            text-decoration: underline;
+        }
+        .lpj-table td.lbl.sub { padding-left: 30px; }
+        .lpj-table tr.sec td { padding-top: 10px; }
+        .lpj-sign {
+            margin-top: 26px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .lpj-sign .col { width: 48%; }
+        .lpj-sign p { margin: 0; line-height: 1.6; }
+        .lpj-sign .name { min-height: 52px; display: block; text-decoration: underline; }
+
+        /* ===== Saat mencetak: hanya dokumen, potret ===== */
+        @page {
+            size: A4 portrait;
+            margin: 14mm;
+        }
+
+        /* ===== Saat mencetak: hanya dokumen ===== */
+        @media print {
+            .sidebar, .topbar, .footer, .overlay, .print-toolbar { display: none !important; }
+            .main-wrapper { margin-left: 0 !important; }
+            .content { padding: 0 !important; margin: 0 !important; }
+            body { background: #ffffff !important; }
+            .lpj-sheet {
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- ================= OVERLAY (mobile) ================= -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Penerimaan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>STS</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">LPJ</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item notification">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="topbar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate">--</span>
+                </div>
+                <div class="topbar-item user">
+                    <div class="user-avatar small">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span id="topbarUserName">Admin Dinas</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="content">
+<div class="print-toolbar">
+                <div class="filter-group">
+                    <label for="dari">Periode</label>
+                    <input type="date" id="dari">
+                    <label for="akhir">s.d.</label>
+                    <input type="date" id="akhir">
+                    <label for="namaPa">Pengguna Anggaran</label>
+                    <input type="text" id="namaPa" placeholder="Nama pengguna anggaran" style="min-width:190px;">
+                    <label for="nipPa">NIP</label>
+                    <input type="text" id="nipPa" placeholder="NIP pengguna anggaran" style="min-width:140px;">
+                    <label for="nipBend">NIP Bendahara</label>
+                    <input type="text" id="nipBend" placeholder="NIP bendahara penerimaan" style="min-width:140px;">
+                    <button type="button" class="btn btn-outline" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                </div>
+                <div class="filter-group">
+                    <button type="button" class="btn btn-primary" id="btnKirimTtd"><i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan</button>
+                    <button type="button" class="btn btn-dark" id="btnCetak"><i class="fas fa-print"></i> Cetak LPJ</button>
+                </div>
+            </div>
+
+            <div class="lpj-sheet" id="lpjSheet">
+                <p class="lpj-title">LAPORAN PERTANGGUNGJAWABAN ADMINISTRATIF<br>BENDAHARA PENERIMAAN</p>
+                <table class="lpj-info">
+                    <tbody>
+                        <tr><td class="lbl">SKPD</td><td class="sep">:</td><td id="lpjSkpd">-</td></tr>
+                        <tr><td class="lbl">PERIODE</td><td class="sep">:</td><td id="lpjPeriode">-</td></tr>
+                    </tbody>
+                </table>
+
+                <table class="lpj-table">
+                    <tbody>
+                        <tr class="sec">
+                            <td class="no">A.</td><td class="lbl">Penerimaan</td><td class="gap"></td>
+                            <td class="rp">Rp</td><td class="num" id="aTotal">-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">1. Tunai melalui bendahara penerimaan.</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="a1">0,-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">2. Tunai melalui bend. penerimaan pembantu</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="a2">0,-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">3. Melalui ke rekening bendahara penerimaan</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="a3">0,-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">4. Melalui ke rekening kas umum daerah</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="a4">0,-</td>
+                        </tr>
+                        <tr class="sec">
+                            <td class="no">B.</td><td class="lbl">Jumlah penerimaan yang harus disetorkan (A1+A2+A3+A4)</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="bTotal">-</td>
+                        </tr>
+                        <tr class="sec">
+                            <td class="no">C.</td><td class="lbl">Jumlah penyetoran</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="cTotal">-</td>
+                        </tr>
+                        <tr class="sec">
+                            <td class="no">D.</td><td class="lbl">Saldo Kas di Bendahara</td><td class="gap"></td>
+                            <td class="rp">Rp</td><td class="num" id="dTotal">-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">1. Bendahara Penerimaan</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="d1">0,-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">2. Bendahara Penerimaan Pembantu &hellip;&hellip;</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="d2">0,-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">3. Bendahara Penerimaan Pembantu &hellip;&hellip;</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="d3">0,-</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td><td class="lbl sub">4. dst &hellip;&hellip;</td><td class="gap"></td>
+                            <td class="rp">Rp.</td><td class="num" id="d4">0,-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="lpj-sign">
+                    <div class="col">
+                        <p>Menyetujui:</p>
+                        <p>Pengguna Anggaran</p>
+                        <p class="name" id="signNamaPa">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</p>
+                        <p>NIP. <span id="nipPaText" data-nip-ttd="nilai">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></p>
+                    </div>
+                    <div class="col">
+                        <p><span id="signKota">Kabupaten</span>, <span id="signTanggal">-</span></p>
+                        <p>Bendahara Penerimaan</p>
+                        <p class="name" id="signNamaBendahara">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</p>
+                        <p>NIP. <span id="nipBendText" data-nip-ttd="nilai">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span>
+        </footer>
+    </div>
+
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/ttd-nip.js"></script>
+    <script>
+(function () {
+            'use strict';
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = String(str || '');
+                return div.innerHTML;
+            }
+
+            function formatTanggal(s) {
+                if (!s) return '-';
+                const p = String(s).split('-');
+                const b = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                           'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return parseInt(p[2], 10) + ' ' + b[parseInt(p[1], 10) - 1] + ' ' + p[0];
+            }
+
+            function bulanTahun(s) {
+                if (!s) return '-';
+                const p = String(s).split('-');
+                const b = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                           'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return b[parseInt(p[1], 10) - 1] + ' ' + p[0];
+            }
+
+            function formatRp(n) {
+                return Number(n || 0).toLocaleString('id-ID') + ',-';
+            }
+
+            function periodeText(dari, akhir) {
+                if (dari && akhir) {
+                    var pd = String(dari).split('-');
+                    var pa = String(akhir).split('-');
+                    if (pd[0] === pa[0] && pd[1] === pa[1]) return bulanTahun(akhir);
+                    return formatTanggal(dari) + ' s.d. ' + formatTanggal(akhir);
+                }
+                if (akhir) return bulanTahun(akhir);
+                if (dari) return bulanTahun(dari);
+                return '-';
+            }
+
+            function loadLpj() {
+                var dari = document.getElementById('dari').value;
+                var akhir = document.getElementById('akhir').value;
+                var qs = '?lpj=1' + (dari ? '&dari=' + encodeURIComponent(dari) : '') +
+                         (akhir ? '&akhir=' + encodeURIComponent(akhir) : '');
+                fetch('../api/sts.php' + qs)
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (data && data.success) renderLpj(data);
+                    })
+                    .catch(function () { /* biarkan */ });
+            }
+
+            function renderLpj(data) {
+                var p = data.penerimaan || { total: 0, tunai: 0, non_tunai: 0 };
+                var akhir = document.getElementById('akhir').value;
+                var hariIni = new Date().toISOString().slice(0, 10);
+
+                // Kop / identitas
+                document.getElementById('lpjSkpd').textContent = data.skpd || '-';
+                document.getElementById('lpjPeriode').textContent = periodeText(
+                    document.getElementById('dari').value, akhir || hariIni);
+                document.getElementById('signKota').textContent = data.skpd || 'Kabupaten';
+                document.getElementById('signTanggal').textContent = formatTanggal(akhir || hariIni);
+
+                // A. Penerimaan (rincian per metode penyetoran)
+                document.getElementById('a1').textContent = formatRp(p.tunai);
+                document.getElementById('a2').textContent = '0,-';
+                document.getElementById('a3').textContent = formatRp(p.non_tunai);
+                document.getElementById('a4').textContent = '0,-';
+                document.getElementById('aTotal').textContent = formatRp(p.total);
+
+                // B. Jumlah penerimaan yang harus disetorkan
+                document.getElementById('bTotal').textContent = formatRp(p.total);
+
+                // C. Jumlah penyetoran (via STS)
+                document.getElementById('cTotal').textContent = formatRp(data.penyetoran);
+
+                // D. Saldo Kas di Bendahara (B - C)
+                document.getElementById('dTotal').textContent = formatRp(data.saldo);
+                document.getElementById('d1').textContent = formatRp(data.saldo);
+                document.getElementById('d2').textContent = '0,-';
+                document.getElementById('d3').textContent = '0,-';
+                document.getElementById('d4').textContent = '0,-';
+
+                // Tanda tangan (prefill bila input masih kosong)
+                var inPa = document.getElementById('namaPa');
+                if (!inPa.value.trim() && data.kuasa_pengguna_anggaran) {
+                    inPa.value = data.kuasa_pengguna_anggaran;
+                }
+                document.getElementById('signNamaPa').textContent = inPa.value.trim() || '\u2026\u2026\u2026\u2026\u2026';
+                if (data.bendahara) {
+                    document.getElementById('signNamaBendahara').textContent = data.bendahara;
+                }
+            }
+
+            document.getElementById('btnTampilkan').addEventListener('click', loadLpj);
+            document.getElementById('btnCetak').addEventListener('click', function () { window.print(); });
+
+            // ---------- Nama penandatangan dari dokumen (buang placeholder titik-titik) ----------
+            function bersihNama(v) {
+                v = String(v || '').trim();
+                return /^[.…\u2026]+$/.test(v) ? '' : v;
+            }
+
+            // ---------- Kirim ke antrean tanda tangan (doc.simtkd.com) ----------
+            function kirimTtd() {
+                var btn = document.getElementById('btnKirimTtd');
+                var sheet = document.getElementById('lpjSheet');
+                if (!btn || !sheet) return;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+                // Bangun HTML mandiri (CSS tertanam) agar bisa ditandatangani
+                var cssText = '';
+                try {
+                    var linkCss = document.querySelector('link[href*="dashboard.css"]');
+                    var req = new XMLHttpRequest();
+                    req.open('GET', linkCss ? linkCss.getAttribute('href') : '../css/dashboard.css', false);
+                    req.send();
+                    if (req.status >= 200 && req.status < 300) cssText += req.responseText;
+                } catch (e) { /* abaikan */ }
+                document.querySelectorAll('style').forEach(function (st) { cssText += '\n' + st.textContent; });
+                cssText += '\n.lpj-sheet{position:relative;}\n#docArea .ttd-slot img{max-width:200px;max-height:64px;display:block;}\n';
+
+                var dari = document.getElementById('dari').value;
+                var akhir = document.getElementById('akhir').value || new Date().toISOString().slice(0, 10);
+                var judul = 'LPJ Bendahara Penerimaan - Periode ' + periodeText(dari, akhir);
+
+                var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml(judul) + '</title><style>' + cssText + '</style></head>' +
+                    '<body style="margin:0;background:#fff;"><div id="docArea">' + sheet.outerHTML + '</div></body></html>';
+
+                var body = new URLSearchParams();
+                body.append('action', 'kirim');
+                body.append('jenis', 'LPJ Penerimaan');
+                body.append('ref_id', '');
+                body.append('nomor', '');
+                body.append('judul', judul);
+                body.append('tanggal', akhir);
+                body.append('konten_html', html);
+                var pttd = [
+                    { user: '', urutan: 1, jabatan: 'Pengguna Anggaran', nama: bersihNama(document.getElementById('signNamaPa').textContent) },
+                    { user: 'self', urutan: 2, jabatan: 'Bendahara Penerimaan', nama: bersihNama(document.getElementById('signNamaBendahara').textContent) }
+                ];
+                if (pttd[0].nama || pttd[1].nama) {
+                    body.append('penandatangan', JSON.stringify(pttd));
+                }
+
+                fetch('../api/dokumen.php', { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        if (d && d.success) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                            var t = document.createElement('div');
+                            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0e2140;color:#fff;padding:12px 18px;border-radius:8px;z-index:9999;font:13px -apple-system,system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25)';
+                            t.textContent = d.message || 'Dokumen terkirim ke antrean tanda tangan.';
+                            document.body.appendChild(t);
+                            setTimeout(function () { t.remove(); }, 4000);
+                        } else {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                            alert((d && d.message) || 'Gagal mengirim dokumen.');
+                        }
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                        alert('Gagal mengirim (jaringan).');
+                    });
+            }
+            // NIP dari Profil (Pengaturan > Profil): isi otomatis bila input masih kosong
+            if (window.SIMTKD_TTD) {
+                window.SIMTKD_TTD.muat(function (nip) {
+                    [['nipPa', 'nipPaText'], ['nipBend', 'nipBendText']].forEach(function (pair) {
+                        var inp = document.getElementById(pair[0]);
+                        var out = document.getElementById(pair[1]);
+                        if (inp && !inp.value.trim() && nip) {
+                            inp.value = nip;
+                            if (out) out.textContent = nip;
+                        }
+                    });
+                });
+            }
+
+            document.getElementById('btnKirimTtd').addEventListener('click', kirimTtd);
+
+            // Ketik langsung memperbarui dokumen
+            document.getElementById('namaPa').addEventListener('input', function () {
+                document.getElementById('signNamaPa').textContent = this.value.trim() || '\u2026\u2026\u2026\u2026\u2026';
+            });
+            document.getElementById('nipPa').addEventListener('input', function () {
+                document.getElementById('nipPaText').textContent = this.value.trim() || '\u2026\u2026\u2026\u2026\u2026';
+            });
+            document.getElementById('nipBend').addEventListener('input', function () {
+                document.getElementById('nipBendText').textContent = this.value.trim() || '\u2026\u2026\u2026\u2026\u2026';
+            });
+
+            // ---------- Prefill: sesi + periode default (1 Jan tahun ini s.d. hari ini) ----------
+            fetch('../api/session.php')
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!d.success) {
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    var now = new Date();
+                    document.getElementById('dari').value = now.getFullYear() + '-01-01';
+                    document.getElementById('akhir').value = now.toISOString().slice(0, 10);
+                    loadLpj();
+                })
+                .catch(function () { /* biarkan */ });
+        })();
+    </script>
+</body>
+</html>

@@ -46,6 +46,20 @@ var SIMTKD_API = {
         var self = this;
         var t = this.getToken();
 
+        // Tombol "Kembali ke Penatausahaan": di produksi subdomain punya document
+        // root sendiri (href absolut https://simtkd.com/...). Saat diuji LOKAL,
+        // arahkan ke dashboard app utama yang sejajar folder.
+        try {
+            var host = window.location.hostname;
+            if (host === '127.0.0.1' || host === 'localhost') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    Array.prototype.forEach.call(document.querySelectorAll('a[data-back-main]'), function (a) {
+                        a.setAttribute('href', '/dashboard.html');
+                    });
+                });
+            }
+        } catch (e) {}
+
         // Peringatan bila tidak ada token (cegah tampil data orang lain)
         if (!t) {
             document.addEventListener('DOMContentLoaded', function () {

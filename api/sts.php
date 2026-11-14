@@ -7,6 +7,7 @@
  *   GET ?status=aktif&q=   : daftar STS + jumlah per status
  *   GET ?id=X              : detail STS (termasuk rincian STBP)
  *   POST action=create     : buat STS baru (berisi pilihan STBP)
+ *   POST action=delete     : hapus STS (status dihapus, STBP bisa dipakai lagi)
  *
  * Wajib login. Respons JSON.
  */
@@ -17,12 +18,16 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 if (!isLoggedIn()) {
     jsonResponse(false, 'Tidak terautentikasi.', [], 401);
 }
 
 $pdo  = db();
-$skpd = (string) ($_SESSION['instansi'] ?? ''); // pemisahan data multi-dinas
+$skpd = requireInstansi(); // pemisahan data multi-dinas (fail-closed)
 
 $STATUS_LIST = ['aktif', 'dihapus'];
 
@@ -30,6 +35,130 @@ $STATUS_LIST = ['aktif', 'dihapus'];
 // GET - Daftar / Detail STS
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // --- LPJ Bendahara Penerimaan (laporan pertanggungjawaban) ---
+    if (input('lpj', '') === '1') {
+        $dari  = input('dari', '');
+        $akhir = input('akhir', '');
+        if ($dari !== '' && !isValidTanggal($dari))   $dari = '';
+        if ($akhir !== '' && !isValidTanggal($akhir)) $akhir = '';
+
+        // A. Penerimaan: STBP tervalidasi dalam periode, dirinci per metode penyetoran
+        $sql1 = "SELECT COALESCE(SUM(s.jumlah),0) AS total,
+                        COALESCE(SUM(CASE WHEN sp.metode_penyetoran = 'tunai' THEN s.jumlah ELSE 0 END),0) AS tunai,
+                        COALESCE(SUM(CASE WHEN sp.metode_penyetoran <> 'tunai' THEN s.jumlah ELSE 0 END),0) AS non_tunai
+                 FROM stbp s
+                 LEFT JOIN stbp_pembayaran sp ON sp.stbp_id = s.id
+                 WHERE s.status = 'sudah_divalidasi'"
+              . ($skpd !== '' ? " AND s.skpd = ?" : "")
+              . ($dari !== '' ? " AND s.tanggal >= ?" : "")
+              . ($akhir !== '' ? " AND s.tanggal <= ?" : "");
+        $params = [];
+        if ($skpd !== '') $params[] = $skpd;
+        if ($dari !== '') $params[] = $dari;
+        if ($akhir !== '') $params[] = $akhir;
+        $stmt1 = $pdo->prepare($sql1);
+        $stmt1->execute($params);
+        $r1 = $stmt1->fetch();
+        $penerimaan = [
+            'total'     => (float) $r1['total'],
+            'tunai'     => (float) $r1['tunai'],
+            'non_tunai' => (float) $r1['non_tunai'],
+        ];
+
+        // C. Jumlah penyetoran: total STS aktif dalam periode
+        $sql2 = "SELECT COALESCE(SUM(st.total),0) FROM sts st WHERE st.status = 'aktif'"
+              . ($skpd !== '' ? " AND st.skpd = ?" : "")
+              . ($dari !== '' ? " AND st.tanggal_sts >= ?" : "")
+              . ($akhir !== '' ? " AND st.tanggal_sts <= ?" : "");
+        $stmt2 = $pdo->prepare($sql2);
+        $stmt2->execute($params);
+        $penyetoran = (float) $stmt2->fetchColumn();
+
+        // Kuasa Pengguna Anggaran: dari STS terbaru dalam periode (blok tanda tangan kiri)
+        $sqlK = "SELECT st.kuasa_pengguna_anggaran FROM sts st
+                 WHERE st.status = 'aktif' AND st.kuasa_pengguna_anggaran <> ''"
+              . ($skpd !== '' ? " AND st.skpd = ?" : "")
+              . ($dari !== '' ? " AND st.tanggal_sts >= ?" : "")
+              . ($akhir !== '' ? " AND st.tanggal_sts <= ?" : "")
+              . " ORDER BY st.tanggal_sts DESC, st.id DESC LIMIT 1";
+        $stmtK = $pdo->prepare($sqlK);
+        $stmtK->execute($params);
+        $kuasa = (string) ($stmtK->fetchColumn() ?: '');
+
+        jsonResponse(true, 'OK', [
+            'periode' => ['dari' => $dari, 'akhir' => $akhir],
+            'skpd'    => $skpd,
+            'penerimaan' => $penerimaan,
+            'penyetoran' => $penyetoran,
+            'saldo'   => $penerimaan['total'] - $penyetoran,
+            'bendahara' => (string) ($_SESSION['nama'] ?? ''),
+            'kuasa_pengguna_anggaran' => $kuasa,
+        ]);
+    }
+
+    // --- Register STS (laporan rekap) ---
+    if (input('register', '') === '1') {
+        $dari  = input('dari', '');
+        $akhir = input('akhir', '');
+        if ($dari !== '' && !isValidTanggal($dari))   $dari = '';
+        if ($akhir !== '' && !isValidTanggal($akhir)) $akhir = '';
+
+        $where  = "st.status = 'aktif'";
+        $params = [];
+        if ($skpd !== '') { $where .= " AND st.skpd = ?"; $params[] = $skpd; }
+        if ($dari !== '') { $where .= " AND st.tanggal_sts >= ?"; $params[] = $dari; }
+        if ($akhir !== '') { $where .= " AND st.tanggal_sts <= ?"; $params[] = $akhir; }
+
+        // Satu baris = satu baris pendapatan (snapshot sts_detail);
+        // penyetor diambil dari STBP terkait, fallback ke penyetor STS.
+        $sql = "SELECT st.nomor_sts, st.tanggal_sts,
+                       sd.akun_kode, sd.akun_nama, sd.jumlah,
+                       COALESCE(NULLIF(sp.nama_penyetor, ''), st.nama_penyetor) AS nama_penyetor
+                FROM sts st
+                JOIN sts_detail sd ON sd.sts_id = st.id
+                LEFT JOIN stbp s ON s.id = sd.stbp_id
+                LEFT JOIN stbp_pembayaran sp ON sp.stbp_id = s.id
+                WHERE $where
+                ORDER BY st.tanggal_sts ASC, st.id ASC, sd.id ASC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        $total = 0.0;
+        $data = array_map(function ($r) use (&$total) {
+            $jumlah = (float) $r['jumlah'];
+            $total += $jumlah;
+            return [
+                'nomor_sts'     => (string) $r['nomor_sts'],
+                'tanggal'       => (string) $r['tanggal_sts'],
+                'akun_kode'     => (string) $r['akun_kode'],
+                'akun_nama'     => (string) $r['akun_nama'],
+                'jumlah'        => $jumlah,
+                'nama_penyetor' => (string) ($r['nama_penyetor'] ?? ''),
+            ];
+        }, $rows);
+
+        // Kuasa Pengguna Anggaran: dari STS terbaru dalam periode (utk blok tanda tangan kiri)
+        $sqlK = "SELECT st.kuasa_pengguna_anggaran FROM sts st
+                 WHERE st.status = 'aktif' AND st.kuasa_pengguna_anggaran <> ''"
+              . ($skpd !== '' ? " AND st.skpd = ?" : "")
+              . ($dari !== '' ? " AND st.tanggal_sts >= ?" : "")
+              . ($akhir !== '' ? " AND st.tanggal_sts <= ?" : "")
+              . " ORDER BY st.tanggal_sts DESC, st.id DESC LIMIT 1";
+        $stmtK = $pdo->prepare($sqlK);
+        $stmtK->execute($params);
+        $kuasa = (string) ($stmtK->fetchColumn() ?: '');
+
+        jsonResponse(true, 'OK', [
+            'periode' => ['dari' => $dari, 'akhir' => $akhir],
+            'skpd'    => $skpd,
+            'rows'    => $data,
+            'total'   => $total,
+            'bendahara' => (string) ($_SESSION['nama'] ?? ''),
+            'kuasa_pengguna_anggaran' => $kuasa,
+        ]);
+    }
+
     // --- Detail satu STS ---
     $detailId = (int) input('id', '0');
     if ($detailId > 0) {
@@ -57,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'tanggal_acuan_dari' => (string) $row['tanggal_acuan_dari'],
                 'tanggal_acuan_akhir'=> (string) $row['tanggal_acuan_akhir'],
                 'mengetahui'         => (string) $row['mengetahui'],
+                'kuasa_pengguna_anggaran' => (string) ($row['kuasa_pengguna_anggaran'] ?? ''),
                 'nama_bank'          => (string) $row['nama_bank'],
                 'nomor_rekening'     => (string) $row['nomor_rekening'],
                 'nama_rekening'      => (string) $row['nama_rekening'],
@@ -149,6 +279,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $action = $body['action'] ?? 'create';
 
+    if ($action === 'delete') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+
+        $stmtCur = $pdo->prepare("SELECT id, status, nomor_sts FROM sts WHERE id = ?" . ($skpd !== '' ? " AND skpd = ?" : ""));
+        $stmtCur->execute($skpd !== '' ? [$id, $skpd] : [$id]);
+        $cur = $stmtCur->fetch();
+        if (!$cur) {
+            jsonResponse(false, 'STS tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+        if ((string) $cur['status'] === 'dihapus') {
+            jsonResponse(false, 'STS ini sudah dihapus.', [], 422);
+        }
+
+        $upd = $pdo->prepare("UPDATE sts SET status = 'dihapus' WHERE id = ?" . ($skpd !== '' ? " AND skpd = ?" : ""));
+        $params = [$id];
+        if ($skpd !== '') {
+            $params[] = $skpd;
+        }
+        $upd->execute($params);
+
+        jsonResponse(true, 'STS ' . (string) $cur['nomor_sts'] . ' berhasil dihapus. STBP di dalamnya bisa dipilih lagi.', [
+            'id'     => $id,
+            'status' => 'dihapus',
+        ]);
+    }
+
     if ($action !== 'create') {
         jsonResponse(false, 'Aksi tidak dikenali.', [], 422);
     }
@@ -159,12 +318,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal_dari = trim((string) ($body['tanggal_acuan_dari'] ?? ''));
     $tanggal_akhir= trim((string) ($body['tanggal_acuan_akhir'] ?? ''));
     $mengetahui   = trim((string) ($body['mengetahui'] ?? ''));
+    $kuasaKpa    = trim((string) ($body['kuasa_pengguna_anggaran'] ?? ''));
     $nama_bank    = trim((string) ($body['nama_bank'] ?? ''));
     $nomor_rek    = trim((string) ($body['nomor_rekening'] ?? ''));
     $nama_rek     = trim((string) ($body['nama_rekening'] ?? ''));
     $keterangan   = trim((string) ($body['keterangan'] ?? ''));
     // skpd selalu dari sesi (jangan percaya input klien)
-    $skpd         = trim((string) ($_SESSION['instansi'] ?? ''));
+    $skpd         = requireInstansi();
     $stbp_ids     = is_array($body['stbp_ids'] ?? null) ? array_map('intval', $body['stbp_ids']) : [];
 
     // Auto-generate nomor STS jika tidak diisi
@@ -189,13 +349,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         jsonResponse(false, 'Ada STBP yang belum divalidasi (tahap 3) sehingga tidak dapat dimasukkan ke STS.', [], 422);
     }
 
+    // Validasi: STBP yang sudah pernah dibuatkan STS tidak boleh dipilih lagi
+    $in2 = implode(',', array_fill(0, count($stbp_ids), '?'));
+    $chk2 = $pdo->prepare("SELECT COUNT(*) FROM sts_detail sd
+                           INNER JOIN sts st ON st.id = sd.sts_id
+                           WHERE sd.stbp_id IN ($in2) AND st.status = 'aktif'");
+    $chk2->execute($stbp_ids);
+    if ((int) $chk2->fetchColumn() > 0) {
+        jsonResponse(false, 'Ada STBP yang sudah pernah dibuatkan STS. STBP tersebut tidak dapat dipilih lagi.', [], 422);
+    }
+
     $pdo->beginTransaction();
     try {
         $stmt = $pdo->prepare("
             INSERT INTO sts (user_id, skpd, nomor_sts, nama_penyetor, tanggal_sts,
-                             tanggal_acuan_dari, tanggal_acuan_akhir, mengetahui,
+                             tanggal_acuan_dari, tanggal_acuan_akhir, mengetahui, kuasa_pengguna_anggaran,
                              nama_bank, nomor_rekening, nama_rekening, keterangan, total, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'aktif')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'aktif')
         ");
         $stmt->execute([
             $_SESSION['user_id'] ?? null,
@@ -206,6 +376,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tanggal_dari !== '' ? $tanggal_dari : null,
             $tanggal_akhir !== '' ? $tanggal_akhir : null,
             $mengetahui,
+            $kuasaKpa,
             $nama_bank,
             $nomor_rek,
             $nama_rek,

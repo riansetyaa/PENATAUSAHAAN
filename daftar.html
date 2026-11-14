@@ -2,8 +2,11 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar - SIM-TKD | Sistem Informasi Manajemen Tata Kelola Daerah</title>
+    <meta name="description" content="Daftar akun SIM-TKD (Modul Edukasi) - Sistem Informasi Manajemen Tata Kelola Daerah dari Politeknik Negeri Bandung.">
+    <link rel="canonical" href="https://simtkd.com/daftar.html">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -60,7 +63,9 @@
                 <!-- Peringatan -->
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <span><strong>Perhatian!</strong> Akun akan diverifikasi oleh administrator sebelum dapat digunakan. Isi data dengan benar dan lengkap.</span>
+                    <span><strong>Perhatian!</strong> Setelah mendaftar, akun Anda berstatus <strong>PENDING</strong>.
+                    Aktifkan akun dengan kode OTP yang dikirim ke email Anda melalui halaman
+                    <strong>Aktivasi Akun</strong> sebelum bisa login. Isi data dengan benar dan lengkap.</span>
                 </div>
 
                 <!-- Form Daftar -->
@@ -107,11 +112,14 @@
                                 type="email"
                                 id="email"
                                 class="form-control"
-                                placeholder="contoh@email.com"
+                                placeholder="nama@polban.ac.id"
                                 autocomplete="off"
                                 required
                             >
                             <span class="field-error" id="errEmail"></span>
+                            <span style="display:block;font-size:12px;color:#64748b;margin-top:4px;">
+                                <i class="fas fa-info-circle"></i> Pendaftaran hanya menggunakan email domain <strong>@polban.ac.id</strong>
+                            </span>
                         </div>
                     </div>
 
@@ -175,7 +183,10 @@
                             class="form-control"
                             placeholder="Contoh: Dinas Kepemudaan dan Olahraga"
                             autocomplete="off"
+                            maxlength="150"
+                            required
                         >
+                        <span class="field-error" id="errInstansi"></span>
                     </div>
 
                     <!-- Wilayah: Provinsi & Kota -->

@@ -15,18 +15,57 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+// Pada fase 3b-baca hanya aksi GET yang dipetakan di config/cutover.php;
+// mutasi (create/verifikasi/pencairan) tetap dilayani di sini.
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 if (!isLoggedIn()) {
     jsonResponse(false, 'Tidak terautentikasi.', [], 401);
 }
 
 $pdo  = db();
-$skpd = (string) ($_SESSION['instansi'] ?? '');
+$skpd = requireInstansi(); // fail-closed: tolak jika instansi kosong
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Helper nomor dokumen otomatis
 function genNomor(string $prefix, PDO $pdo, string $table): string {
     $suffix = strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
     return $prefix . '-' . date('Ymd') . '-' . $suffix;
+}
+
+/**
+ * Hitung label periode SPD dari tanggal + jenis periode (sesuai Kebijakan SPD).
+ * Bulanan -> "Januari 2026" | Triwulanan -> "Triwulan I 2026" | Tahunan -> "2026".
+ */
+function hitungPeriodeSpd(string $tgl, string $jenisPeriode): string
+{
+    $bulanID = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    $y = (int) substr($tgl, 0, 4);
+    $m = (int) substr($tgl, 5, 2);
+    if ($y < 2000 || $m < 1 || $m > 12) return '';
+    if ($jenisPeriode === 'Triwulanan') {
+        $rom = ['I', 'II', 'III', 'IV'][(intdiv($m - 1, 3))];
+        return "Triwulan {$rom} {$y}";
+    }
+    if ($jenisPeriode === 'Tahunan') return (string) $y;
+    return $bulanID[$m] . ' ' . $y; // Bulanan (default)
+}
+
+/**
+ * Ambil Kebijakan SPD aktif milik instansi (terbaru).
+ */
+function kebijakanSpdAktif(PDO $pdo, string $skpd): ?array
+{
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM kebijakan_spd WHERE skpd = ? AND status = 'aktif' ORDER BY id DESC LIMIT 1");
+        $stmt->execute([$skpd]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    } catch (Throwable $e) {
+        return null; // tabel belum ada -> lewati validasi
+    }
 }
 function skpdCond(string $alias, string $skpd): array {
     if ($skpd === '') return ['', []];
@@ -91,7 +130,9 @@ if ($method === 'GET') {
     if ($action === 'spp_list') {
         $status = (string) ($_GET['status'] ?? '');
         $c = skpdCond('s', $skpd);
-        $sql = "SELECT s.*, d.nomor_spd, r.nama_rekanan, l.nomor_lpj, t.nomor_pengajuan FROM spp s
+        $sql = "SELECT s.*, d.nomor_spd, d.tanggal AS spd_tanggal, d.jumlah AS spd_jumlah,
+                       (d.jumlah - COALESCE((SELECT SUM(x.jumlah) FROM spp x WHERE x.spd_id = s.spd_id AND x.status <> 'ditolak'), 0)) AS spd_sisa,
+                       r.nama_rekanan, l.nomor_lpj, t.nomor_pengajuan FROM spp s
                 LEFT JOIN spd d ON d.id = s.spd_id
                 LEFT JOIN rekanan r ON r.id = s.rekanan_id
                 LEFT JOIN lpj l ON l.id = s.lpj_id
@@ -100,19 +141,59 @@ if ($method === 'GET') {
         if ($status !== '' && $status !== 'semua') { $sql .= " AND s.status = ?"; $c[1][] = $status; }
         $sql .= " ORDER BY s.tanggal DESC, s.id DESC";
         $stmt = $pdo->prepare($sql); $stmt->execute($c[1]);
-        jsonResponse(true, 'OK', ['data' => $stmt->fetchAll()]);
+        $rows = $stmt->fetchAll();
+        // Lampirkan rincian detail (spp_detail) per SPP
+        $ids = array_map(function ($r) { return (int) $r['id']; }, $rows);
+        $details = [];
+        if ($ids) {
+            $ph = implode(',', array_fill(0, count($ids), '?'));
+            $st = $pdo->prepare("SELECT * FROM spp_detail WHERE spp_id IN ($ph) ORDER BY id ASC");
+            $st->execute($ids);
+            foreach ($st->fetchAll() as $dd) {
+                $details[(int) $dd['spp_id']][] = [
+                    'kode_rekening' => (string) $dd['kode_rekening'],
+                    'uraian'        => (string) $dd['uraian'],
+                    'jumlah'        => (float) $dd['jumlah'],
+                ];
+            }
+        }
+        foreach ($rows as &$r) { $r['details'] = $details[(int) $r['id']] ?? []; }
+        unset($r);
+        jsonResponse(true, 'OK', ['data' => $rows]);
     }
 
     if ($action === 'spm_list') {
         $status = (string) ($_GET['status'] ?? '');
         $c = skpdCond('s', $skpd);
-        $sql = "SELECT s.*, p.nomor_spp FROM spm s
+        $sql = "SELECT s.*, p.nomor_spp, p.jenis_spp, p.keperluan, p.jumlah AS spp_jumlah, p.total_potongan, p.total_pajak, d.nomor_spd FROM spm s
                 LEFT JOIN spp p ON p.id = s.spp_id
+                LEFT JOIN spd d ON d.id = p.spd_id
                 WHERE 1=1{$c[0]}";
         if ($status !== '' && $status !== 'semua') { $sql .= " AND s.status = ?"; $c[1][] = $status; }
         $sql .= " ORDER BY s.tanggal DESC, s.id DESC";
         $stmt = $pdo->prepare($sql); $stmt->execute($c[1]);
-        jsonResponse(true, 'OK', ['data' => $stmt->fetchAll()]);
+        $rows = $stmt->fetchAll();
+        // Lampirkan potongan, pajak (dari spp_potongan_pajak) & rincian detail (spp_detail) per SPM via spp_id
+        foreach ($rows as &$r) {
+            $r['potongan'] = [];
+            $r['pajak']    = [];
+            $r['details']  = [];
+            if (!empty($r['spp_id'])) {
+                $st = $pdo->prepare("SELECT jenis, nama, nilai FROM spp_potongan_pajak WHERE spp_id = ? ORDER BY id ASC");
+                $st->execute([(int) $r['spp_id']]);
+                foreach ($st->fetchAll() as $pp) {
+                    $arr = ($pp['jenis'] === 'pajak') ? 'pajak' : 'potongan';
+                    $r[$arr][] = ['nama' => (string) $pp['nama'], 'nilai' => (float) $pp['nilai']];
+                }
+                $st2 = $pdo->prepare("SELECT kode_rekening, uraian, jumlah FROM spp_detail WHERE spp_id = ? ORDER BY id ASC");
+                $st2->execute([(int) $r['spp_id']]);
+                foreach ($st2->fetchAll() as $dd) {
+                    $r['details'][] = ['kode_rekening' => (string) $dd['kode_rekening'], 'uraian' => (string) $dd['uraian'], 'jumlah' => (float) $dd['jumlah']];
+                }
+            }
+        }
+        unset($r);
+        jsonResponse(true, 'OK', ['data' => $rows]);
     }
 
     if ($action === 'sp2d_list') {
@@ -129,9 +210,16 @@ if ($method === 'GET') {
 
     // Referensi SPD terotorisasi utk SPP & SPM terverifikasi utk SP2D
     if ($action === 'spd_otor_list') {
+        // Hanya SPD terotorisasi yang MASIH PUNYA SISA (belum habis dipakai SPP non-ditolak).
+        // sisa = jumlah SPD - total jumlah SPP yang memakai SPD tersebut.
         $c = skpdCond('s', $skpd);
-        $stmt = $pdo->prepare("SELECT s.* FROM spd s WHERE s.status='sudah_otorisasi'{$c[0]} ORDER BY s.tanggal DESC, s.id DESC");
-        $stmt->execute($c[1]);
+        $sql = "SELECT s.*,
+                       (s.jumlah - COALESCE((SELECT SUM(x.jumlah) FROM spp x WHERE x.spd_id = s.id AND x.status <> 'ditolak'), 0)) AS sisa
+                FROM spd s
+                WHERE s.status='sudah_otorisasi'{$c[0]}
+                  AND s.jumlah > COALESCE((SELECT SUM(x.jumlah) FROM spp x WHERE x.spd_id = s.id AND x.status <> 'ditolak'), 0)
+                ORDER BY s.tanggal DESC, s.id DESC";
+        $stmt = $pdo->prepare($sql); $stmt->execute($c[1]);
         jsonResponse(true, 'OK', ['data' => $stmt->fetchAll()]);
     }
     if ($action === 'spm_ver_list') {
@@ -252,11 +340,31 @@ if ($method === 'POST') {
         $periode  = trim((string) ($body['periode'] ?? ''));
         $jumlah   = (float) ($body['jumlah'] ?? 0);
         if ($tanggal === '') jsonResponse(false, 'Tanggal SPD wajib diisi.', ['field' => 'tanggal'], 422);
+        if (!isValidTanggal($tanggal)) jsonResponse(false, 'Format tanggal tidak valid.', ['field' => 'tanggal'], 422);
         if ($jumlah <= 0) jsonResponse(false, 'Jumlah harus lebih dari 0.', ['field' => 'jumlah'], 422);
+
+        // ===== Validasi Kebijakan SPD (aturan penerbitan dari BUD) =====
+        // Jika ada kebijakan aktif: jenis periode SPD wajib sesuai kebijakan,
+        // dan label periode diisi otomatis dari tanggal + jenis periode.
+        $keb = kebijakanSpdAktif($pdo, $skpd);
+        if ($keb) {
+            $jenisPeriodeKeb = trim((string) ($keb['jenis_periode'] ?? ''));
+            $penerbitanKeb   = trim((string) ($keb['jenis_penerbitan'] ?? ''));
+            // Kebijakan "Sekali Bayar" tidak membatasi periode.
+            // Label periode (mis. "Triwulan IV 2026") dihitung dari tanggal,
+            // bukan dibandingkan dengan nama jenis ("Triwulanan").
+            if ($penerbitanKeb !== '' && stripos($penerbitanKeb, 'Sekali Bayar') === false && $jenisPeriodeKeb !== '') {
+                $periode = hitungPeriodeSpd($tanggal, $jenisPeriodeKeb);
+                if ($periode === '') {
+                    jsonResponse(false, 'Periode SPD tidak dapat dihitung dari tanggal.', ['field' => 'tanggal'], 422);
+                }
+            }
+        }
+
         $nomor = genNomor('SPD', $pdo, 'spd');
         $stmt = $pdo->prepare("INSERT INTO spd (user_id, skpd, nomor_spd, tanggal, jenis, periode, jumlah, status) VALUES (?,?,?,?,?,?,?, 'belum_otorisasi')");
         $stmt->execute([$_SESSION['user_id'] ?? null, $skpd, $nomor, $tanggal, $jenis, $periode, $jumlah]);
-        jsonResponse(true, 'SPD berhasil dibuat.', ['id' => (int) $pdo->lastInsertId(), 'nomor_spd' => $nomor], 201);
+        jsonResponse(true, 'SPD berhasil dibuat.' . ($keb ? ' Periode mengikuti Kebijakan SPD (' . trim((string) ($keb['jenis_periode'] ?? '')) . ').' : ''), ['id' => (int) $pdo->lastInsertId(), 'nomor_spd' => $nomor], 201);
     }
     if ($action === 'spd_otorisasi') {
         $id = (int) ($body['id'] ?? 0);
@@ -278,6 +386,20 @@ if ($method === 'POST') {
         $jumlah   = (float) ($body['jumlah'] ?? 0);
         $lpjId    = (int) ($body['lpj_id'] ?? 0);
         $ptuId    = (int) ($body['pengajuan_tu_id'] ?? 0);
+        // Rincian detail (kode rekening belanja + uraian + jumlah) - SPP LS Gaji multi-baris
+        $detailItems = [];
+        $detailTotal = 0.0;
+        $detailRows  = isset($body['detail']) && is_array($body['detail']) ? $body['detail'] : [];
+        foreach ($detailRows as $row) {
+            $kd = trim((string) ($row['kode_rekening'] ?? ''));
+            $ur = trim((string) ($row['uraian'] ?? ''));
+            $nl = (float) ($row['jumlah'] ?? 0);
+            if ($kd === '' && $ur === '') continue;
+            if ($nl <= 0) continue;
+            $detailItems[] = ['kode_rekening' => $kd, 'uraian' => $ur, 'jumlah' => $nl];
+            $detailTotal += $nl;
+        }
+        if ($detailItems) $jumlah = $detailTotal;
         if ($tanggal === '') jsonResponse(false, 'Tanggal SPP wajib diisi.', ['field' => 'tanggal'], 422);
         if ($spdId <= 0) jsonResponse(false, 'Pilih SPD.', ['field' => 'spd_id'], 422);
         if ($jumlah <= 0) jsonResponse(false, 'Jumlah harus lebih dari 0.', ['field' => 'jumlah'], 422);
@@ -288,6 +410,14 @@ if ($method === 'POST') {
         $chk = $pdo->prepare("SELECT id FROM spd s WHERE s.id=? AND s.status='sudah_otorisasi'{$c[0]}");
         $chk->execute(array_merge([$spdId], $c[1]));
         if (!$chk->fetch()) jsonResponse(false, 'SPD tidak valid / belum diotorisasi / bukan milik instansi Anda.', [], 422);
+        // Validasi sisa SPD: jumlah SPP tidak boleh melebihi sisa SPD
+        $sisaQ = $pdo->prepare("SELECT s.jumlah - COALESCE((SELECT SUM(x.jumlah) FROM spp x WHERE x.spd_id = s.id AND x.status <> 'ditolak'), 0) AS sisa FROM spd s WHERE s.id = ?");
+        $sisaQ->execute([$spdId]);
+        $sisaRow = $sisaQ->fetch();
+        $sisa = $sisaRow ? (float) $sisaRow['sisa'] : 0.0;
+        if ($jumlah > $sisa + 0.001) {
+            jsonResponse(false, 'Jumlah SPP melebihi sisa SPD (sisa: Rp ' . number_format($sisa, 0, ',', '.') . ').', ['field' => 'jumlah'], 422);
+        }
         // Potongan & pajak (khusus LS Barang & Jasa)
         $potonganRows = isset($body['potongan']) && is_array($body['potongan']) ? $body['potongan'] : [];
         $pajakRows    = isset($body['pajak']) && is_array($body['pajak']) ? $body['pajak'] : [];
@@ -324,6 +454,12 @@ if ($method === 'POST') {
             $ins = $pdo->prepare("INSERT INTO spp_potongan_pajak (skpd, spp_id, jenis, nama, nilai_persen, nilai, id_billing, tgl_billing, ntpn, tgl_ntpn) VALUES (?,?,?,?,?,?,?,?,?,?)");
             foreach (array_merge($potongan, $pajak) as $r) {
                 $ins->execute([$skpd, $sppId, $r['jenis'], $r['nama'], $r['persen'], $r['nilai'], $r['id_billing'], $r['tgl_billing'] ?: null, $r['ntpn'], $r['tgl_ntpn'] ?: null]);
+            }
+        }
+        if ($detailItems) {
+            $insD = $pdo->prepare("INSERT INTO spp_detail (skpd, spp_id, kode_rekening, uraian, jumlah) VALUES (?,?,?,?,?)");
+            foreach ($detailItems as $d) {
+                $insD->execute([$skpd, $sppId, $d['kode_rekening'], $d['uraian'], $d['jumlah']]);
             }
         }
         jsonResponse(true, 'SPP berhasil dibuat.', ['id' => $sppId, 'nomor_spp' => $nomor], 201);
@@ -486,11 +622,19 @@ if ($method === 'POST') {
     if ($action === 'rekening_skpd_validasi') {
         $id = (int) ($body['id'] ?? 0);
         $setuju = !empty($body['setuju']);
+        $noRek = trim((string) ($body['nomor_rekening'] ?? ''));
         if ($id <= 0) jsonResponse(false, 'ID tidak valid.', [], 422);
+        if ($setuju && $noRek === '') jsonResponse(false, 'Nomor rekening wajib diisi saat validasi.', [], 422);
         $c = skpdCond('s', $skpd);
         $new = $setuju ? 'aktif' : 'ditolak';
-        $stmt = $pdo->prepare("UPDATE rekening_skpd s SET s.status=? WHERE s.id=? AND s.status='pembuatan'{$c[0]}");
-        $stmt->execute(array_merge([$new, $id], $c[1]));
+        if ($setuju) {
+            // Validasi sekaligus menetapkan nomor rekening
+            $stmt = $pdo->prepare("UPDATE rekening_skpd s SET s.status=?, s.nomor_rekening=? WHERE s.id=? AND s.status='pembuatan'{$c[0]}");
+            $stmt->execute(array_merge([$new, $noRek, $id], $c[1]));
+        } else {
+            $stmt = $pdo->prepare("UPDATE rekening_skpd s SET s.status=? WHERE s.id=? AND s.status='pembuatan'{$c[0]}");
+            $stmt->execute(array_merge([$new, $id], $c[1]));
+        }
         if ($stmt->rowCount() === 0) jsonResponse(false, 'Rekening tidak ditemukan / belum dibuat nomornya / bukan milik instansi Anda.', [], 404);
         jsonResponse(true, $setuju ? 'Rekening divalidasi & aktif.' : 'Rekening ditolak.');
     }

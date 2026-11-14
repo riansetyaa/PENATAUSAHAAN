@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - SIM-TKD | Sistem Informasi Manajemen Tata Kelola Daerah</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profil-card { display: flex; align-items: center; gap: 18px; padding: 22px; }
+        .profil-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#1d3a6e,#2c5aa0); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+        .profil-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .profil-nama { font-size: 18px; font-weight: 800; color: #1f2937; }
+        .profil-instansi { font-size: 13px; color: #64748b; }
+        .profil-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .profil-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #eef2f9; color: #1d3a6e; }
+        .form-card { max-width: 640px; }
+        .form-row { display: flex; flex-direction: column; gap: 14px; }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field label { font-size: 12px; font-weight: 700; color: #475569; }
+        .form-field input { padding: 10px 12px; border: 1px solid var(--border, #e2e8f0); border-radius: 8px; font-size: 14px; color: #1f2937; background: #fff; }
+        .form-field input:focus { outline: none; border-color: #1d3a6e; box-shadow: 0 0 0 3px rgba(29,58,110,.12); }
+        .form-field input[readonly] { background: #f4f7fc; color: #64748b; cursor: not-allowed; }
+        .form-field .hint { font-size: 11px; color: #94a3b8; }
+        .form-actions { margin-top: 16px; display: flex; gap: 10px; }
+        .btn-primary { padding: 10px 24px; font-weight: 700; }
+        .section-gap { height: 18px; }
+    </style>
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- ================= OVERLAY (mobile) ================= -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Pengaturan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Profil</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item notification">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="topbar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate">--</span>
+                </div>
+                <div class="topbar-item user">
+                    <div class="user-avatar small">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span id="topbarUserName">Admin Dinas</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+                <main class="content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Profil Pengguna</h1>
+                    <p class="page-subtitle">Kelola data akun dan keamanan akun Anda</p>
+                </div>
+            </div>
+
+            <!-- Ringkasan Profil -->
+            <div class="card">
+                <div class="profil-card">
+                    <div class="profil-avatar"><i class="fas fa-user-tie"></i></div>
+                    <div class="profil-info">
+                        <span class="profil-nama" id="ringkasanNama">Memuat profil...</span>
+                        <span class="profil-instansi" id="ringkasanInstansi">Memuat data...</span>
+                        <div class="profil-meta">
+                            <span class="profil-badge"><i class="fas fa-id-badge"></i> <span id="ringkasanUsername">—</span></span>
+                            <span class="profil-badge"><i class="fas fa-id-card"></i> NIP <span id="ringkasanNip">—</span></span>
+                            <span class="profil-badge"><i class="fas fa-user-shield"></i> <span id="ringkasanPeran">—</span></span>
+                            <span class="profil-badge"><i class="fas fa-calendar-check"></i> Bergabung <span id="ringkasanDibuat">—</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-gap"></div>
+
+            <!-- Data Profil -->
+            <div class="card form-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-id-card"></i> Data Profil</h3>
+                </div>
+                <div class="card-body">
+                    <form id="formProfil" class="form-row" novalidate>
+                        <div class="form-field">
+                            <label for="inpNama">Nama Lengkap</label>
+                            <input type="text" id="inpNama" name="nama_lengkap" maxlength="100" placeholder="Nama lengkap sesuai identitas" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpNip">NIP</label>
+                            <input type="text" id="inpNip" name="nip" maxlength="30" placeholder="cth: 19900315 201001 1 001" autocomplete="off">
+                            <span class="hint">Dipakai otomatis pada NIP di semua blok tanda tangan dokumen (BKU, Buku Pembantu, SKP, STS, STBP, SPP/SPM/SP2D, dst).</span>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpEmail">Email</label>
+                            <input type="email" id="inpEmail" name="email" maxlength="100" placeholder="nama@email.com" required>
+                            <span class="hint">Email dipakai untuk notifikasi &amp; harus unik.</span>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpInstansi">Instansi (SKPD)</label>
+                            <input type="text" id="inpInstansi" name="instansi" maxlength="150" placeholder="Dinas Kepemudaan dan Olahraga">
+                            <span class="hint">Perubahan instansi memengaruhi cakupan data dinas yang Anda akses.</span>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpUsername">Username</label>
+                            <input type="text" id="inpUsername" placeholder="username" readonly>
+                            <span class="hint">Username tidak dapat diubah.</span>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpPeran">Peran</label>
+                            <input type="text" id="inpPeran" placeholder="Peran pengguna" readonly>
+                            <span class="hint">Peran hanya dapat diatur oleh admin.</span>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="btnSimpanProfil"><i class="fas fa-save"></i> Simpan Profil</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="section-gap"></div>
+
+            <!-- Ganti Password -->
+            <div class="card form-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-lock"></i> Ganti Password</h3>
+                </div>
+                <div class="card-body">
+                    <form id="formPassword" class="form-row" novalidate>
+                        <div class="form-field">
+                            <label for="inpPwLama">Password Lama</label>
+                            <input type="password" id="inpPwLama" autocomplete="current-password" placeholder="Masukkan password saat ini" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpPwBaru">Password Baru</label>
+                            <input type="password" id="inpPwBaru" autocomplete="new-password" minlength="6" placeholder="Minimal 6 karakter" required>
+                            <span class="hint">Minimal 6 karakter.</span>
+                        </div>
+                        <div class="form-field">
+                            <label for="inpPwKonf">Konfirmasi Password Baru</label>
+                            <input type="password" id="inpPwKonf" autocomplete="new-password" minlength="6" placeholder="Ulangi password baru" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="btnGantiPw"><i class="fas fa-key"></i> Ubah Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span>
+        </footer>
+    </div>
+
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+            (function () {
+            'use strict';
+
+            // ===== Toast (pola sama dengan akun-penerimaan.html) =====
+            function showToast(message, type) {
+                const toast = document.createElement('div');
+                toast.className = 'toast toast-' + (type || 'success');
+                const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle' };
+                const span = document.createElement('span');
+                span.textContent = message;
+                const icon = document.createElement('i');
+                icon.className = 'fas ' + (icons[type] || icons.success);
+                toast.appendChild(icon);
+                toast.appendChild(span);
+                document.body.appendChild(toast);
+                setTimeout(function () { toast.remove(); }, 3200);
+            }
+
+            function setNamaSidebar(nama) {
+                if (!nama) return;
+                [document.getElementById('sidebarUserName'), document.getElementById('topbarUserName')]
+                    .forEach(function (el) { if (el) el.textContent = nama; });
+            }
+
+            function setInstansiSidebar(instansi) {
+                if (!instansi) return;
+                const el = document.getElementById('sidebarUserRole');
+                if (el) el.textContent = instansi;
+            }
+
+            const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            function fmtTgl(s) {
+                if (!s) return '-';
+                const p = String(s).split('-');
+                if (p.length < 3) return s;
+                return parseInt(p[2], 10) + ' ' + BULAN[parseInt(p[1], 10) - 1] + ' ' + p[0];
+            }
+
+            let instansiAwal = '';
+
+            // ===== Init: proteksi sesi + muat profil =====
+            fetch('../api/session.php')
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!d.success) { window.location.href = '../login.html'; return; }
+                    setNamaSidebar(d.user.nama);
+                    setInstansiSidebar(d.user.instansi);
+                    const now = new Date();
+                    const tglEl = document.getElementById('currentDate');
+                    if (tglEl) tglEl.textContent = now.getDate() + ' ' + BULAN[now.getMonth()] + ' ' + now.getFullYear();
+                    return fetch('../api/profil.php').then(function (r) { return r.json(); });
+                })
+                .then(function (d) {
+                    if (!d || !d.success) return;
+                    const p = d.profil || {};
+                    instansiAwal = p.instansi || '';
+                    document.getElementById('ringkasanNama').textContent = p.nama_lengkap || '-';
+                    document.getElementById('ringkasanNip').textContent = p.nip || 'belum diisi';
+                    document.getElementById('ringkasanInstansi').textContent = p.instansi || '-';
+                    document.getElementById('ringkasanUsername').textContent = p.username || '-';
+                    document.getElementById('ringkasanPeran').textContent = p.peran || '-';
+                    document.getElementById('ringkasanDibuat').textContent = fmtTgl(p.dibuat);
+                    document.getElementById('inpNama').value = p.nama_lengkap || '';
+                    document.getElementById('inpNip').value = p.nip || '';
+                    document.getElementById('inpEmail').value = p.email || '';
+                    document.getElementById('inpInstansi').value = p.instansi || '';
+                    document.getElementById('inpUsername').value = p.username || '-';
+                    document.getElementById('inpPeran').value = p.peran || '-';
+                })
+                .catch(function () { window.location.href = '../login.html'; });
+
+            // ===== Simpan profil =====
+            document.getElementById('formProfil').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const nama = document.getElementById('inpNama').value.trim();
+                const nip = document.getElementById('inpNip').value.trim();
+                const email = document.getElementById('inpEmail').value.trim();
+                const instansi = document.getElementById('inpInstansi').value.trim();
+
+                if (nama.length < 3) { showToast('Nama lengkap minimal 3 karakter.', 'warning'); return; }
+                if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showToast('Format email tidak valid.', 'warning'); return; }
+
+                // Konfirmasi bila instansi diubah (memengaruhi cakupan data multi-dinas)
+                if (instansi !== instansiAwal) {
+                    const ok = confirm(
+                        'Anda mengubah Instansi/SKPD.\n\n' +
+                        'Instansi menentukan pemisahan data antar dinas. ' +
+                        'Setelah diubah, data yang Anda akses akan mengikuti instansi baru.\n\nLanjutkan?'
+                    );
+                    if (!ok) {
+                        document.getElementById('inpInstansi').value = instansiAwal;
+                        return;
+                    }
+                }
+
+                const btn = document.getElementById('btnSimpanProfil');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+                const body = new URLSearchParams({ action: 'simpan', nama_lengkap: nama, nip: nip, email: email, instansi: instansi });
+                fetch('../api/profil.php', { method: 'POST', body: body })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (d.success) {
+                            showToast(d.message || 'Profil berhasil diperbarui.', 'success');
+                            setNamaSidebar(d.profil.nama_lengkap);
+                            setInstansiSidebar(d.profil.instansi);
+                            instansiAwal = d.profil.instansi;
+                            document.getElementById('ringkasanNama').textContent = d.profil.nama_lengkap;
+                            document.getElementById('ringkasanNip').textContent = d.profil.nip || 'belum diisi';
+                            document.getElementById('ringkasanInstansi').textContent = d.profil.instansi || '-';
+                        } else {
+                            showToast(d.message || 'Gagal memperbarui profil.', 'error');
+                        }
+                    })
+                    .catch(function () { showToast('Terjadi kesalahan koneksi ke server.', 'error'); })
+                    .finally(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-save"></i> Simpan Profil';
+                    });
+            });
+
+            // ===== Ganti password =====
+            document.getElementById('formPassword').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const lama = document.getElementById('inpPwLama').value;
+                const baru = document.getElementById('inpPwBaru').value;
+                const konf = document.getElementById('inpPwKonf').value;
+
+                if (!lama) { showToast('Password lama wajib diisi.', 'warning'); return; }
+                if (baru.length < 6) { showToast('Password baru minimal 6 karakter.', 'warning'); return; }
+                if (baru !== konf) { showToast('Konfirmasi password tidak cocok.', 'warning'); return; }
+                if (baru === lama) { showToast('Password baru tidak boleh sama dengan password lama.', 'warning'); return; }
+
+                const btn = document.getElementById('btnGantiPw');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+                const body = new URLSearchParams({ action: 'ganti_password', password_lama: lama, password_baru: baru, password_konfirmasi: konf });
+                fetch('../api/profil.php', { method: 'POST', body: body })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (d.success) {
+                            showToast(d.message || 'Password berhasil diubah.', 'success');
+                            document.getElementById('formPassword').reset();
+                        } else {
+                            showToast(d.message || 'Gagal mengubah password.', 'error');
+                        }
+                    })
+                    .catch(function () { showToast('Terjadi kesalahan koneksi ke server.', 'error'); })
+                    .finally(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-key"></i> Ubah Password';
+                    });
+            });
+        })();
+    </script>
+</body>
+</html>

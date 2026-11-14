@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register STS - SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* ===== Toolbar cetak ===== */
+        .print-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .print-toolbar .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .print-toolbar .filter-group label { font-size: 13px; color: #0f172a; font-weight: 600; }
+        .print-toolbar .filter-group input[type="date"],
+        .print-toolbar .filter-group input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid #d7dde5;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* ===== Dokumen Register STS (format resmi) ===== */
+        .register-sheet {
+            max-width: none;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d7dde5;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+            color: #000;
+            font-family: "Times New Roman", Times, serif;
+        }
+        .register-head { text-align: center; font-size: 13px; }
+        .register-head p { margin: 0; font-weight: 700; }
+        .register-sub { font-size: 13px; margin: 12px 0 8px; }
+        .register-sub p { margin: 0; }
+        .reg-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 13px;
+            color: #000;
+        }
+        .reg-table th, .reg-table td {
+            border: 1pt solid #000;
+            padding: 3px 6px;
+            vertical-align: top;
+        }
+        .reg-table th { text-align: center; font-weight: 700; }
+        .reg-table td.c { text-align: center; }
+        .reg-table td.r { text-align: right; white-space: nowrap; }
+        .reg-table tr.data td { border-bottom-style: dotted; }
+        .register-sign {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .register-sign .col { width: 48%; }
+        .register-sign p { margin: 0; line-height: 1.6; }
+        .register-sign .name { min-height: 48px; display: block; text-decoration: underline; }
+        .register-notfound { max-width: 820px; margin: 0 auto; }
+
+        /* ===== Saat mencetak: hanya dokumen, landscape ===== */
+        @page {
+            size: A4 landscape;
+            margin: 12mm;
+        }
+
+        /* ===== Saat mencetak: hanya dokumen ===== */
+        @media print {
+            .sidebar, .topbar, .footer, .overlay, .print-toolbar { display: none !important; }
+            .main-wrapper { margin-left: 0 !important; }
+            .content { padding: 0 !important; margin: 0 !important; }
+            body { background: #ffffff !important; }
+            .register-sheet {
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- ================= OVERLAY (mobile) ================= -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Penerimaan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>STS</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Register STS</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item notification">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="topbar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate">--</span>
+                </div>
+                <div class="topbar-item user">
+                    <div class="user-avatar small">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span id="topbarUserName">Admin Dinas</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="content">
+<div class="print-toolbar">
+                <div class="filter-group">
+                    <label for="dari">Periode</label>
+                    <input type="date" id="dari">
+                    <label for="akhir">s.d.</label>
+                    <input type="date" id="akhir">
+                    <label for="namaPa">Pengguna Anggaran</label>
+                    <input type="text" id="namaPa" placeholder="Nama pengguna anggaran" style="min-width:220px;">
+                    <button type="button" class="btn btn-outline" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                </div>
+                <div class="filter-group">
+                    <button type="button" class="btn btn-primary" id="btnKirimTtd"><i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan</button>
+                    <button type="button" class="btn btn-dark" id="btnCetak"><i class="fas fa-print"></i> Cetak Register</button>
+                </div>
+            </div>
+
+            <div class="register-sheet" id="registerSheet">
+                <div class="register-head">
+                    <p id="headInstansi">PEMERINTAH</p>
+                    <p>REGISTER STS</p>
+                    <p>SKPKD</p>
+                    <p>TAHUN ANGGARAN <span id="headTahun">-</span></p>
+                </div>
+                <div class="register-sub">
+                    <p>Bendahara Penerimaan &nbsp;: <span id="headBendahara">-</span></p>
+                </div>
+                <table class="reg-table">
+                    <colgroup>
+                        <col style="width:6%"><col style="width:9%"><col style="width:9%"><col style="width:14%">
+                        <col style="width:27%"><col style="width:16%"><col style="width:12%"><col style="width:7%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>No.</th><th>No. STS</th><th>Tanggal</th><th>Kode<br>Rekening</th>
+                            <th>Uraian</th><th>Jumlah</th><th>Penyetor</th><th>Ket</th>
+                        </tr>
+                        <tr>
+                            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registerBody"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="c">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+                            <td><strong>Jumlah</strong></td>
+                            <td class="r"><strong id="totalCell">-</strong></td>
+                            <td>&nbsp;</td><td>&nbsp;</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="register-sign">
+                    <div class="col">
+                        <p>Mengetahui/Menyetujui:</p>
+                        <p>Pengguna Anggaran</p>
+                        <p class="name" id="signNamaKuasa">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</p>
+                        <p>NIP. <span id="nipKuasa" data-nip-ttd="nilai">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></p>
+                    </div>
+                    <div class="col">
+                        <p><span id="signKota">Kabupaten</span>, <span id="signTanggal">-</span></p>
+                        <p>Bendahara Penerimaan</p>
+                        <p class="name" id="signNamaBendahara">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</p>
+                        <p>NIP. <span id="nipBendahara" data-nip-ttd="nilai">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span>
+        </footer>
+    </div>
+
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/ttd-nip.js"></script>
+    <script>
+(function () {
+            'use strict';
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = String(str || '');
+                return div.innerHTML;
+            }
+
+            function formatTanggal(s) {
+                if (!s) return '-';
+                const p = String(s).split('-');
+                const b = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                           'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return parseInt(p[2], 10) + ' ' + b[parseInt(p[1], 10) - 1] + ' ' + p[0];
+            }
+
+            function formatTanggalPendek(s) {
+                if (!s) return '-';
+                const p = String(s).split('-');
+                const b = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                           'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                return ('0' + parseInt(p[2], 10)).slice(-2) + ' ' + b[parseInt(p[1], 10) - 1];
+            }
+
+            function formatRp(n) {
+                return Number(n || 0).toLocaleString('id-ID') + ',-';
+            }
+
+            var lastRegisterData = null;
+
+            function loadRegister() {
+                var dari = document.getElementById('dari').value;
+                var akhir = document.getElementById('akhir').value;
+                var qs = '?register=1' + (dari ? '&dari=' + encodeURIComponent(dari) : '') +
+                         (akhir ? '&akhir=' + encodeURIComponent(akhir) : '');
+                fetch('../api/sts.php' + qs)
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (data && data.success) renderRegister(data);
+                    })
+                    .catch(function () { /* biarkan */ });
+            }
+
+            function renderRegister(data) {
+                var rows = data.rows || [];
+                var body = document.getElementById('registerBody');
+                var html = '';
+                rows.forEach(function (r, i) {
+                    html += '<tr class="data">' +
+                        '<td class="c">' + (i + 1) + '</td>' +
+                        '<td class="c">' + escapeHtml(r.nomor_sts || '-') + '</td>' +
+                        '<td class="c">' + formatTanggalPendek(r.tanggal) + '</td>' +
+                        '<td class="c">' + escapeHtml(r.akun_kode || '-') + '</td>' +
+                        '<td>' + escapeHtml(r.akun_nama || '-') + '</td>' +
+                        '<td class="r">' + formatRp(r.jumlah) + '</td>' +
+                        '<td>' + escapeHtml(r.nama_penyetor || '-') + '</td>' +
+                        '<td class="c">-</td>' +
+                        '</tr>';
+                });
+                // Baris pengisi agar register tampak penuh (min. 8 baris data)
+                var filler = Math.max(0, 8 - rows.length);
+                for (var i = 0; i < filler; i++) {
+                    html += '<tr class="data">' +
+                        '<td class="c">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>' +
+                        '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="c">&nbsp;</td>' +
+                        '</tr>';
+                }
+                body.innerHTML = html;
+                document.getElementById('totalCell').textContent = formatRp(data.total || 0);
+                document.getElementById('headInstansi').textContent = ('PEMERINTAH ' + (data.skpd || '')).toUpperCase();
+                document.getElementById('signKota').textContent = data.skpd || 'Kabupaten';
+
+                // Tahun anggaran & tanggal tanda tangan (dari tanggal akhir periode)
+                var akhir = document.getElementById('akhir').value;
+                var hariIni = new Date().toISOString().slice(0, 10);
+                document.getElementById('headTahun').textContent = (akhir || hariIni).split('-')[0];
+                document.getElementById('signTanggal').textContent = formatTanggal(akhir || hariIni);
+
+                // Tanda tangan
+                if (data.bendahara) {
+                    document.getElementById('headBendahara').textContent = data.bendahara;
+                    document.getElementById('signNamaBendahara').textContent = data.bendahara;
+                }
+                applySignatures(data);
+            }
+
+            // Nama Pengguna Anggaran: input manual di toolbar yang dipakai;
+            // jika kosong, terisi otomatis dari nama KPA pada STS dalam periode.
+            function applySignatures(data) {
+                if (data) lastRegisterData = data;
+                var inPa = document.getElementById('namaPa');
+                var pa = inPa.value.trim();
+                if (!pa && lastRegisterData && lastRegisterData.kuasa_pengguna_anggaran) {
+                    inPa.value = lastRegisterData.kuasa_pengguna_anggaran;
+                    pa = lastRegisterData.kuasa_pengguna_anggaran;
+                }
+                document.getElementById('signNamaKuasa').textContent = pa || '…………………';
+            }
+
+            document.getElementById('btnTampilkan').addEventListener('click', loadRegister);
+            document.getElementById('btnCetak').addEventListener('click', function () { window.print(); });
+
+            // ---------- Nama penandatangan dari dokumen (buang placeholder titik-titik) ----------
+            function bersihNama(v) {
+                v = String(v || '').trim();
+                return /^[.…\u2026]+$/.test(v) ? '' : v;
+            }
+
+            // ---------- Kirim ke antrean tanda tangan (doc.simtkd.com) ----------
+            function kirimTtd() {
+                var btn = document.getElementById('btnKirimTtd');
+                var sheet = document.getElementById('registerSheet');
+                if (!btn || !sheet) return;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+                // Bangun HTML mandiri (CSS tertanam) agar bisa ditandatangani
+                var cssText = '';
+                try {
+                    var linkCss = document.querySelector('link[href*="dashboard.css"]');
+                    var req = new XMLHttpRequest();
+                    req.open('GET', linkCss ? linkCss.getAttribute('href') : '../css/dashboard.css', false);
+                    req.send();
+                    if (req.status >= 200 && req.status < 300) cssText += req.responseText;
+                } catch (e) { /* abaikan */ }
+                document.querySelectorAll('style').forEach(function (st) { cssText += '\n' + st.textContent; });
+                cssText += '\n.register-sheet{position:relative;}\n#docArea .ttd-slot img{max-width:200px;max-height:64px;display:block;}\n';
+
+                var dari = document.getElementById('dari').value;
+                var akhir = document.getElementById('akhir').value || new Date().toISOString().slice(0, 10);
+                var judul = 'Register STS - Periode ' + (dari ? formatTanggal(dari) : '-') + ' s.d. ' + formatTanggal(akhir);
+
+                var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml(judul) + '</title><style>' + cssText + '</style></head>' +
+                    '<body style="margin:0;background:#fff;"><div id="docArea">' + sheet.outerHTML + '</div></body></html>';
+
+                var body = new URLSearchParams();
+                body.append('action', 'kirim');
+                body.append('jenis', 'Register STS');
+                body.append('ref_id', '');
+                body.append('nomor', '');
+                body.append('judul', judul);
+                body.append('tanggal', akhir);
+                body.append('konten_html', html);
+                var pttd = [
+                    { user: '', urutan: 1, jabatan: 'Pengguna Anggaran', nama: bersihNama(document.getElementById('signNamaKuasa').textContent) },
+                    { user: 'self', urutan: 2, jabatan: 'Bendahara Penerimaan', nama: bersihNama(document.getElementById('signNamaBendahara').textContent) }
+                ];
+                if (pttd[0].nama || pttd[1].nama) {
+                    body.append('penandatangan', JSON.stringify(pttd));
+                }
+
+                fetch('../api/dokumen.php', { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        if (d && d.success) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                            var t = document.createElement('div');
+                            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0e2140;color:#fff;padding:12px 18px;border-radius:8px;z-index:9999;font:13px -apple-system,system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25)';
+                            t.textContent = d.message || 'Dokumen terkirim ke antrean tanda tangan.';
+                            document.body.appendChild(t);
+                            setTimeout(function () { t.remove(); }, 4000);
+                        } else {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                            alert((d && d.message) || 'Gagal mengirim dokumen.');
+                        }
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                        alert('Gagal mengirim (jaringan).');
+                    });
+            }
+            document.getElementById('btnKirimTtd').addEventListener('click', kirimTtd);
+
+            // Ketik nama Pengguna Anggaran -> langsung tampil di blok tanda tangan kiri
+            document.getElementById('namaPa').addEventListener('input', function () {
+                document.getElementById('signNamaKuasa').textContent = this.value.trim() || '…………………';
+            });
+
+            // ---------- Prefill: sesi + periode default (1 Jan tahun ini s.d. hari ini) ----------
+            fetch('../api/session.php')
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!d.success) {
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    var now = new Date();
+                    document.getElementById('dari').value = now.getFullYear() + '-01-01';
+                    document.getElementById('akhir').value = now.toISOString().slice(0, 10);
+                    loadRegister();
+                })
+                .catch(function () { /* biarkan */ });
+        })();
+    </script>
+</body>
+</html>

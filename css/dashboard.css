@@ -79,6 +79,7 @@ a {
     padding: 18px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     min-height: var(--topbar-height);
+    overflow: hidden;
 }
 
 .sidebar-logo {
@@ -86,6 +87,8 @@ a {
     align-items: center;
     gap: 10px;
     min-width: 0;
+    overflow: hidden;
+    flex: 1;
 }
 
 .sidebar-logo img {
@@ -102,7 +105,9 @@ a {
     display: flex;
     flex-direction: column;
     white-space: nowrap;
-    transition: opacity var(--transition);
+    transition: opacity var(--transition), max-width var(--transition);
+    max-width: 160px;
+    overflow: hidden;
 }
 
 .title-main {
@@ -143,6 +148,8 @@ a {
     padding: 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     white-space: nowrap;
+    overflow: hidden;
+    transition: padding var(--transition);
 }
 
 .user-avatar {
@@ -168,7 +175,9 @@ a {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    transition: opacity var(--transition);
+    transition: opacity var(--transition), max-width var(--transition);
+    max-width: 200px;
+    overflow: hidden;
 }
 
 .user-name {
@@ -213,6 +222,7 @@ a {
     font-weight: 500;
     transition: all var(--transition);
     white-space: nowrap;
+    overflow: hidden;
 }
 
 .menu-item i {
@@ -252,33 +262,125 @@ a {
     text-align: center;
     white-space: nowrap;
     transition: opacity var(--transition);
+    overflow: hidden;
 }
 
-/* Sidebar collapsed state */
+/* ============================================
+   Sidebar Collapsed State
+   ============================================ */
 .sidebar.collapsed {
     width: var(--sidebar-width-collapsed);
 }
 
+/* Sembunyikan teks & elemen yang tidak perlu saat collapsed */
 .sidebar.collapsed .sidebar-title,
 .sidebar.collapsed .user-info,
 .sidebar.collapsed .menu-label,
-.sidebar.collapsed .menu-item span,
 .sidebar.collapsed .sidebar-footer {
     opacity: 0;
     pointer-events: none;
+    max-width: 0;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .menu-item span {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* Sembunyikan submenu-arrow saat collapsed */
+.sidebar.collapsed .submenu-arrow {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+    overflow: hidden;
 }
 
 .sidebar.collapsed .menu-item {
     justify-content: center;
     padding: 12px;
+    gap: 0;
 }
 
-.sidebar.collapsed .menu-item i {
+.sidebar.collapsed .menu-item i:first-of-type {
     margin: 0;
 }
 
+.sidebar.collapsed .sidebar-header {
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 8px;
+}
+
+.sidebar.collapsed .sidebar-logo {
+    flex: 0 0 auto;
+    gap: 0;
+}
+
 .sidebar.collapsed .sidebar-toggle {
-    margin: 0 auto;
+    margin: 0;
+}
+
+.sidebar.collapsed .sidebar-user {
+    justify-content: center;
+    padding: 12px;
+    gap: 0;
+}
+
+/* ============================================
+   Sidebar Collapsed: hover = lihat menu lengkap sementara (desktop)
+   Sidebar mengembang di atas konten (mengambang), konten utama
+   tidak bergeser — layar tetap lega.
+   ============================================ */
+@media (min-width: 769px) {
+    .sidebar.collapsed:hover {
+        width: var(--sidebar-width);
+        box-shadow: var(--shadow-lg);
+    }
+    .sidebar.collapsed:hover .sidebar-title,
+    .sidebar.collapsed:hover .user-info,
+    .sidebar.collapsed:hover .menu-label,
+    .sidebar.collapsed:hover .sidebar-footer,
+    .sidebar.collapsed:hover .menu-item span {
+        opacity: 1;
+        pointer-events: auto;
+        max-width: none;
+        width: auto;
+        white-space: nowrap;
+    }
+    .sidebar.collapsed:hover .menu-item {
+        justify-content: flex-start;
+        padding: 12px 14px;
+        gap: 14px;
+    }
+    .sidebar.collapsed:hover .submenu-arrow {
+        opacity: 0.7;
+        width: auto;
+        pointer-events: auto;
+        margin-left: auto;
+    }
+    .sidebar.collapsed:hover .submenu {
+        display: flex !important;
+    }
+    .sidebar.collapsed:hover .sidebar-header {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 18px;
+    }
+    .sidebar.collapsed:hover .sidebar-logo {
+        gap: 10px;
+    }
+    .sidebar.collapsed:hover .sidebar-user {
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+    }
 }
 
 /* ============================================
@@ -298,8 +400,9 @@ a {
     margin-left: auto;
     font-size: 11px;
     opacity: 0.7;
-    transition: transform var(--transition);
+    transition: transform var(--transition), opacity var(--transition), width var(--transition);
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .menu-group.open > .menu-item.has-submenu .submenu-arrow {
@@ -462,6 +565,203 @@ a {
     padding: 0 4px;
 }
 
+.topbar-item .badge[hidden] {
+    display: none;
+}
+
+/* ============================================
+   Notifikasi Dokumen Belum Dikirim ke TTD
+   ============================================ */
+.notif-panel {
+    position: fixed;
+    z-index: 2200;
+    width: min(390px, calc(100vw - 24px));
+    max-height: min(72vh, 560px);
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.24);
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.notif-panel[hidden] {
+    display: none;
+}
+
+.notif-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px 12px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+}
+
+.notif-head h4 {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.notif-head p {
+    margin: 3px 0 0;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+.notif-close {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.notif-close:hover {
+    background: #e2e8f0;
+    color: #1f2937;
+}
+
+.notif-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 16px;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item:hover {
+    background: #f8fafc;
+}
+
+.notif-ico {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #eef4ff;
+    color: #1d3a6e;
+    font-size: 12px;
+}
+
+.notif-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.notif-title span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.notif-type {
+    flex-shrink: 0;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #fff7e6;
+    color: #92400e;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+.notif-sub {
+    margin-top: 2px;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.notif-empty {
+    padding: 28px 20px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.notif-empty i {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 22px;
+    color: #cbd5e1;
+}
+
+.notif-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #fbfcfe;
+    border-top: 1px solid var(--border);
+    font-size: 11.5px;
+}
+
+.notif-foot a {
+    color: #1d3a6e;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.notif-foot a:hover {
+    text-decoration: underline;
+}
+
+.notif-foot button {
+    padding: 5px 9px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #ffffff;
+    color: #475569;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.notif-foot button:hover {
+    background: #f1f5f9;
+}
+
 .topbar-item.user {
     font-weight: 600;
     color: var(--text-primary);
@@ -612,6 +912,12 @@ a {
 .card-body {
     flex: 1;
     min-width: 0;
+    padding: 22px 24px;
+}
+
+/* Kartu ringkasan: padding sudah diatur oleh .summary-card, jangan dobel */
+.summary-card .card-body {
+    padding: 0;
 }
 
 .card-label {
@@ -1893,6 +2199,7 @@ a {
 .data-table td {
     padding: 14px 22px;
     font-size: 13px;
+    line-height: 1.5;
     border-bottom: 1px solid var(--border);
     color: var(--text-primary);
 }

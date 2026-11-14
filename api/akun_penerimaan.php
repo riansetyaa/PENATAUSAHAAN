@@ -22,6 +22,10 @@ if (!isLoggedIn()) {
     jsonResponse(false, 'Tidak terautentikasi.', [], 401);
 }
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 $pdo = db();
 
 // Daftar metode input yang valid
@@ -52,7 +56,7 @@ function requestBody(): array
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $q     = input('q');
     $aktif = input('aktif', ''); // '1' = hanya akun yang dicentang (aktif)
-    $skpd  = (string) ($_SESSION['instansi'] ?? ''); // pemisahan data multi-dinas
+    $skpd  = requireInstansi(); // pemisahan data multi-dinas (fail-closed)
 
     $sql    = "SELECT a.*, u.nama_lengkap AS dibuat_oleh
                FROM akun_penerimaan a
@@ -106,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $body   = requestBody();
     $action = $body['action'] ?? 'create';
     // skpd selalu dari sesi (jangan percaya input klien)
-    $skpd   = trim((string) ($_SESSION['instansi'] ?? ''));
+    $skpd   = requireInstansi();
 
     // ---------- 1. Simpan satu akun baru ----------
     if ($action === 'create') {
@@ -177,18 +181,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!is_array($items)) {
             $items = [];
         }
-        $skpdSel = trim((string) ($_SESSION['instansi'] ?? ''));
-        if ($skpdSel === '') {
-            jsonResponse(false, 'Instansi tidak terdeteksi. Silakan login ulang.', [], 422);
-        }
+        $skpdSel = requireInstansi();
 
         $pdo->beginTransaction();
         try {
-            $del = $pdo->prepare("DELETE FROM akun_penerimaan WHERE skpd = ?");
-            $del->execute([$skpdSel]);
+            // Jangan hapus-lalu-insert seluruh baris dinas: cara lama membuat
+            // pengguna lain dalam instansi yang sama kehilangan data (user_id,
+            // created_at) hanya karena satu orang menekan "Simpan".
+            // Nonaktifkan dulu, lalu upsert pilihan yang dikirim.
+            $nonaktif = $pdo->prepare("UPDATE akun_penerimaan SET status_aktif = 0 WHERE skpd = ?");
+            $nonaktif->execute([$skpdSel]);
 
-            $ins = $pdo->prepare("INSERT INTO akun_penerimaan (user_id, skpd, kode_akun, nama_akun, metode_input, status_aktif)
-                                  VALUES (?, ?, ?, ?, ?, 1)");
+            $cari = $pdo->prepare(
+                "SELECT id FROM akun_penerimaan WHERE skpd = ? AND kode_akun = ? LIMIT 1"
+            );
+            $upd = $pdo->prepare(
+                "UPDATE akun_penerimaan
+                 SET nama_akun = ?, metode_input = ?, status_aktif = 1, user_id = ?
+                 WHERE id = ?"
+            );
+            $ins = $pdo->prepare(
+                "INSERT INTO akun_penerimaan (user_id, skpd, kode_akun, nama_akun, metode_input, status_aktif)
+                 VALUES (?, ?, ?, ?, ?, 1)"
+            );
+
             $saved = 0;
             foreach ($items as $item) {
                 $kode = trim((string) ($item['kode_akun'] ?? ''));
@@ -196,8 +212,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($kode === '' || $nama === '') {
                     continue;
                 }
+
                 $metode = normalizeMetode((string) ($item['metode_input'] ?? 'harian'), $METODE_LIST);
-                $ins->execute([$_SESSION['user_id'] ?? null, $skpdSel, $kode, $nama, $metode]);
+                $userId = $_SESSION['user_id'] ?? null;
+
+                $cari->execute([$skpdSel, $kode]);
+                $idAda = $cari->fetchColumn();
+
+                if ($idAda !== false) {
+                    $upd->execute([$nama, $metode, $userId, (int) $idAda]);
+                } else {
+                    $ins->execute([$userId, $skpdSel, $kode, $nama, $metode]);
+                }
                 $saved++;
             }
             $pdo->commit();
@@ -218,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             jsonResponse(false, 'Tidak ada data untuk disimpan.', [], 422);
         }
 
-        $stmt = $pdo->prepare("UPDATE akun_penerimaan SET metode_input = ?, status_aktif = ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE akun_penerimaan SET metode_input = ?, status_aktif = ? WHERE id = ? AND skpd = ?");
         $updated = 0;
 
         $pdo->beginTransaction();
@@ -230,7 +256,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $metode = normalizeMetode((string) ($item['metode_input'] ?? ''), $METODE_LIST);
                 $status = !empty($item['status_aktif']) ? 1 : 0;
-                $stmt->execute([$metode, $status, $id]);
+                // Scope skpd: cegah modifikasi akun instansi lain (IDOR)
+                $stmt->execute([$metode, $status, $id, $skpd]);
                 $updated += $stmt->rowCount();
             }
             $pdo->commit();

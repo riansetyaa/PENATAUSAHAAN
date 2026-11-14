@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Akun - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy: #16305a;
+            --navy-dark: #0e2140;
+            --navy-mid: #1d3a6e;
+            --blue: #1f6feb;
+            --green: #16a34a;
+            --green-dark: #15803d;
+            --bg: #eef1f6;
+            --card: #ffffff;
+            --border: #d8dee9;
+            --text: #1f2937;
+            --muted: #6b7280;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ---------- Topbar ---------- */
+        .topbar {
+            background: var(--navy); color: #fff;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; height: 58px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.2);
+            position: relative; z-index: 20;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: #fff; color: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #fff; color: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700;
+        }
+
+        /* ---------- Layout ---------- */
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            width: 236px; background: var(--navy-dark); color: #cbd5e1;
+            flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px;
+            transition: margin-left .25s ease;
+        }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title {
+            font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase;
+            color: #7d8db1; padding: 14px 18px 6px;
+        }
+        .side-link {
+            display: flex; align-items: center; gap: 11px;
+            padding: 10px 18px; color: #cbd5e1; text-decoration: none;
+            font-size: 13.5px; border-left: 3px solid transparent;
+        }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .sidebar-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.25);
+            background: rgba(255,255,255,.08); color: #fff; border-radius: 8px;
+            cursor: pointer; font-size: 14px; flex-shrink: 0;
+            transition: background .2s ease;
+        }
+        .sidebar-toggle:hover { background: rgba(255,255,255,.2); }
+        /* ---------- Breadcrumb ---------- */
+        .breadcrumb-bar {
+            background: #fff; border-bottom: 1px solid var(--border);
+            padding: 10px 22px; display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; flex-wrap: wrap;
+        }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back {
+            background: var(--navy); color: #fff; border: none;
+            padding: 7px 14px; border-radius: 6px; cursor: pointer;
+            font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px;
+            text-decoration: none;
+        }
+        .btn-back:hover { background: var(--navy-mid); }
+        .content { padding: 20px 22px; flex: 1; }
+
+        /* ---------- Page head ---------- */
+        .page-head {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+        }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+        /* ---------- Card ---------- */
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06);
+            margin-bottom: 18px;
+        }
+        .card-head {
+            padding: 12px 18px; border-bottom: 1px solid var(--border);
+            font-weight: 700; font-size: 13.5px; color: var(--navy);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card-body { padding: 16px 18px; }
+
+        /* ---------- Filter / form grid ---------- */
+        .filter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select,
+        .filter-field input {
+            height: 36px; border: 1px solid var(--border); border-radius: 6px;
+            padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%;
+        }
+        .filter-field input:focus, .filter-field select:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .filter-actions { display: flex; gap: 10px; }
+
+        .btn {
+            border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer;
+            font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px;
+            height: 36px;
+        }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: var(--green-dark); }
+        .btn-muted { background: #e2e8f0; color: var(--text); }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .btn-mini {
+            border: 1px solid var(--border); background: #fff; color: var(--muted);
+            width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+        }
+        .btn-mini:hover { color: var(--blue); border-color: var(--blue); }
+        .btn-mini.danger:hover { color: #dc2626; border-color: #dc2626; }
+
+        /* ---------- Table ---------- */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th {
+            background: #f1f5f9; color: #334155; text-align: left;
+            padding: 10px 12px; border-bottom: 1px solid var(--border);
+            font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap;
+        }
+        tbody td { padding: 10px 12px; border-bottom: 1px solid #edf0f5; vertical-align: middle; }
+        tbody tr:hover { background: #f8fafc; }
+        .c { text-align: center; }
+
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+        .badge-aktif { background: #dcfce7; color: #15803d; }
+        .badge-nonaktif { background: #fee2e2; color: #b91c1c; }
+
+        /* ---------- Footer + toast ---------- */
+        .footer {
+            text-align: center; padding: 14px; font-size: 12px;
+            color: var(--muted); border-top: 1px solid var(--border); background: #fff;
+        }
+        #toast {
+            position: fixed; bottom: 24px; right: 24px; z-index: 99;
+            background: var(--navy-dark); color: #fff; padding: 12px 18px;
+            border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25);
+            opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none;
+        }
+        #toast.show { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 1024px) { .filter-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; }
+            .filter-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= TOPBAR ================= -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand">
+                <b>AKLAP · SIM-TKD</b>
+                <span>Aplikasi Laporan Akuntansi Pemerintahan</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="region">
+                <b id="regionProvinsi">-</b>
+                <span id="regionKota">-</span>
+            </div>
+            <div class="topbar-user">
+                <div class="avatar" id="regionAvatar">?</div>
+                <span id="regionNama" style="font-size:13px;">-</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <!-- ================= MAIN ================= -->
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb">
+                    <i class="fas fa-house"></i> <a href="index.html">Home</a>
+                    <i class="fas fa-chevron-right"></i> <span class="current">Master Akun</span>
+                </div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>Master Akun</h1>
+                        <p>Kelola daftar akun (Chart of Accounts) instansi Anda: tambah, ubah, dan hapus akun untuk jurnal, buku besar, dan neraca saldo.</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnTambah"><i class="fas fa-plus"></i> Tambah Akun</button>
+                </div>
+
+                <!-- Form tambah/edit -->
+                <div class="card" id="formCard" style="display:none;">
+                    <div class="card-head"><i class="fas fa-pen-to-square"></i> <span id="formTitle">Tambah Akun</span></div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="filter-field">
+                                <label>Kode Akun *</label>
+                                <input type="text" id="fKode" placeholder="cth: 4.1.1.01" autocomplete="off">
+                            </div>
+                            <div class="filter-field">
+                                <label>Nama Akun *</label>
+                                <input type="text" id="fNama" placeholder="cth: Pendapatan Pajak Daerah" autocomplete="off">
+                            </div>
+                            <div class="filter-field">
+                                <label>Tipe Akun</label>
+                                <select id="fTipe">
+                                    <option value="aset">Aset</option>
+                                    <option value="liabilitas">Liabilitas</option>
+                                    <option value="ekuitas">Ekuitas</option>
+                                    <option value="pendapatan">Pendapatan</option>
+                                    <option value="belanja">Belanja</option>
+                                </select>
+                            </div>
+                            <div class="filter-field">
+                                <label>Saldo Normal</label>
+                                <select id="fNormal">
+                                    <option value="debet">Debet</option>
+                                    <option value="kredit">Kredit</option>
+                                </select>
+                            </div>
+                            <div class="filter-field">
+                                <label>Status</label>
+                                <select id="fAktif">
+                                    <option value="1">Aktif</option>
+                                    <option value="0">Nonaktif</option>
+                                </select>
+                            </div>
+                            <div class="filter-field">
+                                <label>&nbsp;</label>
+                                <div class="filter-actions">
+                                    <button class="btn btn-success" id="btnSimpan"><i class="fas fa-floppy-disk"></i> Simpan</button>
+                                    <button class="btn btn-muted" id="btnBatal"><i class="fas fa-xmark"></i> Batal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pencarian + tabel -->
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-list"></i> Daftar Akun <span id="rowCount" style="margin-left:auto;font-weight:500;font-size:12px;color:#6b7280;"></span></div>
+                    <div class="card-body" style="padding-bottom:0;">
+                        <div class="filter-grid" style="grid-template-columns: repeat(2, 1fr); max-width:560px;">
+                            <div class="filter-field">
+                                <label>Cari Akun</label>
+                                <input type="text" id="fCari" placeholder="Ketik kode atau nama akun...">
+                            </div>
+                            <div class="filter-field">
+                                <label>Tipe</label>
+                                <select id="fFilterTipe">
+                                    <option value="">Semua Tipe</option>
+                                    <option value="aset">Aset</option>
+                                    <option value="liabilitas">Liabilitas</option>
+                                    <option value="ekuitas">Ekuitas</option>
+                                    <option value="pendapatan">Pendapatan</option>
+                                    <option value="belanja">Belanja</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-wrap" style="margin-top:14px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:80px;">Kode</th>
+                                    <th>Nama Akun</th>
+                                    <th style="width:110px;">Tipe</th>
+                                    <th style="width:110px;" class="c">Saldo Normal</th>
+                                    <th style="width:90px;" class="c">Status</th>
+                                    <th style="width:100px;" class="c">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyAkun"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                &copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)
+            </footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script>
+        // Profil akun dari database (pendaftaran) - pola sama dengan akuntansi.html
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var init = nama.trim().charAt(0).toUpperCase() || '?';
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = init;
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+        (function () {
+            'use strict';
+
+            var API = 'api/akuntansi.php';
+            var DATA = [];
+            var editId = 0; // 0 = mode tambah
+
+            var TIPE_LABEL = {
+                aset: 'Aset', liabilitas: 'Liabilitas', ekuitas: 'Ekuitas',
+                pendapatan: 'Pendapatan', belanja: 'Belanja'
+            };
+
+            function esc(t) {
+                var d = document.createElement('div');
+                d.textContent = String(t || '');
+                return d.innerHTML;
+            }
+
+            function toast(msg) {
+                var t = document.getElementById('toast');
+                t.textContent = msg;
+                t.classList.add('show');
+                clearTimeout(toast._t);
+                toast._t = setTimeout(function () { t.classList.remove('show'); }, 2400);
+            }
+
+            function urlAksi(action) {
+                return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action;
+            }
+
+            var tbody = document.getElementById('tbodyAkun');
+
+            // ---------- Muat daftar akun ----------
+            function loadData() {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9aa4b2;padding:24px;">Memuat data...</td></tr>';
+                fetch(urlAksi('akun_list'))
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        if (!(d && d.success)) {
+                            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#b91c1c;padding:24px;">' + esc((d && d.message) || 'Gagal memuat data.') + '</td></tr>';
+                            return;
+                        }
+                        DATA = (d && d.data) || [];
+                        render();
+                    })
+                    .catch(function () {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#b91c1c;padding:24px;">Gagal terhubung ke server API.</td></tr>';
+                    });
+            }
+
+            // ---------- Render tabel ----------
+            function render() {
+                var kw = document.getElementById('fCari').value.trim().toLowerCase();
+                var ft = document.getElementById('fFilterTipe').value;
+
+                var filtered = DATA.filter(function (r) {
+                    if (ft && r.tipe !== ft) return false;
+                    if (kw) {
+                        var hay = (r.kode_akun + ' ' + r.nama_akun).toLowerCase();
+                        if (hay.indexOf(kw) === -1) return false;
+                    }
+                    return true;
+                });
+
+                if (!filtered.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9aa4b2;padding:28px;">Tidak ada akun yang cocok.</td></tr>';
+                } else {
+                    tbody.innerHTML = filtered.map(function (r) {
+                        return '<tr>' +
+                            '<td class="c" style="font-weight:600;color:var(--navy);">' + esc(r.kode_akun) + '</td>' +
+                            '<td>' + esc(r.nama_akun) + '</td>' +
+                            '<td>' + esc(TIPE_LABEL[r.tipe] || r.tipe) + '</td>' +
+                            '<td class="c">' + esc(r.saldo_normal === 'kredit' ? 'Kredit' : 'Debet') + '</td>' +
+                            '<td class="c"><span class="badge ' + (r.aktif ? 'badge-aktif">Aktif' : 'badge-nonaktif">Nonaktif') + '</span></td>' +
+                            '<td class="c">' +
+                                '<button class="btn-mini" data-act="edit" data-id="' + r.id + '" title="Edit"><i class="fas fa-pen"></i></button> ' +
+                                '<button class="btn-mini danger" data-act="hapus" data-id="' + r.id + '" title="Hapus"><i class="fas fa-trash"></i></button>' +
+                            '</td>' +
+                        '</tr>';
+                    }).join('');
+                }
+                document.getElementById('rowCount').textContent = filtered.length + ' akun';
+            }
+
+            // ---------- Form tambah / edit ----------
+            var formCard = document.getElementById('formCard');
+
+            function bukaFormTambah() {
+                editId = 0;
+                document.getElementById('formTitle').textContent = 'Tambah Akun';
+                document.getElementById('fKode').value = '';
+                document.getElementById('fNama').value = '';
+                document.getElementById('fTipe').value = 'aset';
+                document.getElementById('fNormal').value = 'debet';
+                document.getElementById('fAktif').value = '1';
+                formCard.style.display = '';
+                document.getElementById('fKode').focus();
+            }
+
+            function bukaFormEdit(r) {
+                editId = r.id;
+                document.getElementById('formTitle').textContent = 'Edit Akun: ' + r.kode_akun;
+                document.getElementById('fKode').value = r.kode_akun;
+                document.getElementById('fNama').value = r.nama_akun;
+                document.getElementById('fTipe').value = r.tipe;
+                document.getElementById('fNormal').value = r.saldo_normal;
+                document.getElementById('fAktif').value = r.aktif ? '1' : '0';
+                formCard.style.display = '';
+                document.getElementById('fNama').focus();
+            }
+
+            function tutupForm() {
+                formCard.style.display = 'none';
+                editId = 0;
+            }
+
+            document.getElementById('btnTambah').addEventListener('click', bukaFormTambah);
+            document.getElementById('btnBatal').addEventListener('click', tutupForm);
+
+            // ---------- Simpan (tambah / edit) ----------
+            document.getElementById('btnSimpan').addEventListener('click', function () {
+                var btn = this;
+                var kode = document.getElementById('fKode').value.trim();
+                var nama = document.getElementById('fNama').value.trim();
+                if (!kode || !nama) { toast('Kode akun dan nama akun wajib diisi.'); return; }
+
+                var body = new URLSearchParams({
+                    id: String(editId),
+                    kode_akun: kode,
+                    nama_akun: nama,
+                    tipe: document.getElementById('fTipe').value,
+                    saldo_normal: document.getElementById('fNormal').value
+                });
+
+                btn.disabled = true;
+                fetch(urlAksi('akun_simpan'), { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        btn.disabled = false;
+                        toast((d && d.message) || (d && d.success ? 'Tersimpan.' : 'Gagal menyimpan.'));
+                        if (d && d.success) { tutupForm(); loadData(); }
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        toast('Gagal terhubung ke server API.');
+                    });
+            });
+
+            // ---------- Hapus ----------
+            function hapusAkun(id) {
+                var body = new URLSearchParams({ id: String(id) });
+                fetch(urlAksi('akun_hapus'), { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        toast((d && d.message) || (d && d.success ? 'Akun dihapus.' : 'Gagal menghapus.'));
+                        if (d && d.success) loadData();
+                    })
+                    .catch(function () {
+                        toast('Gagal terhubung ke server API.');
+                    });
+            }
+
+            // ---------- Aksi tabel ----------
+            tbody.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-act]');
+                if (!btn) return;
+                var act = btn.getAttribute('data-act');
+                var id = parseInt(btn.getAttribute('data-id'), 10);
+                var r = null;
+                for (var i = 0; i < DATA.length; i++) { if (DATA[i].id === id) { r = DATA[i]; break; } }
+                if (!r) return;
+
+                if (act === 'edit') {
+                    bukaFormEdit(r);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (act === 'hapus') {
+                    if (!confirm('Hapus akun ' + r.kode_akun + ' - ' + r.nama_akun + '?')) return;
+                    hapusAkun(id);
+                }
+            });
+
+            // ---------- Filter live ----------
+            document.getElementById('fCari').addEventListener('input', render);
+            document.getElementById('fFilterTipe').addEventListener('change', render);
+
+            // Muat awal
+            loadData();
+        })();
+    </script>
+</body>
+</html>

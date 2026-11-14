@@ -20,6 +20,35 @@
     // Token API user (diisi saat sesi berhasil) -> untuk link modul AKLAP
     let SESSION_API_TOKEN = '';
 
+    // Menu khusus admin/dosen (mis. Monitoring Pengguna) disembunyikan
+    // untuk akun biasa setelah data sesi diketahui.
+    function aturMenuAdmin(user) {
+        var peran = (user && user.peran) ? String(user.peran) : '';
+        var username = (user && user.username) ? String(user.username) : '';
+        var boleh = peran === 'Admin Dinas' || peran === 'Kepala Dinas'
+            || peran === 'Dosen' || username === 'admin';
+
+        document.querySelectorAll('[data-admin-only]').forEach(function (el) {
+            el.style.display = boleh ? '' : 'none';
+        });
+    }
+
+    // ==========================================
+    // Sidebar collapsed state (persisten antar halaman)
+    // ==========================================
+    const SIDEBAR_KEY = 'simtkd_sidebar_collapsed';
+    function sidebarSimpan() {
+        try {
+            localStorage.setItem(SIDEBAR_KEY, sidebar.classList.contains('collapsed') ? '1' : '0');
+        } catch (e) { /* localStorage tidak tersedia */ }
+    }
+    function sidebarMuat() {
+        try {
+            if (localStorage.getItem(SIDEBAR_KEY) === '1') sidebar.classList.add('collapsed');
+        } catch (e) { /* localStorage tidak tersedia */ }
+    }
+    sidebarMuat(); // terapkan segera agar sidebar tidak "melebar lagi" saat pindah halaman
+
     // ==========================================
     // Format Date (Indonesian)
     // ==========================================
@@ -43,6 +72,7 @@
     // ==========================================
     sidebarToggle.addEventListener('click', function () {
         sidebar.classList.toggle('collapsed');
+        sidebarSimpan();
         // Remove open state if any
         sidebar.classList.remove('open');
         overlay.classList.remove('show');
@@ -62,6 +92,7 @@
             openMobileSidebar();
         } else {
             sidebar.classList.toggle('collapsed');
+            sidebarSimpan();
         }
     });
 
@@ -299,7 +330,13 @@
             error: 'fa-times-circle',
             warning: 'fa-exclamation-triangle'
         };
-        toast.innerHTML = '<i class="fas ' + (icons[type] || icons.success) + '"></i><span>' + message + '</span>';
+        const span = document.createElement('span');
+        // textContent (bukan innerHTML) agar pesan dari API tidak bisa menyuntik HTML (XSS)
+        span.textContent = message;
+        const icon = document.createElement('i');
+        icon.className = 'fas ' + (icons[type] || icons.success);
+        toast.appendChild(icon);
+        toast.appendChild(span);
         document.body.appendChild(toast);
         setTimeout(function () {
             toast.remove();
@@ -309,12 +346,8 @@
     // ==========================================
     // Notification click
     // ==========================================
-    const notifBtn = document.querySelector('.topbar-item.notification');
-    if (notifBtn) {
-        notifBtn.addEventListener('click', function () {
-            showToast('Anda memiliki 3 notifikasi baru.', 'warning');
-        });
-    }
+    // Ditangani oleh js/notifikasi-dokumen.js (daftar dokumen yang belum
+    // dikirim ke Tanda Tangan Dokumen), bukan lagi toast statis.
 
     // ==========================================
     // Logout (konfirmasi)
@@ -502,6 +535,8 @@
                     window.location.href = '../login.html';
                     return null;
                 }
+                aturMenuAdmin(sessionData.user);
+
                 // Kirim token API user ke link modul AKLAP (multi-tenant)
                 var apiToken = sessionData.user && sessionData.user.api_token;
                 SESSION_API_TOKEN = apiToken || '';

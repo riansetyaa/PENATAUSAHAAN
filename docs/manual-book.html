@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Book SIM-TKD — Panduan Mahasiswa &amp; Dosen</title>
+    <meta name="description" content="Manual book penggunaan SIM-TKD untuk mahasiswa dan dosen: panduan modul Penerimaan, Belanja, AKLAP, dan Tanda Tangan Elektronik.">
+    <link rel="canonical" href="https://simtkd.com/docs/manual-book.html">
+<style>
+  :root{
+    --biru:#1e293b; --biru2:#1d4ed8; --oranye:#f97316; --abu:#64748b;
+    --hijau:#16a34a; --merah:#dc2626; --kuning-bg:#fef9c3;
+  }
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#111827;line-height:1.65;margin:0;background:#f8fafc}
+  .page{max-width:900px;margin:0 auto;background:#fff;padding:48px 56px;box-shadow:0 0 12px rgba(0,0,0,.06)}
+  /* ====== Cover ====== */
+  .cover{text-align:center;padding:90px 40px;border-bottom:6px solid var(--oranye);page-break-after:always}
+  .cover .logo{font-size:15px;letter-spacing:4px;color:var(--abu);text-transform:uppercase}
+  .cover h1{font-size:44px;margin:18px 0 6px;color:var(--biru)}
+  .cover h2{font-size:22px;color:var(--biru2);margin:0 0 26px;font-weight:600}
+  .cover .desc{color:var(--abu);max-width:560px;margin:0 auto 34px}
+  .cover .meta{display:inline-block;text-align:left;background:#f1f5f9;border-radius:12px;padding:16px 28px;font-size:14px}
+  .cover .meta b{color:var(--biru)}
+  .badges{margin-top:30px}
+  .badge{display:inline-block;background:var(--biru);color:#fff;border-radius:20px;padding:4px 14px;font-size:12px;margin:3px}
+  .badge.orange{background:var(--oranye)}
+  /* ====== Navigasi ====== */
+  nav.toc{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:22px 30px;margin:34px 0}
+  nav.toc h2{margin-top:0}
+  nav.toc ol{margin:0;padding-left:22px}
+  nav.toc a{color:var(--biru2);text-decoration:none}
+  /* ====== Heading ====== */
+  h1.sec{font-size:28px;color:var(--biru);border-bottom:3px solid var(--oranye);padding-bottom:8px;margin-top:56px}
+  h2.sub{font-size:20px;color:var(--biru2);margin-top:34px}
+  h3.mini{font-size:16px;color:#334155;margin-top:24px}
+  .sec{page-break-before:always}
+  /* ====== Elemen konten ====== */
+  figure{margin:20px 0;text-align:center;page-break-inside:avoid}
+  figure img{max-width:100%;border:1px solid #cbd5e1;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+  figcaption{font-size:12.5px;color:var(--abu);margin-top:8px;font-style:italic}
+  table.guide{width:100%;border-collapse:collapse;font-size:13.5px;margin:14px 0}
+  table.guide th{background:var(--biru);color:#fff;text-align:left;padding:8px 12px}
+  table.guide td{border:1px solid #e2e8f0;padding:8px 12px;vertical-align:top}
+  table.guide tr:nth-child(even) td{background:#f8fafc}
+  .info{background:#eff6ff;border-left:4px solid var(--biru2);border-radius:6px;padding:12px 16px;margin:14px 0;font-size:14px}
+  .warn{background:var(--kuning-bg);border-left:4px solid #eab308;border-radius:6px;padding:12px 16px;margin:14px 0;font-size:14px}
+  .danger{background:#fef2f2;border-left:4px solid var(--merah);border-radius:6px;padding:12px 16px;margin:14px 0;font-size:14px}
+  .step{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;margin:10px 0;page-break-inside:avoid}
+  .step b.no{display:inline-block;background:var(--oranye);color:#fff;border-radius:50%;width:24px;height:24px;text-align:center;line-height:24px;margin-right:8px;font-size:13px}
+  .flow{background:#0f172a;color:#e2e8f0;font-family:"SF Mono",Consolas,monospace;font-size:13px;border-radius:10px;padding:14px 18px;overflow-x:auto;white-space:nowrap;margin:14px 0}
+  .flow .arr{color:var(--oranye)}
+  code.k{background:#eef2ff;color:#3730a3;border-radius:4px;padding:1px 6px;font-size:13px}
+  .gloss dt{font-weight:700;color:var(--biru);margin-top:10px}
+  .gloss dd{margin:0 0 6px 0;font-size:14px;color:#374151}
+  footer.foot{margin-top:60px;border-top:1px solid #e2e8f0;padding-top:16px;font-size:12px;color:var(--abu);text-align:center}
+  /* ====== Print ====== */
+  @media print{
+    body{background:#fff}
+    .page{box-shadow:none;padding:24px 8px;max-width:100%}
+    .sec{page-break-before:always}
+    figure img{max-width:98%}
+    a{color:inherit}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<!-- ================= COVER ================= -->
+<div class="cover" id="cover">
+  <div class="logo">Politeknik Negeri Bandung &middot; Jurusan Akuntansi</div>
+  <h1>SIM-TKD</h1>
+  <h2>Manual Book — Panduan Mahasiswa &amp; Dosen</h2>
+  <p class="desc">Panduan lengkap praktik <b>Penatausahaan Keuangan Dinas (SKPD)</b> dan <b>Pelaporan Akuntansi Pemerintahan (AKLAP)</b>: dari pencatatan penerimaan dan belanja, penyusunan jurnal dan laporan keuangan, hingga pengaturan data induk dan tanda tangan elektronik dokumen.</p>
+  <div class="meta">
+    <div><b>Dokumen</b> &nbsp;: Manual Book SIM-TKD (Lengkap)</div>
+    <div><b>Pengguna</b> &nbsp;: Mahasiswa (transaksi &amp; AKLAP) &middot; Dosen (pengaturan, verifikasi &amp; TTE)</div>
+    <div><b>Modul</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Penerimaan &middot; Belanja &middot; AKLAP (Kas, Anggaran, Register, LPJ, Jurnal) &middot; TTE</div>
+    <div><b>Versi</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 2.0 &middot; September 2026</div>
+  </div>
+  <div class="badges">
+    <span class="badge">Modul Penerimaan</span>
+    <span class="badge">Modul Belanja</span>
+    <span class="badge orange">Modul Akuntansi AKLAP</span>
+    <span class="badge orange">Kas &amp; Anggaran (baru)</span>
+    <span class="badge">Tanda Tangan Elektronik</span>
+    <span class="badge">47 Ilustrasi Tangkapan Layar</span>
+  </div>
+  <p style="margin-top:22px;font-size:13.5px;color:#64748b;">Ringkasan perubahan versi ini: <a href="manual-book-pembaruan.html" style="color:#1d4ed8;"><b>Manual Book Pembaruan v2.0</b></a>.</p>
+</div>
+
+
+
+<!-- ================= DAFTAR ISI ================= -->
+<nav class="toc" id="toc">
+  <h2>Daftar Isi</h2>
+  <ol>
+    <li><a href="#bag1">Pengenalan SIM-TKD</a></li>
+    <li><a href="#bag2">Memulai — Instalasi, Registrasi, dan Login</a></li>
+    <li><a href="#bag3">Modul Penerimaan (Mahasiswa)</a></li>
+    <li><a href="#bag4">Modul Belanja (Mahasiswa)</a></li>
+    <li><a href="#bag5">Modul Pengaturan (Dosen)</a></li>
+    <li><a href="#bag6">Modul Akuntansi AKLAP (Dosen)</a></li>
+    <li><a href="#bag7">Tanda Tangan Elektronik (TTE)</a></li>
+    <li><a href="#bag8">Troubleshooting &amp; FAQ</a></li>
+    <li><a href="manual-book-pembaruan.html">Manual Book Pembaruan v2.0 (apa yang baru)</a></li>
+  </ol>
+</nav>
+
+<!-- ================= BAGIAN 1 ================= -->
+<h1 class="sec" id="bag1">1. Pengenalan SIM-TKD</h1>
+
+<p><b>SIM-TKD</b> adalah aplikasi web edukasi yang mensimulasikan penatausahaan keuangan dinas (SKPD) berbasis <i>Peraturan Bidang Keuangan</i>. Aplikasi terdiri dari satu aplikasi utama (<i>modul penatausahaan</i>) dan dua modul pendamping — <b>AKLAP</b> dan <b>TTE</b> — yang diakses langsung dari aplikasi utama tanpa login ulang:</p>
+
+<table class="guide">
+  <tr><th style="width:30%">Komponen</th><th>Deskripsi</th></tr>
+  <tr><td><b>Aplikasi Utama</b> (Penatausahaan)</td><td>Dashboard APBD, Modul <b>Penerimaan</b> (STBP, STS, SKP Daerah), Modul <b>Belanja</b> (Rekening Bank SKPD, Rekanan, SPD, SPP, SPM, SP2D, NPD, Pengajuan TU, LPJ), serta <b>Pengaturan</b>.</td></tr>
+  <tr><td><b>AKLAP</b> (Laporan Akuntansi)</td><td>Aplikasi Laporan Akuntansi Pemerintahan: Jurnal Umum, Buku Besar, Neraca Saldo, LRA, dan Neraca. Data jurnal dapat ditarik otomatis dari dokumen STS &amp; SP2D yang sudah dibuat di modul penatausahaan.</td></tr>
+  <tr><td><b>TTE</b> (Tanda Tangan Elektronik)</td><td>Tanda Tangan Elektronik Dokumen: dokumen hasil laman cetak dikirim ke antrean, ditandatangani dengan gambar tanda tangan + QR, dan dapat diverifikasi publik.</td></tr>
+</table>
+
+<h2 class="sub">1.1 Peran Pengguna</h2>
+<table class="guide">
+  <tr><th style="width:22%">Peran</th><th style="width:38%">Kemampuan utama</th><th>Ilustrasi tugas kejuruan</th></tr>
+  <tr><td><b>Mahasiswa</b></td><td>Memproses transaksi penerimaan &amp; belanja lengkap sampai laporan (BKU, register, rekap, LPJ).</td><td>Berperilaku sebagai Bendahara Penerimaan/Pengeluaran dan pelaksana kegiatan.</td></tr>
+  <tr><td><b>Dosen</b></td><td>Mengatur data induk (Pengaturan), menyiapkan &amp; memverifikasi laporan akuntansi AKLAP, menandatangani dokumen secara elektronik.</td><td>Berperilaku sebagai PA/KPA, BUD, dan penyusun laporan keuangan.</td></tr>
+</table>
+<div class="info"><b>Catatan multi-dinas:</b> seluruh data dipisahkan per <i>instansi (SKPD)</i> milik akun. Dua akun dengan instansi berbeda tidak akan melihat data satu sama lain — fitur ini dipakai dosen untuk membedakan data antar mahasiswa/kelompok.</div>
+
+<h2 class="sub">1.2 Istilah Penting (Glosarium Ringkas)</h2>
+<dl class="gloss">
+  <dt>STBP — Surat Tanda Bukit Pembayaran (Tanda Bukti Pembayaran)</dt><dd>Bukti penerimaan yang dibuat bendahara penerimaan dari <b>SKP Daerah</b> sebagai dasarnya.</dd>
+  <dt>STS — Surat Tanda Setor</dt><dd>Bukti penyetoran uang penerimaan ke Kas Daerah; dibuat dari kumpulan STBP yang sudah <i>tervalidasi</i>.</dd>
+  <dt>SKP Daerah — Surat Ketetapan Pajak Daerah</dt><dd>Ketetapan pajak/retribusi daerah oleh PPK-SKPD; dasar pembuatan STBP.</dd>
+  <dt>SPD — Surat Penyediaan Dana</dt><dd>Penyediaan dana oleh BUD agar SKPD dapat melaksanakan belanja; wajib diotorisasi sebelum dipakai SPP.</dd>
+  <dt>SPP — Surat Permintaan Pembayaran</dt><dd>Permintaan pembayaran bendahara pengeluaran kepada BUD, dikelompokkan per jenis (LS Gaji, LS Barang &amp; Jasa, UP, GU, TU).</dd>
+  <dt>SPM — Surat Perintah Membayar</dt><dd>Dibuat otomatis saat SPP diverifikasi; kemudian disetujui dan diverifikasi BUD.</dd>
+  <dt>SP2D — Surat Perintah Pencairan Dana</dt><dd>Bukti pengeluaran kas daerah; dibuat dari SPM yang telah diverifikasi, lalu dicairkan (transfer).</dd>
+  <dt>NPD — Nota Pencairan Dana</dt><dd>Pengajuan pencairan dana kegiatan (panjar/non-panjar) melalui validasi PA/KPA dan BP/BPP.</dd>
+  <dt>UP/GU/TU</dt><dd>Uang Persediaan, Ganti Uang, dan Tambahan Uang Persediaan — bentuk pengelolaan bendahara pengeluaran.</dd>
+  <dt>BKU — Buku Kas Umum</dt><dd>Buku rekapitulasi seluruh transaksi kas (penerimaan atau belanja).</dd>
+  <dt>LPJ — Laporan Pertanggungjawaban</dt><dd>Pertanggungjawaban bendahara atas pengeluaran (syarat SPP jenis GU) maupun kegiatan.</dd>
+  <dt>AKLAP</dt><dd>Aplikasi Laporan Akuntansi Pemerintahan — modul pencatatan jurnal dan pelaporan keuangan.</dd>
+  <dt>TTE</dt><dd>Tanda Tangan Elektronik — penandatanganan dokumen digital dengan gambar tanda tangan, sidik digital (hash) keaslian, dan kode/QR verifikasi.</dd>
+</dl>
+
+<!-- ================= BAGIAN 2 ================= -->
+<h1 class="sec" id="bag2">2. Memulai — Instalasi, Registrasi, dan Login</h1>
+
+<h2 class="sub">2.1 Halaman Depan (Landing Page)</h2>
+<p>Halaman depan memperkenalkan aplikasi, fitur utama, dan tombol menuju pendaftaran/login. <b>Alamat (tautan) aplikasi diberikan oleh dosen/administratur</b> — cukup buka tautan tersebut menggunakan peramban (browser) di komputer.</p>
+<figure>
+  <img src="screenshots/opt/01-landing.webp" alt="Landing page SIM-TKD" loading="lazy" decoding="async">
+  <figcaption>Gambar 2.1 — Halaman depan SIM-TKD</figcaption>
+</figure>
+
+<h2 class="sub">2.2 Mengakses Aplikasi</h2>
+<div class="step"><b class="no">1</b> Dapatkan <b>alamat (tautan) aplikasi</b> dari dosen/administratur.</div>
+<div class="step"><b class="no">2</b> Buka tautan tersebut menggunakan <b>peramban (browser)</b> — Google Chrome, Mozilla Firefox, atau Microsoft Edge — pada komputer yang terhubung internet.</div>
+<div class="step"><b class="no">3</b> Jika halaman tidak terbuka, periksa kembali penulisan alamat atau hubungi dosen/administratur.</div>
+<div class="info"><b>Catatan untuk dosen:</b> penyiapan server dan data aplikasi dilakukan <b>sekali</b> di awal oleh dosen/administratur (petunjuk teknis tersedia pada dokumentasi proyek). Mahasiswa cukup mendaftar dan login (Subbab 2.3–2.4).</div>
+
+<h2 class="sub">2.3 Registrasi Akun Baru</h2>
+<p>Mahasiswa mendaftarkan akun sendiri melalui menu <b>Daftar</b>. Isi nama lengkap, email, username, password, serta <b>nama instansi (SKPD)</b> — nama instansi menjadi kunci pemisahan data. Akun <b>tidak langsung aktif</b>: setelah registrasi akun berstatus <b>pending</b> dan harus diaktifkan dengan <b>kode OTP</b> yang dikirim ke email Anda.</p>
+<figure>
+  <img src="screenshots/opt/03-pendaftaran.webp" alt="Halaman pendaftaran" loading="lazy" decoding="async">
+  <figcaption>Gambar 2.2 — Halaman pendaftaran akun</figcaption>
+</figure>
+<div class="info"><b>Aktivasi akun (wajib sebelum bisa login):</b> setelah menekan <b>Daftar</b>, Anda otomatis diarahkan ke halaman <b>Aktivasi Akun</b> (<code class="k">aktivasi.html</code>) dan email terdaftar sudah terisi.</div>
+<div class="step"><b class="no">1</b> Masukkan <b>email</b> terdaftar, lalu klik <b>Cek Akun</b> — sistem menampilkan <b>nama akun</b> dan <b>instansi</b> Anda untuk diperiksa.</div>
+<div class="step"><b class="no">2</b> Bila data sudah benar, klik <b>Konfirmasi &amp; Kirim OTP</b>.</div>
+<div class="step"><b class="no">3</b> Buka email Anda, masukkan <b>kode OTP 6 angka</b> (berlaku 10 menit), lalu klik <b>Verifikasi &amp; Aktifkan Akun</b>.</div>
+<div class="step"><b class="no">4</b> Bila kode benar, akun berstatus <b>aktif</b> dan Anda diarahkan ke halaman login.</div>
+<div class="info"><b>Belum menerima kode?</b> Periksa folder spam, klik <b>Kirim ulang kode</b> (jeda 60 detik), atau hubungi dosen/administratur — kode juga tercatat di server sehingga dapat dibantu.</div>
+
+<h2 class="sub">2.4 Login ke Aplikasi</h2>
+<div class="step"><b class="no">1</b> Buka halaman <b>Login</b> dari menu <b>Masuk</b>, masukkan <b>username/email</b> dan <b>password</b>.</div>
+<div class="step"><b class="no">2</b> Masukkan <b>5 karakter captcha</b> yang tampil (contoh pada gambar: <code class="k">SSSSS</code>). Klik ikon refresh bila huruf sulit dibaca.</div>
+<div class="step"><b class="no">3</b> Klik <b>Login</b> — bila berhasil Anda diarahkan ke Dashboard. Terdapat pembatasan <b>maksimal 8 percobaan / 5 menit</b> per akun untuk mencegah penyerangan.</div>
+<div class="info"><b>Akun belum aktif?</b> Tautan <b>Aktivasi Akun</b> selalu tersedia di bawah tombol <b>Masuk</b> pada halaman login. Bila Anda mencoba login dengan akun <b>pending</b>, login akan ditolak dan muncul tautan <b>Aktifkan Akun Sekarang</b> menuju halaman aktivasi (Subbab 2.3).</div>
+<figure>
+  <img src="screenshots/opt/02-login.webp" alt="Halaman login" loading="lazy" decoding="async">
+  <figcaption>Gambar 2.3 — Halaman login dengan captcha</figcaption>
+</figure>
+
+<h2 class="sub">2.5 Dashboard — Ringkasan APBD</h2>
+<p>Dashboard menampilkan ringkasan tahun berjalan: <b>Belanja Daerah</b> (realisasi terhadap pagu), <b>Pagu Anggaran</b>, <b>Jumlah Kegiatan</b>, <b>Penerimaan (STBP tervalidasi)</b>, <b>Penyetoran (STS)</b>, dan <b>Belanja (SP2D dicairkan)</b>, dilengkapi grafik APBD dan jadwal kegiatan. Klik <b>Cetak</b> atau <b>Ekspor</b> untuk mengunduh ringkasan.</p>
+<figure>
+  <img src="screenshots/opt/04-dashboard.webp" alt="Dashboard" loading="lazy" decoding="async">
+  <figcaption>Gambar 2.4 — Dashboard ringkasan APBD</figcaption>
+</figure>
+
+<div class="info"><b>Struktur menu utama:</b> Dashboard · Penerimaan · Belanja · Akuntansi (AKLAP) · Tanda Tangan Dokumen (TTE) · Pengaturan. Pengaturan lanjutan tersedia di pojok kanan atas.</div>
+
+<!-- ================= BAGIAN 3 ================= -->
+<h1 class="sec" id="bag3">3. Modul Penerimaan (Mahasiswa)</h1>
+
+<p>Modul Penerimaan mencatat seluruh penerimaan dinas dengan alur resmi:</p>
+<div class="flow">Permohonan Rekening <span class="arr">→</span> SKP Daerah <span class="arr">→</span> STBP (verifikasi → otorisasi → validasi) <span class="arr">→</span> STS <span class="arr">→</span> Register/BKU/Laporan</div>
+
+<figure>
+  <img src="screenshots/opt/05-menu-penerimaan.webp" alt="Menu Penerimaan" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.1 — Beranda modul Penerimaan</figcaption>
+</figure>
+
+<h2 class="sub">3.1 Permohonan Rekening (Bendahara Penerimaan)</h2>
+<p>Sebelum menerima uang, bendahara penerimaan mengajukan <b>permohonan rekening bank</b>: isi nama bank, nama rekening, dan nomor rekening, lalu ajukan. Rekening akan <b>diverifikasi</b> kemudian <b>diaktifkan</b>; hanya rekening aktif yang dapat dipakai sebagai rekening tujuan penyetoran STBP.</p>
+<div class="step"><b class="no">1</b> Buka menu <b>Penerimaan → Rekening</b>, klik tombol permohonan baru.</div>
+<div class="step"><b class="no">2</b> Isi bank, nama rekening, dan nomor rekening lalu simpan.</div>
+<div class="step"><b class="no">3</b> Lakukan verifikasi dan set rekening menjadi aktif dari tabel daftar rekening.</div>
+<figure>
+  <img src="screenshots/opt/06-permohonan-rekening.webp" alt="Permohonan rekening" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.2 — Daftar permohonan rekening</figcaption>
+</figure>
+
+<h2 class="sub">3.2 SKP Daerah — Surat Ketetapan Pajak</h2>
+<p><b>SKP Daerah</b> adalah ketetapan pajak/retribusi daerah yang menjadi dasar pembuatan STBP. Jenis pajak <b>wajib dipilih dari daftar Akun Penerimaan</b> yang diaktifkan dosen di menu Pengaturan (lihat Bagian 5.1).</p>
+<div class="step"><b class="no">1</b> Buka <b>Penerimaan → SKP - Daerah</b>, klik <b>Tambah</b>.</div>
+<div class="step"><b class="no">2</b> Isi tanggal, jenis pajak (dari akun penerimaan aktif), nama penyetor, alamat, NPWPD, objek pajak, nilai ketetapan, dan masa pajak.</div>
+<div class="step"><b class="no">3</b> Simpan. Nomor SKP dibuat otomatis (format <code class="k">SKP-YYYYMMDD-XXXX</code>) dan status menjadi <i>aktif</i>. Cetak bila diperlukan (Gambar 3.5).</div>
+<figure>
+  <img src="screenshots/opt/14-skp-daerah.webp" alt="Daftar SKP Daerah" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.3 — Daftar SKP Daerah</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/15-skp-daerah-tambah.webp" alt="Form tambah SKP" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.4 — Formulir SKP Daerah baru</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/16-skp-daerah-cetak.webp" alt="Cetak SKP" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.5 — Laman cetak SKP Daerah</figcaption>
+</figure>
+
+<h2 class="sub">3.3 STBP — Surat Tanda Bukti Pembayaran</h2>
+<p>STBP dibuat <b>dari SKP Daerah yang aktif</b>: akun penerimaan, nominal, dan nama penyetor ditarik otomatis dari SKP (data harus konsisten). Setelah dibuat, STBP melewati <b>tiga tahap</b>:</p>
+<div class="flow">Belum diverifikasi <span class="arr">→</span> Sudah diverifikasi <span class="arr">→</span> Sudah diotorisasi <span class="arr">→</span> Sudah divalidasi</div>
+<div class="warn">Tahap tidak boleh dilompati dan hanya boleh maju satu per satu. STBP yang telah dipakai membuatkan STS tidak dapat dipilih lagi.</div>
+<div class="step"><b class="no">1</b> Buka <b>Penerimaan → STBP → Pembuatan</b> untuk melihat daftar dan tahapannya (Gambar 3.6).</div>
+<div class="step"><b class="no">2</b> Klik <b>Tambah STBP</b>, pilih SKP Daerah sebagai dasar, isi tanggal dan data pembayaran (metode, bank, nomor rekening), lalu simpan (Gambar 3.7).</div>
+<div class="step"><b class="no">3</b> Majukan status pada tab/aksi masing-masing sampai <i>sudah divalidasi</i> — baru kemudian layak dimasukkan ke STS.</div>
+<figure>
+  <img src="screenshots/opt/07-stbp-pembuatan.webp" alt="STBP pembuatan" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.6 — Daftar STBP dengan alur 3 tahap</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/08-stbp-tambah.webp" alt="Tambah STBP" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.7 — Formulir pembuatan STBP dari SKP Daerah</figcaption>
+</figure>
+
+<h3 class="mini">Cetak STBP &amp; kirim ke TTE</h3>
+<p>Laman cetak STBP menyediakan <b>Pengaturan Kertas PDF</b> (ukuran font, jenis font, warna garis/tulisan, layout kolom, warna background, dan watermark gambar). Tombol <b>Cetak Sekarang</b> mencetak PDF, dan tombol <b>Kirim ke Tanda Tangan</b> mengirim dokumen ke antrean TTE (Bagian 7).</p>
+<figure>
+  <img src="screenshots/opt/09-stbp-cetak.webp" alt="Cetak STBP" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.8 — Laman cetak STBP dengan pengaturan kertas PDF</figcaption>
+</figure>
+
+<h2 class="sub">3.4 STS — Surat Tanda Setor</h2>
+<p>STS menyatukan beberapa STBP yang sudah <i>tervalidasi</i> menjadi satu bukti penyetoran ke Kas Daerah.</p>
+<div class="step"><b class="no">1</b> Buka <b>Penerimaan → STS → Pembuatan</b> (Gambar 3.9).</div>
+<div class="step"><b class="no">2</b> Klik <b>Tambah STS</b>: isi nama penyetor, tanggal STS, tanggal acuan awal–akhir, nama pejabat <i>mengetahui</i> dan <i>Kuasa Pengguna Anggaran</i>, data bank, lalu <b>pilih minimal satu STBP tervalidasi</b> (Gambar 3.10).</div>
+<div class="step"><b class="no">3</b> Simpan — total STS dihitung otomatis dari jumlah seluruh STBP terpilih. Cetak bila diperlukan (Gambar 3.11).</div>
+<figure>
+  <img src="screenshots/opt/10-sts-pembuatan.webp" alt="STS pembuatan" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.9 — Daftar STS</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/11-sts-tambah.webp" alt="Tambah STS" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.10 — Formulir STS dengan pemilihan STBP</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/12-sts-cetak.webp" alt="Cetak STS" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.11 — Laman cetak STS</figcaption>
+</figure>
+
+<h2 class="sub">3.5 Register STS</h2>
+<p><b>Register STS</b> adalah daftar urut seluruh STS pada periode tertentu sebagai buku pengawasan penyetoran. Pilih rentang tanggal lalu tampilkan/cetak.</p>
+<figure>
+  <img src="screenshots/opt/13-register-sts.webp" alt="Register STS" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.12 — Register STS</figcaption>
+</figure>
+
+<h2 class="sub">3.6 Laporan Penerimaan (BKU, Buku Pembantu, Rekap, LPJ)</h2>
+<table class="guide">
+  <tr><th style="width:34%">Laporan</th><th>Isi &amp; kegunaan</th></tr>
+  <tr><td><b>BKU Penerimaan</b> (Gbr. 3.13)</td><td>Buku Kas Umum: rekapitulasi kronologis seluruh penerimaan pada rentang tanggal.</td></tr>
+  <tr><td><b>Buku Pembantu Penerimaan</b> (Gbr. 3.14)</td><td>Buku pembantu per akun penerimaan — memantau mutasi dan saldo per kode akun.</td></tr>
+  <tr><td><b>Rekap Penerimaan</b> (Gbr. 3.15)</td><td>Ringkasan penerimaan per periode/akun untuk kebutuhan laporan berkala.</td></tr>
+  <tr><td><b>LPJ Penerimaan</b> (Gbr. 3.16)</td><td>Laporan pertanggungjawaban bendahara penerimaan atas setoran ke Kas Daerah.</td></tr>
+</table>
+<figure>
+  <img src="screenshots/opt/17-bku-penerimaan.webp" alt="BKU Penerimaan" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.13 — BKU Penerimaan</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/18-buku-pembantu.webp" alt="Buku Pembantu Penerimaan" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.14 — Buku Pembantu Penerimaan</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/19-rekap-penerimaan.webp" alt="Rekap Penerimaan" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.15 — Rekapitulasi Penerimaan</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/20-lpj-penerimaan.webp" alt="LPJ Penerimaan" loading="lazy" decoding="async">
+  <figcaption>Gambar 3.16 — LPJ Penerimaan</figcaption>
+</figure>
+
+<!-- ================= BAGIAN 4 ================= -->
+<h1 class="sec" id="bag4">4. Modul Belanja (Mahasiswa)</h1>
+
+<p>Modul Belanja mensimulasikan siklus belanja SKPD dari perencanaan sampai pengeluaran kas:</p>
+<div class="flow">Rekening Bank SKPD <span class="arr">→</span> Rekanan <span class="arr">→</span> Kebijakan SPD &amp; Besaran UP <span class="arr">→</span> SPD <span class="arr">→</span> SPP <span class="arr">→</span> SPM <span class="arr">→</span> SP2D <span class="arr">→</span> BKU Belanja</div>
+<p>Didukung dokumen pendukung <b>NPD</b> (nota pencairan dana kegiatan), <b>Pengajuan TU</b>, dan <b>LPJ</b> (syarat SPP jenis GU).</p>
+
+<figure>
+  <img src="screenshots/opt/21-menu-belanja.webp" alt="Menu Belanja" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.1 — Beranda modul Belanja</figcaption>
+</figure>
+
+<h2 class="sub">4.1 Rekening Bank SKPD</h2>
+<p>Alur 4 tahap: <b>permohonan (BP) → pengajuan (PA) → pembuatan nomor (BUD) → validasi &amp; aktif</b>. Rekening aktif dipakai sebagai rekening tujuan pada SP2D.</p>
+<figure>
+  <img src="screenshots/opt/22-rekening.webp" alt="Rekening Bank SKPD" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.2 — Daftar rekening bank SKPD beserta tahapannya</figcaption>
+</figure>
+
+<h2 class="sub">4.2 Daftar Rekanan</h2>
+<p>Simpan data penyedia (perusahaan/perseorangan): nama, NPWP, alamat, bank, dan nomor rekening. Rekanan dipilih saat membuat SPP jenis <i>LS Barang dan Jasa</i>.</p>
+<figure>
+  <img src="screenshots/opt/23-rekanan.webp" alt="Daftar Rekanan" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.3 — Daftar rekanan</figcaption>
+</figure>
+
+<h2 class="sub">4.3 Kebijakan SPD &amp; Besaran UP (aturan penerbitan BUD)</h2>
+<p><b>Kebijakan SPD</b> menentukan jenis penerbitan (mis. <i>Berkala</i>) dan periode (mis. <i>Bulanan</i>). Bila kebijakan aktif, label periode pada SPD diisi <b>otomatis dari tanggal</b> dan jenis periode SPD harus sesuai. <b>Besaran UP</b> membatasi plafon Uang Persediaan per tahun (termasuk KKPD).</p>
+<figure>
+  <img src="screenshots/opt/24-kebijakan-spd.webp" alt="Kebijakan SPD" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.4 — Kebijakan SPD</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/25-besaran-up.webp" alt="Besaran UP" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.5 — Besaran UP per tahun</figcaption>
+</figure>
+
+<h2 class="sub">4.4 SPD — Surat Penyediaan Dana</h2>
+<div class="step"><b class="no">1</b> Pada tab <b>Pembuatan SPD</b> (Kuasa BUD), isi tanggal, jenis (Gaji/UP/TU/LS/Tahunan), dan jumlah. Periode mengikuti Kebijakan SPD (Gambar 4.6).</div>
+<div class="step"><b class="no">2</b> Pada tab <b>Otorisasi SPD</b>, SPD diotorisasi oleh BUD. Hanya SPD <i>sudah_otorisasi</i> yang boleh dipakai SPP — dan jumlah seluruh SPP tidak boleh melebihi sisa SPD.</div>
+<figure>
+  <img src="screenshots/opt/26-spd.webp" alt="SPD" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.6 — Pembuatan &amp; otorisasi SPD</figcaption>
+</figure>
+
+<h2 class="sub">4.5 SPP — Surat Permintaan Pembayaran</h2>
+<p>SPP dibuat per jenis: <b>LS Gaji</b> (rincian kode rekening belanja multi-baris), <b>LS Barang &amp; Jasa</b> (dengan rekanan serta <b>potongan</b> seperti PPh 21 dan <b>pajak</b> seperti PPN — nilai dapat berupa persen otomatis atau nominal), <b>UP</b>, <b>GU</b> (wajib memilih LPJ), dan <b>TU</b> (wajib memilih Pengajuan TU). Setiap SPP wajib merujuk <b>SPD terotorisasi</b>.</p>
+<figure>
+  <img src="screenshots/opt/27-spp.webp" alt="SPP" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.7 — Daftar SPP beserta status verifikasi</figcaption>
+</figure>
+
+<h2 class="sub">4.6 SPM — Surat Perintah Membayar</h2>
+<p>Ketika SPP <b>diverifikasi setuju</b>, sistem otomatis membuat <b>SPM</b> dengan nilai <i>netto</i> (jumlah − potongan − pajak). SPM kemudian melalui <b>persetujuan</b> (SPTJM SPM dibuat) lalu <b>verifikasi BUD</b>.</p>
+<figure>
+  <img src="screenshots/opt/28-spm.webp" alt="SPM" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.8 — Daftar SPM: persetujuan &amp; verifikasi</figcaption>
+</figure>
+
+<h2 class="sub">4.7 SP2D — Surat Perintah Pencairan Dana</h2>
+<p>SP2D dibuat dari <b>SPM yang sudah diverifikasi</b>, berisi rekening tujuan dan jumlah netto. Setelah dibuat, SP2D diverifikasi lalu <b>dicairkan</b> (transfer) — status berubah menjadi <i>sudah_dicairkan</i> dan masuk ke BKU Belanja.</p>
+<figure>
+  <img src="screenshots/opt/29-sp2d.webp" alt="SP2D" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.9 — Daftar SP2D: pembuatan, verifikasi, pencairan</figcaption>
+</figure>
+
+<h2 class="sub">4.8 NPD — Nota Pencairan Dana</h2>
+<p>NPD diajukan untuk pencairan dana kegiatan (metode <i>panjar</i> atau <i>non-panjar</i>), lengkap dengan kegiatan dan sub kegiatan. Validasi dua lapis: <b>PA/KPA</b> kemudian <b>BP/BPP</b>.</p>
+<figure>
+  <img src="screenshots/opt/30-npd.webp" alt="NPD" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.10 — Daftar NPD dengan tahapan validasi</figcaption>
+</figure>
+
+<h2 class="sub">4.9 Pengajuan TU</h2>
+<p>Pengajuan <b>Tambahan Uang Persediaan</b> melalui tiga tahap: dibuat bendahara → <b>otorisasi BUD</b> → <b>validasi PA/KPA</b>. Pengajuan yang sudah tervalidasi dipilih saat membuat SPP jenis TU.</p>
+<figure>
+  <img src="screenshots/opt/31-pengajuan-tu.webp" alt="Pengajuan TU" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.11 — Daftar Pengajuan TU</figcaption>
+</figure>
+
+<h2 class="sub">4.10 LPJ — Laporan Pertanggungjawaban</h2>
+<p>LPJ dicatat sebagai pertanggungjawaban pengeluaran (contoh: LPJ kas kecil bulanan). LPJ menjadi <b>syarat wajib</b> SPP jenis <b>GU</b>.</p>
+<figure>
+  <img src="screenshots/opt/32-lpj.webp" alt="LPJ" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.12 — Daftar LPJ</figcaption>
+</figure>
+
+<h2 class="sub">4.11 BKU Belanja</h2>
+<p><b>Buku Kas Umum Belanja</b> merekap seluruh SP2D yang telah dicairkan pada rentang tanggal tertentu — gambaran pengeluaran kas dinas.</p>
+<figure>
+  <img src="screenshots/opt/33-bku-belanja.webp" alt="BKU Belanja" loading="lazy" decoding="async">
+  <figcaption>Gambar 4.13 — BKU Belanja</figcaption>
+</figure>
+
+<!-- ================= BAGIAN 5 ================= -->
+<h1 class="sec" id="bag5">5. Modul Pengaturan (Dosen)</h1>
+
+<p>Menu <b>Pengaturan</b> berisi data induk yang membatasi/mengatur pekerjaan mahasiswa. Dosen sebaiknya menyiapkan pengaturan ini <b>sebelum</b> praktik dimulai.</p>
+
+<h2 class="sub">5.1 Akun Penerimaan</h2>
+<p>Daftar akun/kode penerimaan daerah (mis. <code class="k">4.1.01.01 Pajak Hotel</code>). Hanya akun dengan status <b>aktif</b> yang dapat dipilih mahasiswa saat membuat <b>SKP Daerah</b> — jenis pajak SKP wajib berasal dari daftar ini. Tersedia input satu-satu, tambah massal (<i>bulk</i>), serta impor data.</p>
+<figure>
+  <img src="screenshots/opt/34-pengaturan-akun-penerimaan.webp" alt="Pengaturan Akun Penerimaan" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.1 — Pengaturan Akun Penerimaan</figcaption>
+</figure>
+
+<h2 class="sub">5.2 Anggaran &amp; Neraca</h2>
+<p>Halaman ini menyiapkan <b>anggaran LRA</b> (target pendapatan/belanja per akun) dan <b>neraca awal</b> (saldo awal akun neraca) yang menjadi dasar laporan akuntansi AKLAP pada Bagian 6.</p>
+<div class="info"><b>Perubahan v2.0:</b> pengelolaan <b>pagu anggaran</b> kini dipindahkan ke AKLAP (menu <b>Anggaran (Pagu)</b>) agar satu pintu dengan <b>Master Akun</b>. Pada halaman ini tampil <b>banner</b> beserta tautan langsung ke AKLAP — tautan tersebut membawa token sehingga tidak perlu login ulang. Form lama tetap dapat dipakai untuk <b>impor massal</b>; perhatikan bahwa menyimpan di sini mengganti seluruh baris pagu pada tahun terpilih. Halaman ini juga tetap menjadi tempat penyiapan <b>Neraca Awal</b>.</div>
+<figure>
+  <img src="screenshots/opt/35-pengaturan-anggaran-neraca.webp" alt="Pengaturan Anggaran & Neraca" loading="lazy" decoding="async">
+  <figcaption>Gambar 5.2 — Pengaturan Anggaran LRA &amp; Neraca Awal (kini dilengkapi banner pengarah ke AKLAP)</figcaption>
+</figure>
+
+<!-- ================= BAGIAN 6 ================= -->
+<h1 class="sec" id="bag6">6. Modul Akuntansi AKLAP (Dosen)</h1>
+
+<p><b>AKLAP</b> (Aplikasi Laporan Akuntansi Pemerintahan) diakses dari aplikasi utama melalui menu <b>Akuntansi</b> — Anda <b>langsung masuk tanpa login ulang</b> dan data tetap terbatas pada instansi Anda. Tombol <b>Kembali ke Penatausahaan</b> tersedia di pojok kanan atas.</p>
+
+<figure>
+  <img src="screenshots/opt/36-aklap-beranda.webp" alt="Beranda AKLAP" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.1 — Beranda AKLAP setelah masuk dari menu Akuntansi</figcaption>
+</figure>
+
+<h2 class="sub">6.1 Jurnal Umum — Manual, Isi dari Dokumen, &amp; Cetak per Jurnal</h2>
+<p>Ada dua cara mencatat jurnal:</p>
+<div class="step"><b class="no">1</b> <b>Manual</b> — klik <b>Tambah Jurnal</b>, catat transaksi dua sisi (Debet/Kredit) dengan Master Akun sebagai daftar akun.</div>
+<div class="step"><b class="no">2</b> <b>Isi dari Dokumen</b> — tarik <b>template jurnal otomatis</b> dari dokumen yang sudah ada: <b>STS</b> (penerimaan) dan <b>SP2D</b> (belanja) yang telah dibuat di modul penatausahaan. Nilai potongan/pajak SPP ikut membentuk baris jurnalnya.</div>
+<div class="step"><b class="no">3</b> <b>Cetak per jurnal (v2.0)</b> — tombol <b>🖨</b> pada kolom Aksi setiap baris mencetak <b>voucher satu jurnal</b> (A4 portrait) berisi kop, identitas, rincian akun, terbilang, dan tanda tangan; tombol <b>Cetak Draft</b> mencetak jurnal yang masih diisi. Isian <b>Nama/NIP</b> penandatangan tersedia di atas halaman.</div>
+<figure>
+  <img src="screenshots/opt/37-aklap-akuntansi.webp" alt="Menu akuntansi AKLAP" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.2 — Halaman akuntansi AKLAP</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/38-aklap-jurnal-umum.webp" alt="Jurnal Umum AKLAP" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.3 — Jurnal Umum (manual) dengan filter pencarian</figcaption>
+</figure>
+
+<h2 class="sub">6.2 Buku Besar &amp; Neraca Saldo</h2>
+<p><b>Buku Besar</b> menampilkan mutasi per akun dari seluruh jurnal, sedangkan <b>Neraca Saldo</b> merangkum saldo akhir seluruh akun (debet/kredit) pada akhir periode — keduanya dihitung langsung dari jurnal yang tervalidasi.</p>
+<figure>
+  <img src="screenshots/opt/39-aklap-buku-besar.webp" alt="Buku Besar" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.4 — Buku Besar</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/40-aklap-neraca-saldo.webp" alt="Neraca Saldo" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.5 — Neraca Saldo</figcaption>
+</figure>
+
+<h2 class="sub">6.3 Laporan Keuangan — LRA &amp; Neraca</h2>
+<p><b>LRA</b> (Laporan Realisasi Anggaran) membandingkan anggaran (dari Pengaturan → Anggaran LRA) dengan realisasi per akun, sedangkan <b>Neraca</b> menyajikan posisi aset, kewajiban, dan ekuitas dari saldo akun neraca + neraca awal. Kedua laporan dapat dicetak/disajikan sebagai bukti akhir tugas kejuruan.</p>
+<figure>
+  <img src="screenshots/opt/41-aklap-lra.webp" alt="LRA" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.6 — Laporan Realisasi Anggaran</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/42-aklap-neraca.webp" alt="Neraca" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.7 — Laporan Posisi Keuangan / Neraca</figcaption>
+</figure>
+
+
+<h2 class="sub">6.4 Modul Tambahan v2.0 (Kas, Anggaran, Register, LPJ, Jurnal Khusus)</h2>
+<p>Pembaruan <b>v2.0</b> menambahkan rangkaian modul berikut pada AKLAP. Semuanya tetap terpisah per instansi (SKPD) dan dapat dicetak serta dikirim ke tanda tangan.</p>
+<table class="guide">
+  <tr><th style="width:26%">Menu</th><th style="width:20%">Halaman</th><th>Ringkas</th></tr>
+  <tr><td><b>Master Akun</b></td><td><code class="k">master-akun.html</code></td><td>Pusat daftar akun (COA) dipakai jurnal, buku pembantu, dan anggaran; otomatis berisi COA LRA standar (177 akun) dan dapat dilengkapi kembali.</td></tr>
+  <tr><td><b>Anggaran (Pagu)</b></td><td><code class="k">anggaran.html</code></td><td>Pagu per akun <b>Master Akun</b> per tahun; menjadi sumber kolom Jumlah Anggaran pada LPJ, Buku Pembantu, dan LRA.</td></tr>
+  <tr><td><b>Buku Kas</b> ▾</td><td><code class="k">buku-penerimaan-ppkd.html</code><br><code class="k">buku-pengeluaran-ppkd.html</code></td><td>Pencatatan kas masuk/keluar per instansi dengan saldo berjalan, cetak BKU, dan kirim tanda tangan.</td></tr>
+  <tr><td><b>Buku Kas Umum (BUD)</b></td><td><code class="k">buku-kas-bud.html</code></td><td>Gabungan penerimaan &amp; pengeluaran (blanko Bendahara Umum Daerah) dengan saldo awal otomatis/manual; cetak A4 portrait.</td></tr>
+  <tr><td><b>Laporan Kas Harian</b></td><td><code class="k">laporan-kas-harian.html</code></td><td>Posisi kas harian (isi manual) dengan posisi kas H-1 otomatis dan rekapitulasi saldo bank.</td></tr>
+  <tr><td><b>Rekonsiliasi Bank</b></td><td><code class="k">rekonsiliasi-bank.html</code></td><td>Saldo buku vs bank dan keterangan selisih A–D per bulan (huruf otomatis); saran saldo buku dari Buku Kas.</td></tr>
+  <tr><td><b>Register SPP/SPM/SP2D</b></td><td><code class="k">register-ppkd.html</code></td><td>Register resmi (blanko Modul-3E-LK) yang barisnya otomatis dari Buku Kas Pengeluaran — hanya nomor &amp; tanggal yang diisi.</td></tr>
+  <tr><td><b>LPJ Bendahara PPKD</b></td><td><code class="k">lpj-ppkd.html</code></td><td>LPJ per bulan: kode rekening berrealisasi, pagu, realisasi s.d. bulan lalu/bulan ini, sisa, dan rekonsiliasi kas.</td></tr>
+  <tr><td><b>Buku Pembantu Objek</b></td><td><code class="k">buku-pembantu.html</code></td><td>Pagu, realisasi, dan sisa per objek/akun untuk memantau serapan anggaran.</td></tr>
+  <tr><td><b>Buku Jurnal Khusus</b></td><td><code class="k">jurnal-khusus.html</code></td><td>Lima blanko jurnal khusus (Pendapatan LO, Penerimaan Kas–LO, Pendapatan LRA, Belanja Pemda, Beban Pemda) dengan kode akun manual.</td></tr>
+  <tr><td><b>Jurnal Khusus Konsolidator</b></td><td><code class="k">jurnal-khusus-konsolidator.html</code></td><td>Blanko <i>Buku Jurnal Khusus Penerimaan Konsolidator</i> dengan isian <b>SKPKD</b> manual per periode.</td></tr>
+  <tr><td>—</td><td><code class="k">jurnal-umum.html</code></td><td><b>Cetak per jurnal</b> (voucher) dan <b>Cetak Draft</b> beserta isian Nama/NIP penandatangan.</td></tr>
+</table>
+
+<figure>
+  <img src="screenshots/opt/baru-01-menu-buku-kas.webp" alt="Peta menu AKLAP terbaru" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.8 — Peta menu AKLAP v2.0: dropdown <b>Buku Kas</b> (5 halaman) dan menu baru (Konsolidator, Master Akun, Anggaran)</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/baru-06-buku-kas-umum-bud.webp" alt="Buku Kas Umum (BUD)" loading="lazy" decoding="async">
+  <figcaption>Gambar 6.9 — Buku Kas Umum (BUD): blanko gabungan penerimaan &amp; pengeluaran dengan saldo berjalan</figcaption>
+</figure>
+
+<div class="info"><b>Dokumen pendamping:</b> rincian perubahan, perbaikan bug, catatan teknis (endpoint/tabel baru), dan langkah verifikasi tersedia pada <a href="manual-book-pembaruan.html"><b>Manual Book Pembaruan v2.0</b></a>; panduan langkah demi langkah untuk mahasiswa ada pada <a href="manual-book-mahasiswa.html"><b>Manual Book — Edisi Mahasiswa</b></a> (Bagian 5).</div>
+
+<!-- ================= BAGIAN 7 ================= -->
+<h1 class="sec" id="bag7">7. Tanda Tangan Elektronik (TTE)</h1>
+
+<h2 class="sub">7.1 Mengirim Dokumen ke Antrean TTE</h2>
+<p>Setiap <b>laman cetak</b> dokumen (STBP, STS, SPD, SPP, SPM, SP2D, NPD, SKP, dsb.) memiliki tombol <b>Kirim ke Tanda Tangan</b>. Saat dikirim, sistem menyimpan salinan lengkap dokumen beserta <b>sidik digital (hash)</b> sebagai penanda keaslian dokumen. Status awal: <i>menunggu tanda tangan</i>.</p>
+<div class="warn">Dokumen yang sudah <b>ditandatangani</b> tidak dapat diubah/dikirim ulang — ini menjamin integritas isi dokumen.</div>
+
+<h2 class="sub">7.2 Membuat Gambar Tanda Tangan &amp; Menandatangani</h2>
+<div class="step"><b class="no">1</b> Dari aplikasi utama, buka menu <b>Tanda Tangan Dokumen</b> — modul TTE terbuka <b>tanpa login ulang</b> (Gambar 7.1).</div>
+<div class="step"><b class="no">2</b> Pada kartu dokumen klik <b>Lihat &amp; TTD</b>; viewer menampilkan dokumen beserta <b>Informasi Dokumen</b> (jenis, nomor, kode verifikasi, status) (Gambar 7.2).</div>
+<div class="step"><b class="no">3</b> Gambar tanda tangan Anda pada kanvas (disimpan sebagai gambar TTD pribadi), tempatkan pada slot, lalu konfirmasi. Sistem menyisipkan gambar TTD + <b>QR/barcode verifikasi</b> ke dokumen, mengunci isi dokumen, dan mencatat waktu penandatanganan (Gambar 7.2).</div>
+<figure>
+  <img src="screenshots/opt/43-tte-beranda.webp" alt="Daftar dokumen TTE" loading="lazy" decoding="async">
+  <figcaption>Gambar 7.1 — Dokumen Saya: antrean dokumen menunggu tanda tangan</figcaption>
+</figure>
+<figure>
+  <img src="screenshots/opt/44-tte-dokumen.webp" alt="Viewer dokumen TTE" loading="lazy" decoding="async">
+  <figcaption>Gambar 7.2 — Viewer dokumen SPD yang telah ditandatangani, lengkap dengan kode verifikasi</figcaption>
+</figure>
+
+<h2 class="sub">7.3 Verifikasi Publik Keaslian Dokumen</h2>
+<p>Siapa pun dapat memeriksa keaslian dokumen tanpa login: buka halaman <b>Verifikasi Dokumen</b> pada modul TTE (tautan juga tersedia lewat QR pada dokumen), pindai <b>QR</b> atau ketik <b>kode verifikasi</b> (format <code class="k">TTD-XXXXXXXX</code>). Halaman menampilkan status valid, jenis/nomor/judul dokumen, SKPD, penandatangan, dan waktu TTD (Gambar 7.3).</p>
+<figure>
+  <img src="screenshots/opt/45-tte-verifikasi.webp" alt="Verifikasi dokumen publik" loading="lazy" decoding="async">
+  <figcaption>Gambar 7.3 — Hasil verifikasi publik: dokumen VALID dan telah ditandatangani</figcaption>
+</figure>
+
+<!-- ================= BAGIAN 8 ================= -->
+<h1 class="sec" id="bag8">8. Troubleshooting &amp; FAQ</h1>
+
+<h2 class="sub">8.1 Masalah Umum</h2>
+<table class="guide">
+  <tr><th style="width:38%">Gejala</th><th>Penyebab &amp; solusi</th></tr>
+  <tr><td>Aplikasi tidak dapat dibuka / muncul pesan koneksi gagal</td><td>Periksa koneksi internet dan alamat aplikasi. Bila tetap gagal, server sedang bermasalah — hubungi dosen/administratur.</td></tr>
+  <tr><td><i>"Username/Email atau password tidak valid."</i></td><td>Kredensial salah, atau akun <i>nonaktif</i>. Akun <i>pending</i> akan diaktifkan otomatis saat login pertama.</td></tr>
+  <tr><td><i>"Terlalu banyak percobaan login…"</i></td><td>Pembatasan keamanan aktif (maksimal 8 percobaan dalam 5 menit). Tunggu beberapa menit.</td></tr>
+  <tr><td>Data instansi lain ikut tampil / data kosong</td><td>Filter data mengikuti <b>instansi</b> pada akun. Pastikan nama instansi konsisten; data tidak muncul bila berbeda instansi.</td></tr>
+  <tr><td><i>"Jenis pajak wajib dipilih dari daftar Akun Penerimaan…"</i></td><td>Akun penerimaan belum dibuat/diaktifkan di <b>Pengaturan → Akun Penerimaan</b> (Bagian 5.1).</td></tr>
+  <tr><td><i>"Jumlah SPP melebihi sisa SPD"</i></td><td>Total SPP pada SPD terkait sudah mendekati/lebihi nilai SPD. Buat SPD baru atau kecilkan jumlah SPP.</td></tr>
+  <tr><td><i>"Tahap tidak boleh melompat."</i> (STBP)</td><td>Status STBP harus dimajukan berurutan: verifikasi → otorisasi → validasi.</td></tr>
+  <tr><td><i>"Ada STBP yang belum divalidasi (tahap 3)…"</i></td><td>STS hanya menerima STBP yang sudah <b>melewati tahap validasi</b> dan belum pernah dipakai STS lain.</td></tr>
+  <tr><td><i>"Gambar tanda tangan belum dibuat."</i> (TTE)</td><td>Gambar tanda tangan kanvas terlebih dahulu sebelum menandatangani dokumen.</td></tr>
+  <tr><td><i>"Dokumen ini sudah ditandatangani sebelumnya."</i></td><td>Isi dokumen terkunci demi keaslian. Gunakan kode verifikasi untuk melihat versi final.</td></tr>
+  <tr><td>Halaman AKLAP/TTE terputus atau diminta masuk kembali</td><td>Sesi berakhir. Buka kembali aplikasi utama lalu masuk melalui menu <b>Akuntansi</b>/<b>Tanda Tangan Dokumen</b> — jangan mengetik alamat modul secara manual.</td></tr>
+  <tr><td>Cetakan PDF tidak muncul</td><td>Izinkan pop-up pada browser, atau gunakan menu cetak (Ctrl/Cmd+P) pada laman cetak.</td></tr>
+</table>
+
+<h2 class="sub">8.2 FAQ</h2>
+<dl class="gloss">
+  <dt>Apakah data mahasiswa lain bisa terlihat?</dt>
+  <dd>Tidak. Semua transaksi difilter per <b>instansi (SKPD)</b> akun — aplikasi menolak menampilkan data milik instansi lain.</dd>
+  <dt>Bisakah SPP dibuat tanpa SPD?</dt>
+  <dd>Tidak. SPP wajib merujuk SPD yang <b>sudah diotorisasi</b>, dan total SPP tidak boleh melebihi sisa SPD.</dd>
+  <dt>Dari mana jurnal di AKLAP berasal?</dt>
+  <dd>Dari input manual (Tambah Jurnal), otomatis via <b>Isi dari Dokumen</b> (STS/SP2D), atau melalui blanko <b>Buku Jurnal Khusus</b> (termasuk <b>Konsolidator</b>) yang kode akunnya diisi manual.</dd>
+  <dt>Di mana pagu anggaran dikelola setelah v2.0?</dt>
+  <dd>Di AKLAP: menu <b>Anggaran (Pagu)</b>, berbasis <b>Master Akun</b>. Halaman <b>Pengaturan → Anggaran &amp; Neraca</b> tetap dipakai untuk <b>Neraca Awal</b> dan impor massal pagu, serta menyediakan tautan langsung ke AKLAP (token terbawa).</dd>
+  <dt>Modul apa saja yang bertambah pada versi 2.0?</dt>
+  <dd>Master Akun, Anggaran (Pagu), Buku Kas Penerimaan/Pengeluaran, Buku Kas Umum (BUD), Laporan Kas Harian, Rekonsiliasi Bank, Register SPP/SPM/SP2D, LPJ Bendahara PPKD, Buku Pembantu Objek, Buku Jurnal Khusus, Jurnal Khusus Konsolidator, dan cetak per jurnal pada Jurnal Umum. Rinciannya di <a href="manual-book-pembaruan.html">Manual Book Pembaruan v2.0</a>.</dd>
+  <dt>Apa yang terjadi jika dokumen diubah setelah ditandatangani?</dt>
+  <dd>Tidak bisa. Isi dokumen terkunci sejak pengiriman dan harus sama saat penandatanganan; versi final dapat diverifikasi publik lewat kode <code class="k">TTD-XXXXXXXX</code>/QR.</dd>
+  <dt>Bagaimana cara mendapatkan buku manual ini dalam bentuk PDF?</dt>
+  <dd>Buka buku ini di browser lalu pilih <b>Print → Save as PDF</b> (tata letak sudah disiapkan untuk cetak).</dd>
+</dl>
+
+<footer class="foot">
+  Manual Book SIM-TKD v2.0 — disusun dengan tangkapan layar aplikasi · Politeknik Negeri Bandung, Jurusan Akuntansi · September 2026 · Lihat juga <a href="manual-book-pembaruan.html">Manual Book Pembaruan v2.0</a>
+</footer>
+
+</div>
+</body>
+</html>
+

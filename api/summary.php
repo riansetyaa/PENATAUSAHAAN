@@ -19,14 +19,21 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
+// ---- Migrasi bertahap (cutover), lihat laravel/docs/CUTOVER-TANPA-DOWNTIME.md
+// Bila endpoint ini aktif di config/cutover.php, request diteruskan ke
+// aplikasi Laravel (beserta tiket SSO dari sesi). Bawaan: MATI -> tidak ada
+// perubahan perilaku sama sekali.
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 if (!isLoggedIn()) {
     jsonResponse(false, 'Tidak terautentikasi.', [], 401);
 }
 
 $pdo    = db();
 $tahun  = (int) date('Y');
-// Pemisahan data multi-dinas (kegiatan kini per instansi)
-$skpd   = (string) ($_SESSION['instansi'] ?? '');
+// Pemisahan data multi-dinas (kegiatan kini per instansi, fail-closed)
+$skpd   = requireInstansi();
 
 // Ringkasan tahun berjalan
 $stmt = $pdo->prepare("SELECT SUM(pagu) AS pagu, SUM(realisasi) AS realisasi, COUNT(*) AS jumlah FROM kegiatan WHERE tahun = ? AND (? = '' OR skpd = ?)");
@@ -63,11 +70,18 @@ $stmt->execute([$tahun, $skpd, $skpd]);
 $kegiatan = $stmt->fetchAll();
 
 // ===== Ringkasan lintas modul (Penerimaan + Belanja) =====
+// Dibungkus try/catch: jika tabel modul belum ada (migrasi belum jalan),
+// dashboard tetap tampil dengan nilai 0 — bukan error 500.
 $modul = [];
 $runMod = function (string $key, string $sql, bool $asInt = false) use ($pdo, $skpd, &$modul) {
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$skpd, $skpd]); // pola (? = '' OR skpd = ?)
-    $modul[$key] = $asInt ? (int) $stmt->fetchColumn() : (float) $stmt->fetchColumn();
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$skpd, $skpd]); // pola (? = '' OR skpd = ?)
+        $modul[$key] = $asInt ? (int) $stmt->fetchColumn() : (float) $stmt->fetchColumn();
+    } catch (Throwable $e) {
+        error_log('[SIM-TKD summary] modul ' . $key . ': ' . $e->getMessage());
+        $modul[$key] = 0;
+    }
 };
 $runMod('stbp',          "SELECT COALESCE(SUM(jumlah),0) FROM stbp WHERE status='sudah_divalidasi' AND (?='' OR skpd=?)");
 $runMod('sts',           "SELECT COALESCE(SUM(total),0) FROM sts WHERE status='aktif' AND (?='' OR skpd=?)");

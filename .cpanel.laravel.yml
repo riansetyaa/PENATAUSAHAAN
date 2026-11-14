@@ -1,0 +1,19 @@
+# Deployment cPanel -> aplikasi Laravel (migrasi SIM-TKD, tanpa downtime)
+# =====================================================================
+# Tujuan : menaruh aplikasi Laravel DI LUAR webroot utama, lalu melayani
+#          subdomain (mis. next.simtkd.com) dengan Document Root
+#          <DEPLOYPATH>/public.
+# Catatan: sesuaikan DEPLOYPATH dengan lokasi di akun cPanel Anda.
+#          Sekali saja (manual): composer install + .env + artisan migrate
+#          (lihat laravel/docs/CUTOVER-TANPA-DOWNTIME.md bagian Prasyarat).
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/simtkdco/simtkd-app
+    - /bin/mkdir -p $DEPLOYPATH
+    # Salin aplikasi (tanpa vendor/ &.env: keduanya khas server ini).
+    - /bin/cp -R laravel/app laravel/bootstrap laravel/config laravel/database laravel/public laravel/resources laravel/routes laravel/storage laravel/artisan laravel/composer.json laravel/composer.lock $DEPLOYPATH/
+    # Direktori yang harus bisa ditulis proses web.
+    - /bin/chmod -R 775 $DEPLOYPATH/storage $DEPLOYPATH/bootstrap/cache
+    # Segarkan cache konfigurasi/rute bila artisan tersedia di server.
+    - cd $DEPLOYPATH && /usr/local/bin/php artisan optimize 2>/dev/null || true

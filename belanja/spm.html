@@ -2,8 +2,10 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPM - Belanja | SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,45 +18,7 @@
     </style>
 </head>
 <body>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-logo"><img src="../img/Logo Polban.png" alt="Logo POLBAN"><div class="sidebar-title"><span class="title-main">SIM-TKD</span><span class="title-sub">Modul Edukasi</span></div></div><button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button></div>
-        <div class="sidebar-user"><div class="user-avatar"><i class="fas fa-user-tie"></i></div><div class="user-info"><span class="user-name" id="sidebarUserName">Admin Dinas</span><span class="user-role" id="sidebarUserRole">Dinas Kepemudaan dan Olahraga</span></div></div>
-        <nav class="sidebar-menu">
-            <span class="menu-label">MENU UTAMA</span>
-            <a href="../dashboard/dashboard.html" class="menu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-            <div class="menu-group" data-menu="penerimaan">
-                <a href="#" class="menu-item has-submenu"><i class="fas fa-arrow-down"></i><span>Penerimaan</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="../penerimaan/permohonan.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>Permohonan</span></a>
-                    <a href="../penerimaan/stbp-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>STBP</span></a>
-                    <a href="../penerimaan/sts-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>STS</span></a>
-                    <a href="../penerimaan/bku-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Penerimaan</span></a>
-                </div>
-            </div>
-            <div class="menu-group open" data-menu="belanja">
-                <a href="#" class="menu-item has-submenu active"><i class="fas fa-arrow-up"></i><span>Belanja</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="index.html" class="menu-item submenu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-                    <a href="rekanan.html" class="menu-item submenu-item"><i class="fas fa-handshake"></i><span>Daftar Rekanan</span></a>
-                    <a href="rekening.html" class="menu-item submenu-item"><i class="fas fa-university"></i><span>Rekening Bank SKPD</span></a>
-                    <a href="spd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>SPD</span></a>
-                    <a href="spp.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>SPP</span></a>
-                    <a href="spm.html" class="menu-item submenu-item active"><i class="fas fa-file-invoice-dollar"></i><span>SPM</span></a>
-                    <a href="sp2d.html" class="menu-item submenu-item"><i class="fas fa-money-check-alt"></i><span>SP2D</span></a>
-                    <a href="lpj.html" class="menu-item submenu-item"><i class="fas fa-clipboard-check"></i><span>LPJ</span></a>
-                    <a href="pengajuan-tu.html" class="menu-item submenu-item"><i class="fas fa-paper-plane"></i><span>Pengajuan TU</span></a>
-                    <a href="npd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>NPD</span></a>
-                    <a href="besaran-up.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Besaran UP</span></a>
-                    <a href="kebijakan-spd.html" class="menu-item submenu-item"><i class="fas fa-gavel"></i><span>Kebijakan SPD</span></a>
-                    <a href="bku-belanja.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Belanja</span></a>
-                </div>
-            </div>
-            <a href="../api/aklap_go.php" class="menu-item"><i class="fas fa-book"></i><span>Akuntansi</span></a>
-            <span class="menu-label">AKUN</span>
-            <a href="../api/logout.php" class="menu-item menu-logout"><i class="fas fa-sign-out-alt"></i><span>Keluar</span></a>
-        </nav>
-        <div class="sidebar-footer"><span>&copy; 2026 SIM-TKD POLBAN</span></div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
     <div class="overlay" id="overlay"></div>
     <div class="main-wrapper">
         <header class="topbar">
@@ -66,6 +30,8 @@
             <div class="tabs">
                 <button class="tab-btn active" data-tab="persetujuan">Persetujuan SPM</button>
                 <button class="tab-btn" data-tab="verifikasi">Verifikasi SPM</button>
+                <button class="tab-btn" data-tab="terverifikasi">Sudah Diverifikasi</button>
+                <button class="tab-btn" data-tab="semua">Semua</button>
             </div>
             <div class="card">
                 <div class="card-head"><i class="fas fa-list"></i> Daftar SPM</div>
@@ -80,12 +46,17 @@
         <footer class="footer"><span>&copy; 2026 SIM-TKD - Modul Edukasi | Politeknik Negeri Bandung</span></footer>
     </div>
     <div id="toast" class="toast"></div>
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
     <script src="../js/dashboard.js"></script>
+    <script src="../js/ttd-nip.js"></script>
+    <script src="../js/cetak-belanja.js"></script>
     <script>
         (function () {
             'use strict';
             var tbody = document.getElementById('tbodySpm');
             var curTab = 'persetujuan';
+            var dataRowCache = {};
             function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2400); }
             function esc(s) { var d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
             function rupiah(v) { return Number(v || 0).toLocaleString('id-ID'); }
@@ -93,16 +64,18 @@
             var LBL = { belum_disetujui: ['Belum Disetujui', 'type-warn'], belum_diverifikasi: ['Belum Diverifikasi', 'type-warn'], sudah_diverifikasi: ['Terverifikasi', 'type-in'], ditolak: ['Ditolak', 'type-muted'] };
             function badge(st) { var m = LBL[st] || [st, 'type-muted']; return '<span class="type-badge ' + m[1] + '">' + m[0] + '</span>'; }
             function load() {
-                var st = curTab === 'persetujuan' ? 'belum_disetujui' : (curTab === 'verifikasi' ? 'belum_diverifikasi' : 'semua');
+                var st = curTab === 'persetujuan' ? 'belum_disetujui' : (curTab === 'verifikasi' ? 'belum_diverifikasi' : (curTab === 'terverifikasi' ? 'sudah_diverifikasi' : 'semua'));
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9098a5;">Memuat data...</td></tr>';
                 fetch('../api/belanja.php?action=spm_list&status=' + encodeURIComponent(st)).then(function (r) { return r.json(); })
                     .then(function (d) {
                         var data = (d && d.success) ? (d.data || []) : [];
                         if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9098a5;">Belum ada data SPM.</td></tr>'; return; }
+                        dataRowCache = {};
+                        data.forEach(function (r) { dataRowCache[r.id] = r; });
                         tbody.innerHTML = data.map(function (r, i) {
-                            var btn = '';
-                            if (r.status === 'belum_disetujui') btn = '<button class="btn btn-sm" data-act="persetujuan" data-id="' + r.id + '">Setujui</button>';
-                            else if (r.status === 'belum_diverifikasi') btn = '<button class="btn btn-sm" data-act="verifikasi" data-id="' + r.id + '">Verifikasi</button>';
+                            var btn = '<button class="btn btn-sm" data-cetak="' + r.id + '"><i class="fas fa-print"></i> Cetak</button>';
+                            if (r.status === 'belum_disetujui') btn += '<button class="btn btn-sm" data-act="persetujuan" data-id="' + r.id + '">Setujui</button>';
+                            else if (r.status === 'belum_diverifikasi') btn += '<button class="btn btn-sm" data-act="verifikasi" data-id="' + r.id + '">Verifikasi</button>';
                             return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.nomor_spm) + '</td><td>' + fmtTgl(r.tanggal) + '</td><td>' + esc(r.nomor_spp || '-') + '</td><td class="num">' + rupiah(r.jumlah) + '</td><td>' + badge(r.status) + '</td><td>' + btn + '</td></tr>';
                         }).join('');
                     })
@@ -113,6 +86,8 @@
                     .then(function (r) { return r.json(); }).then(cb).catch(function () { toast('Gagal terhubung ke server.'); });
             }
             tbody.addEventListener('click', function (e) {
+                var c = e.target.closest('[data-cetak]');
+                if (c) { cetakSpm(parseInt(c.getAttribute('data-cetak'), 10)); return; }
                 var b = e.target.closest('[data-act]'); if (!b) return;
                 var id = parseInt(b.getAttribute('data-id'), 10);
                 var act = b.getAttribute('data-act');
@@ -124,6 +99,143 @@
                     post({ action: 'spm_verifikasi', id: id, setuju: true }, function (d) { toast(d.message || (d.success ? 'Terverifikasi.' : 'Gagal.')); if (d.success) load(); });
                 }
             });
+
+            function cetakSpm(id) {
+                var r = dataRowCache[id];
+                if (!r) return;
+                var C = CetakBelanja;
+                var skpd = C.instansi();
+                var jml = C.rupiah(r.jumlah);   // "Rp 4.450.000"
+
+                // Format SPM mengikuti jenis SPP (UP / GU / TU / LS)
+                var js = r.jenis_spp || '';
+                var fmt = (js === 'UP' || js === 'GU' || js === 'TU')
+                    ? js
+                    : (js.indexOf('LS') === 0 ? 'LS' : 'UP / GU / TU / LS');
+
+                var user = { nama_lengkap: C.namaAkun() };
+                var tahun = (r.tanggal || '').split('-')[0] || '';
+                var pem = 'PEMERINTAH KOTA BANDUNG';
+                var totPot = Number(r.total_potongan || 0);
+                var totPaj = Number(r.total_pajak || 0);
+                var potongan = r.potongan || [];
+                var pajak = r.pajak || [];
+                var details = r.details || [];
+                var sppJml = r.spp_jumlah != null ? r.spp_jumlah : r.jumlah;
+
+                function td(t, cls) { return '<td' + (cls ? ' class="' + cls + '"' : '') + '>' + t + '</td>'; }
+
+                // Potongan-Potongan (3 baris + 1 kosong)
+                var pRows = '';
+                for (var pi = 0; pi < 3; pi++) {
+                    var pn = potongan[pi] ? potongan[pi].nama : (pi === 0 ? 'Iuran Wajib Pegawai Negeri' : (pi === 1 ? 'Tabungan Perumahan Pegawai' : '..............'));
+                    var pv = potongan[pi] ? C.rupiah(potongan[pi].nilai) + ',-' : '0';
+                    pRows += '<tr>' + td(pi + 1) + td(esc(pn)) + td(esc(pv), 'num') + td('') + '</tr>';
+                }
+                pRows += '<tr>' + td('') + td('') + td('', 'num') + td('') + '</tr>';
+
+                // Info kiri
+                var infoHtml =
+                    'SKPD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ' + esc(skpd) + '<br>' +
+                    'Bendahara Pengeluaran &nbsp; : ' + esc(user.nama_lengkap) + '<br>' +
+                    'Nomor Rekening Bank &nbsp;&nbsp; : ' + '<br>' +
+                    'NPWP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ' + '<br>' +
+                    'Dasar Pembayaran No. dan Tanggal SPD : ' + esc(r.nomor_spd || '') + ' / ' + C.tgl(r.tanggal);
+
+                // Untuk Keperluan (pilih sesuai jenis)
+                var keperluanSel = (js === 'UP' || js === 'GU' || js === 'TU') ? 'Uang Persediaan' : (js === 'LS Gaji' ? 'Belanja Tidak Langsung' : 'Belanja Langsung');
+                var keperluanHtml = 'Untuk Keperluan : ' + esc(keperluanSel) + '<br>' +
+                    ['Uang Persediaan', 'Belanja Tidak Langsung', 'Belanja Langsung'].map(function (o) {
+                        return o === keperluanSel ? '' : '<s>' + esc(o) + '</s>**<br>';
+                    }).join('');
+
+                // Pembebanan (kiri: kode/uraian belanja; kanan: informasi pajak)
+                var bList = details.length ? details : [{ kode_rekening: '', uraian: r.keperluan || 'Belanja Barang dan Jasa', jumlah: r.jumlah }];
+                var bRows = '';
+                for (var b = 0; b < 3; b++) {
+                    var bl = bList[b] || {};
+                    var bk = bl.kode_rekening || '';
+                    var bu = bl.uraian || '';
+                    var bv = bl.jumlah ? C.rupiah(bl.jumlah) + ',-' : '';
+                    var rn = b === 0 ? '1' : (b === 1 ? '2' : '');
+                    var ru = b === 0 ? (pajak[0] ? pajak[0].nama : 'PPN') : (b === 1 ? (pajak[1] ? pajak[1].nama : 'PPh psl') : 'Jumlah');
+                    var rv = b === 0 ? (pajak[0] ? C.rupiah(pajak[0].nilai) + ',-' : '0') : (b === 1 ? (pajak[1] ? C.rupiah(pajak[1].nilai) + ',-' : '0') : C.rupiah(totPaj) + ',-');
+                    bRows += '<tr>' + td(esc(bk)) + td(esc(bu)) + td(esc(bv), 'num') + td(esc(rn)) + td(esc(ru)) + td(esc(rv), 'num') + td('') + '</tr>';
+                }
+
+                // Kotak kuning (Jumlah SPP yang diminta)
+                var yellow =
+                    '<div>Jumlah SPP yang diminta : ' + C.rupiah(sppJml) + ',-</div>' +
+                    '<div>Tanggal dan Nomor SPP : ' + C.tglPanjang(r.tanggal) + '</div>' +
+                    '<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + esc(r.nomor_spp || '') + '</div>';
+
+                // Tanda tangan Kepala SKPKD
+                var sigHtml =
+                    '<div style="text-align:left;">' + esc(skpd) + ', ' + C.tgl(r.tanggal) + '</div>' +
+                    '<div style="text-align:center;font-weight:700;">Kepala SKPKD</div>' +
+                    '<div style="height:44px;"></div>' +
+                    '<div style="text-align:center;font-weight:700;">(' + esc(user.nama_lengkap) + ')</div>' +
+                    '<div style="text-align:center;">NIP. ' + esc((window.SIMTKD_TTD && window.SIMTKD_TTD.nip) || '........................') + '</div>';
+
+                var body =
+                    '<div class="spm-head">' +
+                        '<div>Format ' + esc(fmt) + '*</div>' +
+                        '<div>Nomor SPM : ' + esc(r.nomor_spm || '') + '</div>' +
+                    '</div>' +
+                    '<table class="spm-tbl">' +
+                        '<tr>' +
+                            '<td colspan="3" class="lbl">KUASA BENDAHARA UMUM DAERAH<br>' + esc(pem) + '<br>Supaya Menerbitkan SP2D Kepada :</td>' +
+                            '<td colspan="4" class="lbl">Potongan-Potongan</td>' +
+                        '</tr>' +
+                        '<tr>' +
+                            '<td colspan="3" rowspan="5">' + infoHtml + '</td>' +
+                            '<td class="lbl" style="text-align:center;">No</td>' +
+                            '<td class="lbl" style="text-align:center;">Uraian</td>' +
+                            '<td class="lbl" style="text-align:center;">Jumlah (Rp)</td>' +
+                            '<td class="lbl" style="text-align:center;">Keterangan</td>' +
+                        '</tr>' +
+                        pRows +
+                        '<tr>' +
+                            '<td colspan="3" rowspan="3">' + keperluanHtml + '</td>' +
+                            td('') + td('') + td('', 'num') + td('') +
+                        '</tr>' +
+                        '<tr>' + td('') + td('') + td('', 'num') + td('') + '</tr>' +
+                        '<tr>' + td('') + '<td class="lbl">Jumlah Potongan</td>' + td(esc(C.rupiah(totPot) + ',-'), 'num') + td('') + '</tr>' +
+                        '<tr>' +
+                            '<td colspan="3">Pembebanan Pada nomor rekening:</td>' +
+                            '<td colspan="4">Informasi (tidak mengurangi pembayaran SPM)</td>' +
+                        '</tr>' +
+                        '<tr>' +
+                            '<td class="lbl">Kode Rekening</td><td class="lbl">Uraian</td><td class="lbl">Jumlah (Rp)</td>' +
+                            '<td class="lbl">No</td><td class="lbl">Uraian</td><td class="lbl">Jumlah (Rp)</td><td class="lbl">Keterangan</td>' +
+                        '</tr>' +
+                        bRows +
+                        '<tr>' +
+                            '<td colspan="2" class="spm-yellow">' + yellow + '</td>' +
+                            td('') +
+                            '<td colspan="2">Jumlah SPM</td>' +
+                            td(esc(C.rupiah(r.jumlah) + ',-'), 'num') +
+                            td('') +
+                        '</tr>' +
+                        '<tr>' +
+                            '<td colspan="3" rowspan="2">* Coret yang tidak Perlu<br>** Pilih Yang Sesuai</td>' +
+                            '<td colspan="4">Uang sejumlah : ' + C.terbilangRupiah(r.jumlah) + '</td>' +
+                        '</tr>' +
+                        '<tr><td colspan="4">' + sigHtml + '</td></tr>' +
+                        '<tr><td colspan="7">SPM ini sah apabila sudah ditandatangani dan di stempel oleh SKPD</td></tr>' +
+                    '</table>';
+
+                C.bukaCetak({
+                    title: 'SPM - Surat Perintah Membayar',
+                    judul: 'SURAT PERINTAH MEMBAYAR (SPM)',
+                    subjudul: 'TAHUN ANGGARAN ' + tahun,
+                    nomor: '',
+                    garis2: true,
+                    bodyHtml: body,
+                    // Kirim ke antrean tanda tangan (doc.simtkd.com)
+                    dokumen: { jenis: 'SPM', refId: r.id, nomor: r.nomor_spm || r.nomor_spp || '', tanggal: r.tanggal || '', url: new URL('../api/dokumen.php', location.href).toString() }
+                });
+            }
             document.querySelectorAll('.tab-btn').forEach(function (b) {
                 b.addEventListener('click', function () {
                     document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
