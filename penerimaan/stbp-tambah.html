@@ -208,6 +208,9 @@
         // ==========================================
         (function () {
             'use strict';
+            const params = new URLSearchParams(window.location.search);
+            const editId = parseInt(params.get('edit_id') || '0', 10) || 0;
+            const isEditMode = editId > 0;
 
             // ---------- Toast ----------
             function showToast(message, type) {
@@ -242,6 +245,22 @@
                 per_wajib_retribusi: 'Per Wajib Retribusi'
             };
 
+            function setupEditModeView() {
+                if (!isEditMode) return;
+                document.title = 'Edit STBP - SIM-TKD';
+                const pageTitle = document.querySelector('.page-title');
+                const pageSubtitle = document.querySelector('.page-subtitle');
+                const submitBtn = document.querySelector('#formTambahStbp .btn-primary');
+                if (pageTitle) pageTitle.textContent = 'Edit STBP';
+                if (pageSubtitle) pageSubtitle.textContent = 'Perbarui Surat Tanda Bukti Penerimaan (STBP)';
+                if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
+                const pickerBtn = document.getElementById('btnPilihSkp');
+                if (pickerBtn) {
+                    pickerBtn.disabled = true;
+                    pickerBtn.title = 'SKP Daerah tidak dapat diubah pada mode edit.';
+                }
+            }
+
             // ---------- Prefill SKPD dari sesi ----------
             fetch('../api/session.php')
                 .then(function (res) { return res.json(); })
@@ -257,6 +276,7 @@
 
             // ---------- Rekening tujuan: dari permohonan yang sudah diverifikasi ----------
             let verifiedRekening = [];
+            let editDataLoaded = false;
 
             function loadBanks() {
                 const select = document.getElementById('namaBank');
@@ -276,9 +296,15 @@
                             select.value = verifiedRekening[0].bank + '|' + (verifiedRekening[0].nomor_rekening || '');
                             applyRekening();
                         }
+                        if (isEditMode && !editDataLoaded) {
+                            prefillEditData();
+                        }
                     })
                     .catch(function () {
                         verifiedRekening = [];
+                        if (isEditMode && !editDataLoaded) {
+                            prefillEditData();
+                        }
                     });
             }
 
@@ -411,7 +437,9 @@
                 if (inNominal) {
                     inNominal.value = formatRupiahInput(String(selectedSkp.nilai || 0));
                 }
-                showToast('SKP Daerah dipilih: ' + selectedSkp.nomor + '. Data STBP (termasuk pendapatan) mengikuti SKP.', 'success');
+                if (!isEditMode) {
+                    showToast('SKP Daerah dipilih: ' + selectedSkp.nomor + '. Data STBP (termasuk pendapatan) mengikuti SKP.', 'success');
+                }
             }
 
             // ---------- Format nominal rupiah ----------
@@ -421,6 +449,52 @@
                 return Number(digits).toLocaleString('id-ID');
             }
             const nominalInput = document.getElementById('nominal');
+
+            function prefillEditData() {
+                if (!isEditMode) return;
+                editDataLoaded = true;
+                fetch('../api/stbp.php?id=' + encodeURIComponent(String(editId)))
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (!(data && data.success && data.stbp)) {
+                            throw new Error('Data STBP tidak tersedia.');
+                        }
+                        const stbp = data.stbp;
+                        const pembayaran = data.pembayaran || {};
+                        document.getElementById('tanggal').value = stbp.tanggal || document.getElementById('tanggal').value;
+                        document.getElementById('keterangan').value = stbp.uraian || '';
+                        document.getElementById('skpDaerahId').value = String(stbp.skp_daerah_id || '');
+                        selectedSkp = {
+                            id: stbp.skp_daerah_id || '',
+                            nomor: stbp.nomor_skp || '',
+                            nama: stbp.skp_nama_penyetor || pembayaran.nama_penyetor || '',
+                            jenis: stbp.jenis_pajak || stbp.akun_nama || '',
+                            nilai: parseFloat(stbp.skp_nilai || stbp.jumlah || 0) || 0,
+                            akunKode: stbp.skp_akun_kode || stbp.akun_kode || '',
+                            keterangan: stbp.uraian || ''
+                        };
+                        applySkp();
+                        document.getElementById('metodePenyetoran').value = pembayaran.metode || 'non_tunai';
+                        const bankVal = (pembayaran.bank || '') + '|' + (pembayaran.nomor_rekening || '');
+                        const bankSelect = document.getElementById('namaBank');
+                        let found = false;
+                        Array.prototype.forEach.call(bankSelect.options, function (opt) {
+                            if (opt.value === bankVal) found = true;
+                        });
+                        if (found) {
+                            bankSelect.value = bankVal;
+                        } else {
+                            bankSelect.value = '';
+                        }
+                        document.getElementById('nomorRekening').value = pembayaran.nomor_rekening || '';
+                    })
+                    .catch(function () {
+                        showToast('Gagal memuat data STBP untuk edit.', 'error');
+                        setTimeout(function () {
+                            window.location.href = 'stbp-pembuatan.html';
+                        }, 1200);
+                    });
+            }
 
             // ---------- Submit ----------
             document.getElementById('formTambahStbp').addEventListener('submit', function (e) {
@@ -441,7 +515,8 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'create',
+                        action: isEditMode ? 'update' : 'create',
+                        id: isEditMode ? editId : undefined,
                         skpd: document.getElementById('skpd').value,
                         skp_daerah_id: skpIdVal,
                         tanggal: tanggal,
@@ -462,8 +537,12 @@
                 .then(function (data) {
                     btnSubmit.disabled = false;
                     if (data.success) {
-                        showToast(data.message + ' (Nomor: ' + (data.nomor || '') + ')', 'success');
+                        showToast(data.message + (data.nomor ? ' (Nomor: ' + data.nomor + ')' : ''), 'success');
                         setTimeout(function () {
+                            if (isEditMode) {
+                                window.location.href = 'stbp-pembuatan.html';
+                                return;
+                            }
                             window.location.href = 'stbp-cetak.html?id=' + (data.id || '');
                         }, 1300);
                     } else {
@@ -475,6 +554,8 @@
                     showToast('Terjadi kesalahan koneksi ke server.', 'error');
                 });
             });
+
+            setupEditModeView();
         })();
     </script>
 </body>
