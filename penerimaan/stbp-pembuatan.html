@@ -339,8 +339,8 @@
                             '<button type="button" class="action-dropdown-btn">Aksi <i class="fas fa-chevron-down"></i></button>' +
                             '<div class="action-dropdown-menu">' +
                                 nextStageBtn(p) +
-                                '<button type="button" data-action="update" data-id="' + p.id + '"><i class="fas fa-pen"></i> Perbarui Data STBP</button>' +
-                                '<button type="button" data-action="delete" data-id="' + p.id + '"><i class="fas fa-trash"></i> Hapus</button>' +
+                                (p.status === 'dihapus' ? '' : '<button type="button" data-action="update" data-id="' + p.id + '"><i class="fas fa-pen"></i> Perbarui Data STBP</button>') +
+                                (p.status === 'dihapus' ? '' : '<button type="button" data-action="delete" data-id="' + p.id + '"><i class="fas fa-trash"></i> Hapus</button>') +
                                 '<button type="button" data-action="print" data-id="' + p.id + '"><i class="fas fa-print"></i> Cetak</button>' +
                             '</div>' +
                         '</div></td>' +
@@ -445,9 +445,20 @@
                 } else if (action === 'update') {
                     window.location.href = 'stbp-tambah.html?edit_id=' + id;
                 } else if (action === 'delete') {
-                    if (confirm('Yakin ingin menghapus STBP #' + id + '?')) {
-                        showToast('Fitur hapus STBP #' + id + ' akan dibangun.', 'warning');
-                    }
+                    var row = allData.filter(function (p) { return String(p.id) === String(id); })[0];
+                    var label = (row && row.nomor_stbp) ? row.nomor_stbp : ('#' + id);
+                    if (!confirm('Yakin ingin menghapus STBP ' + label + '?\n\nData pindah ke tab Dihapus. SKP Daerah yang terikat bisa dipakai lagi.')) return;
+                    fetch('../api/stbp.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', id: id })
+                    })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        showToast(d.message || (d.success ? 'STBP dihapus.' : 'Gagal menghapus.'), d.success ? 'success' : 'error');
+                        if (d.success) loadStbp();
+                    })
+                    .catch(function () { showToast('Gagal memproses permintaan.', 'error'); });
                 }
             });
             document.addEventListener('click', function () {
