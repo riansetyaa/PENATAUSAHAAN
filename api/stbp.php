@@ -7,6 +7,7 @@
  *   GET ?status=belum_diverifikasi&q=   : daftar STBP + jumlah per status
  *   POST action=create                  : buat STBP baru
  *   POST action=update                  : perbarui data STBP
+ *   POST action=delete                  : hapus (soft) STBP
  *
  * Wajib login. Respons JSON.
  */
@@ -193,6 +194,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $body = $_POST;
     }
     $action = $body['action'] ?? 'create';
+
+    if ($action === 'delete') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+
+        $stmtCur = $pdo->prepare("SELECT id, status, skp_daerah_id FROM stbp WHERE id = ?" . ($skpd !== '' ? " AND skpd = ?" : ""));
+        $stmtCur->execute($skpd !== '' ? [$id, $skpd] : [$id]);
+        $cur = $stmtCur->fetch();
+        if (!$cur) {
+            jsonResponse(false, 'STBP tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+        if ((string) $cur['status'] === 'dihapus') {
+            jsonResponse(false, 'STBP sudah dihapus sebelumnya.', [], 422);
+        }
+
+        $stmtUsed = $pdo->prepare("SELECT COUNT(*) FROM sts_detail sd
+                                   INNER JOIN sts st ON st.id = sd.sts_id
+                                   WHERE sd.stbp_id = ? AND st.status = 'aktif'");
+        $stmtUsed->execute([$id]);
+        if ((int) $stmtUsed->fetchColumn() > 0) {
+            jsonResponse(false, 'STBP sudah dipakai pada STS aktif sehingga tidak dapat dihapus.', [], 422);
+        }
+
+        $pdo->beginTransaction();
+        try {
+            $stmtDel = $pdo->prepare("UPDATE stbp SET status = 'dihapus' WHERE id = ?" . ($skpd !== '' ? " AND skpd = ?" : ""));
+            $stmtDel->execute($skpd !== '' ? [$id, $skpd] : [$id]);
+
+            $skpId = (int) ($cur['skp_daerah_id'] ?? 0);
+            if ($skpId > 0) {
+                $stmtRemain = $pdo->prepare("SELECT COUNT(*) FROM stbp
+                                             WHERE skp_daerah_id = ? AND status <> 'dihapus'" . ($skpd !== '' ? " AND skpd = ?" : ""));
+                $stmtRemain->execute($skpd !== '' ? [$skpId, $skpd] : [$skpId]);
+                if ((int) $stmtRemain->fetchColumn() === 0) {
+                    $stmtSkp = $pdo->prepare("UPDATE skp_daerah SET status = 'aktif'
+                                              WHERE id = ? AND status = 'terpakai'" . ($skpd !== '' ? " AND skpd = ?" : ""));
+                    $stmtSkp->execute($skpd !== '' ? [$skpId, $skpd] : [$skpId]);
+                }
+            }
+
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            error_log('[SIM-TKD] stbp delete gagal: ' . $e->getMessage());
+            jsonResponse(false, 'Gagal menghapus STBP.', [], 500);
+        }
+
+        jsonResponse(true, 'STBP berhasil dihapus.', ['id' => $id]);
+    }
 
     // ---------- 0. Majukan tahap status STBP (verifikasi -> otorisasi -> validasi) ----------
     if ($action === 'update_status') {

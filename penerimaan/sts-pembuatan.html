@@ -260,7 +260,9 @@
                             '<button type="button" class="action-dropdown-btn">Aksi <i class="fas fa-chevron-down"></i></button>' +
                             '<div class="action-dropdown-menu">' +
                                 '<button type="button" data-action="update" data-id="' + p.id + '"><i class="fas fa-pen"></i> Perbarui Data STS</button>' +
-                                '<button type="button" data-action="delete" data-id="' + p.id + '"><i class="fas fa-trash"></i> Hapus</button>' +
+                                (p.status === 'aktif'
+                                    ? '<button type="button" data-action="delete" data-id="' + p.id + '"><i class="fas fa-trash"></i> Hapus</button>'
+                                    : '') +
                                 '<button type="button" data-action="print" data-id="' + p.id + '"><i class="fas fa-print"></i> Cetak</button>' +
                             '</div>' +
                         '</div></td>' +
@@ -359,7 +361,17 @@
                     showToast('Perbarui Data STS #' + id + ' akan dibangun.', 'warning');
                 } else if (action === 'delete') {
                     if (confirm('Yakin ingin menghapus STS #' + id + '?')) {
-                        showToast('Fitur hapus STS #' + id + ' akan dibangun.', 'warning');
+                        fetch('../api/sts.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'delete', id: parseInt(id, 10) })
+                        })
+                        .then(function (res) { return res.json(); })
+                        .then(function (d) {
+                            showToast(d.message || (d.success ? 'STS dihapus.' : 'Gagal menghapus.'), d.success ? 'success' : 'error');
+                            if (d.success) loadSts();
+                        })
+                        .catch(function () { showToast('Gagal menghubungi server.', 'error'); });
                     }
                 }
             });
