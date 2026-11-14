@@ -46,6 +46,30 @@ function jsonOut(bool $success, string $message, array $extra = [], int $code = 
 }
 
 /**
+ * Kiriman lama dari laman cetak belanja menempelkan teks CSS di depan #docArea
+ * tanpa tag style, sehingga pratinjau menampilkan kode CSS. Bungkus ulang.
+ */
+function docRapikanCssMentah(string $html): string
+{
+    if (!preg_match('/id=["\']docArea["\']/', $html)) {
+        return $html;
+    }
+    $rapi = preg_replace_callback(
+        '/((?:<style\b[^>]*>.*?<\/style>\s*)*)((?:@page\b|@media\b|\*\s*\{|html\b|body\b|\/\*|\.[A-Za-z_-])[\s\S]*?)(<div\b[^>]*\bid=["\']docArea["\'])/is',
+        static function (array $m): string {
+            $css = trim($m[2]);
+            if ($css === '' || strpos($css, '<') !== false) {
+                return $m[0];
+            }
+            return $m[1] . '<style id="docCss">' . $css . '</style>' . $m[3];
+        },
+        $html,
+        1
+    );
+    return is_string($rapi) ? $rapi : $html;
+}
+
+/**
  * NIP pengguna dari profil (Pengaturan > Profil) untuk blok tanda tangan.
  * Kolom `nip` dibuat otomatis bila belum ada; kegagalan -> string kosong.
  */
@@ -356,6 +380,7 @@ if ($action === 'konten') {
     $html = ($d['status'] === 'ditandatangani' && !empty($d['konten_html_signed']))
         ? (string) $d['konten_html_signed']
         : (string) $d['konten_html'];
+    $html = docRapikanCssMentah($html);
     header('Content-Type: text/html; charset=utf-8');
     header('X-Frame-Options: SAMEORIGIN');
     header('X-Content-Type-Options: nosniff');
@@ -497,7 +522,7 @@ if ($action === 'ttd') {
             $posW = 400;
         }
 
-        $html = ttdSisipkan((string) $d['konten_html'], $gambar, $posX, $posY, $posW, $urutan);
+        $html = ttdSisipkan(docRapikanCssMentah((string) $d['konten_html']), $gambar, $posX, $posY, $posW, $urutan);
 
         // Kode verifikasi unik
         $kode = $d['kode_verifikasi'];
