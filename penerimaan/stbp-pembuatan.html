@@ -443,7 +443,7 @@
                 if (action === 'print') {
                     window.location.href = 'stbp-cetak.html?id=' + id;
                 } else if (action === 'update') {
-                    showToast('Perbarui Data STBP #' + id + ' akan dibangun.', 'warning');
+                    window.location.href = 'stbp-tambah.html?edit_id=' + id;
                 } else if (action === 'delete') {
                     if (confirm('Yakin ingin menghapus STBP #' + id + '?')) {
                         showToast('Fitur hapus STBP #' + id + ' akan dibangun.', 'warning');
