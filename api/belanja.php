@@ -350,12 +350,14 @@ if ($method === 'POST') {
         if ($keb) {
             $jenisPeriodeKeb = trim((string) ($keb['jenis_periode'] ?? ''));
             $penerbitanKeb   = trim((string) ($keb['jenis_penerbitan'] ?? ''));
-            // Kebijakan "Sekali Bayar" tidak membatasi periode
+            // Kebijakan "Sekali Bayar" tidak membatasi periode.
+            // Label periode (mis. "Triwulan IV 2026") dihitung dari tanggal,
+            // bukan dibandingkan dengan nama jenis ("Triwulanan").
             if ($penerbitanKeb !== '' && stripos($penerbitanKeb, 'Sekali Bayar') === false && $jenisPeriodeKeb !== '') {
-                if ($periode !== '' && $periode !== $jenisPeriodeKeb) {
-                    jsonResponse(false, 'Kebijakan SPD aktif menetapkan periode "' . $jenisPeriodeKeb . '". Ubah kebijakan terlebih dahulu bila ingin berbeda.', ['field' => 'periode'], 422);
-                }
                 $periode = hitungPeriodeSpd($tanggal, $jenisPeriodeKeb);
+                if ($periode === '') {
+                    jsonResponse(false, 'Periode SPD tidak dapat dihitung dari tanggal.', ['field' => 'tanggal'], 422);
+                }
             }
         }
 
