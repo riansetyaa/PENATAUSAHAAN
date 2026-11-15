@@ -224,7 +224,14 @@ if ($method === 'GET') {
     }
     if ($action === 'spm_ver_list') {
         $c = skpdCond('s', $skpd);
-        $stmt = $pdo->prepare("SELECT s.* FROM spm s WHERE s.status='sudah_diverifikasi'{$c[0]} ORDER BY s.tanggal DESC, s.id DESC");
+        // SPM yang sudah punya SP2D aktif tidak ditampilkan lagi agar tidak
+        // dibuat SP2D ganda (server juga menolak di sp2d_create).
+        $stmt = $pdo->prepare("SELECT s.* FROM spm s
+            WHERE s.status='sudah_diverifikasi'{$c[0]}
+              AND NOT EXISTS (
+                  SELECT 1 FROM sp2d d WHERE d.spm_id = s.id AND d.status <> 'ditolak'
+              )
+            ORDER BY s.tanggal DESC, s.id DESC");
         $stmt->execute($c[1]);
         jsonResponse(true, 'OK', ['data' => $stmt->fetchAll()]);
     }
@@ -318,6 +325,21 @@ if ($method === 'POST') {
     if (!is_array($body)) $body = $_POST;
     $action = (string) ($body['action'] ?? '');
 
+    // Otorisasi: peran hanya-baca (Pengguna Umum) tidak boleh mengubah data.
+    // Aksi persetujuan/verifikasi butuh peran penyetuju (bukan Operator).
+    wajibBolehOperasi();
+    if (in_array($action, [
+        'spd_otorisasi',
+        'spp_verifikasi',
+        'spm_persetujuan', 'spm_verifikasi',
+        'sp2d_verifikasi', 'sp2d_pencairan',
+        'pengajuan_tu_otorisasi', 'pengajuan_tu_validasi',
+        'npd_validasi_pa', 'npd_validasi_bp',
+        'rekening_skpd_validasi',
+    ], true)) {
+        wajibBolehSetujui();
+    }
+
     // ---------- Rekanan ----------
     if ($action === 'rekanan_create') {
         $nama   = trim((string) ($body['nama_rekanan'] ?? ''));
@@ -326,7 +348,7 @@ if ($method === 'POST') {
         $bank   = trim((string) ($body['bank'] ?? ''));
         $noRek  = trim((string) ($body['nomor_rekening'] ?? ''));
         $nmRek  = trim((string) ($body['nama_rekening'] ?? ''));
-        $jenis  = ($body['jenis'] === 'perseorangan') ? 'perseorangan' : 'perusahaan';
+        $jenis  = (($body['jenis'] ?? '') === 'perseorangan') ? 'perseorangan' : 'perusahaan';
         if ($nama === '') jsonResponse(false, 'Nama rekanan wajib diisi.', ['field' => 'nama_rekanan'], 422);
         $stmt = $pdo->prepare("INSERT INTO rekanan (user_id, skpd, nama_rekanan, npwp, alamat, bank, nomor_rekening, nama_rekening, jenis) VALUES (?,?,?,?,?,?,?,?,?)");
         $stmt->execute([$_SESSION['user_id'] ?? null, $skpd, $nama, $npwp, $alamat, $bank, $noRek, $nmRek, $jenis]);
@@ -488,12 +510,16 @@ if ($method === 'POST') {
     // ---------- SPM ----------
     if ($action === 'spm_persetujuan') {
         $id = (int) ($body['id'] ?? 0);
+        // setuju tidak dikirim = perilaku lama (setujui). UI kini juga
+        // mengirim setuju:false untuk menolak di tahap persetujuan.
+        $setuju = !isset($body['setuju']) || !empty($body['setuju']);
         if ($id <= 0) jsonResponse(false, 'ID tidak valid.', [], 422);
         $c = skpdCond('s', $skpd);
-        $stmt = $pdo->prepare("UPDATE spm s SET s.status='belum_diverifikasi' WHERE s.id=? AND s.status='belum_disetujui'{$c[0]}");
-        $stmt->execute(array_merge([$id], $c[1]));
+        $new = $setuju ? 'belum_diverifikasi' : 'ditolak';
+        $stmt = $pdo->prepare("UPDATE spm s SET s.status=? WHERE s.id=? AND s.status='belum_disetujui'{$c[0]}");
+        $stmt->execute(array_merge([$new, $id], $c[1]));
         if ($stmt->rowCount() === 0) jsonResponse(false, 'SPM tidak ditemukan / bukan milik instansi Anda.', [], 404);
-        jsonResponse(true, 'SPM disetujui (SPTJM SPM dibuat).');
+        jsonResponse(true, $setuju ? 'SPM disetujui (SPTJM SPM dibuat).' : 'SPM ditolak.');
     }
     if ($action === 'spm_verifikasi') {
         $id = (int) ($body['id'] ?? 0);
@@ -516,14 +542,46 @@ if ($method === 'POST') {
         if ($tanggal === '') jsonResponse(false, 'Tanggal SP2D wajib diisi.', ['field' => 'tanggal'], 422);
         if ($spmId <= 0) jsonResponse(false, 'Pilih SPM.', ['field' => 'spm_id'], 422);
         if ($jumlah <= 0) jsonResponse(false, 'Jumlah harus lebih dari 0.', ['field' => 'jumlah'], 422);
+
         $c = skpdCond('s', $skpd);
-        $chk = $pdo->prepare("SELECT id FROM spm s WHERE s.id=? AND s.status='sudah_diverifikasi'{$c[0]}");
-        $chk->execute(array_merge([$spmId], $c[1]));
-        if (!$chk->fetch()) jsonResponse(false, 'SPM tidak valid / belum diverifikasi / bukan milik instansi Anda.', [], 422);
-        $nomor = genNomor('SP2D', $pdo, 'sp2d');
-        $stmt = $pdo->prepare("INSERT INTO sp2d (user_id, skpd, nomor_sp2d, tanggal, spm_id, rekening, jumlah, status) VALUES (?,?,?,?,?,?,?, 'belum_diverifikasi')");
-        $stmt->execute([$_SESSION['user_id'] ?? null, $skpd, $nomor, $tanggal, $spmId, $rekening, $jumlah]);
-        jsonResponse(true, 'SP2D berhasil dibuat.', ['id' => (int) $pdo->lastInsertId(), 'nomor_sp2d' => $nomor], 201);
+        $pdo->beginTransaction();
+        try {
+            // Kunci baris SPM agar dua request bersamaan tidak membuat SP2D ganda.
+            $chk = $pdo->prepare("SELECT s.id, s.jumlah FROM spm s WHERE s.id=? AND s.status='sudah_diverifikasi'{$c[0]} FOR UPDATE");
+            $chk->execute(array_merge([$spmId], $c[1]));
+            $spm = $chk->fetch();
+            if (!$spm) {
+                $pdo->rollBack();
+                jsonResponse(false, 'SPM tidak valid / belum diverifikasi / bukan milik instansi Anda.', [], 422);
+            }
+
+            $dup = $pdo->prepare("SELECT id FROM sp2d WHERE spm_id = ? AND status <> 'ditolak' LIMIT 1");
+            $dup->execute([$spmId]);
+            if ($dup->fetch()) {
+                $pdo->rollBack();
+                jsonResponse(false, 'SPM ini sudah memiliki SP2D. Satu SPM hanya boleh dicairkan satu kali.', [], 422);
+            }
+
+            // Nominal SP2D harus sama dengan nilai SPM (netto). Mencegah
+            // pencairan lebih besar/kecil dari yang disetujui.
+            $spmJumlah = (float) $spm['jumlah'];
+            if (abs($jumlah - $spmJumlah) > 0.01) {
+                $pdo->rollBack();
+                jsonResponse(false, 'Jumlah SP2D harus sama dengan nilai SPM (Rp ' . number_format($spmJumlah, 0, ',', '.') . ').', ['field' => 'jumlah'], 422);
+            }
+
+            $nomor = genNomor('SP2D', $pdo, 'sp2d');
+            $stmt = $pdo->prepare("INSERT INTO sp2d (user_id, skpd, nomor_sp2d, tanggal, spm_id, rekening, jumlah, status) VALUES (?,?,?,?,?,?,?, 'belum_diverifikasi')");
+            $stmt->execute([$_SESSION['user_id'] ?? null, $skpd, $nomor, $tanggal, $spmId, $rekening, $jumlah]);
+            $newId = (int) $pdo->lastInsertId();
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            error_log('[SIM-TKD] sp2d_create: ' . $e->getMessage());
+            jsonResponse(false, 'Gagal membuat SP2D. Coba lagi.', [], 500);
+        }
+
+        jsonResponse(true, 'SP2D berhasil dibuat.', ['id' => $newId, 'nomor_sp2d' => $nomor], 201);
     }
     if ($action === 'sp2d_verifikasi') {
         $id = (int) ($body['id'] ?? 0);

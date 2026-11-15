@@ -414,9 +414,13 @@
             // Toggle mode Harian/Bulanan
             document.querySelectorAll('#modeToggle button').forEach(function (b) {
                 b.addEventListener('click', function () {
+                    if (this.classList.contains('active')) return;
                     document.querySelectorAll('#modeToggle button').forEach(function (x) { x.classList.remove('active'); });
                     this.classList.add('active');
-                    if (lastRekap) renderRekap();
+                    // Mode berubah -> data harus dimuat ulang. Sebelumnya
+                    // hanya judul yang berubah sementara isi tabel tetap
+                    // data mode lama.
+                    loadRekap();
                 });
             });
 

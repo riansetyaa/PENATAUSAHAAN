@@ -18,8 +18,8 @@
  *       -> isi HTML satu dokumen untuk pratinjau (read-only).
  *
  * Otorisasi: Admin Dinas / Kepala Dinas / Dosen (atau username "admin"),
- * sama persis dengan api/monitoring.php. Sengaja TIDAK memakai
- * requireInstansi() karena dosen perlu melihat lintas instansi.
+ * sama persis dengan api/monitoring.php. Dosen/superuser boleh lintas
+ * instansi; Admin Dinas & Kepala Dinas hanya untuk akun di instansinya.
  */
 
 declare(strict_types=1);
@@ -36,6 +36,11 @@ $peran    = (string) ($_SESSION['peran'] ?? '');
 $username = (string) ($_SESSION['username'] ?? '');
 $boleh    = in_array($peran, ['Admin Dinas', 'Kepala Dinas', 'Dosen'], true)
             || $username === 'admin';
+
+// Lingkup: Dosen & superuser boleh lintas instansi; Admin/Kepala Dinas
+// hanya akun di instansinya sendiri (lihat pengecekan setelah data target).
+$lintasInstansi = ($peran === 'Dosen') || ($username === 'admin');
+$instansiAktor  = trim((string) ($_SESSION['instansi'] ?? ''));
 
 if (!$boleh) {
     jsonResponse(
@@ -73,6 +78,21 @@ try {
 
 if (!$pemilik) {
     jsonResponse(false, 'Pengguna tidak ditemukan.', [], 404);
+}
+
+// Cegah admin suatu OPD membaca dokumen milik OPD lain. Dosen/superuser
+// tetap lintas instansi karena kebutuhan penilaian.
+if (!$lintasInstansi) {
+    $samaInstansi = $instansiAktor !== ''
+        && strcasecmp($instansiAktor, trim((string) ($pemilik['instansi'] ?? ''))) === 0;
+    if (!$samaInstansi) {
+        jsonResponse(
+            false,
+            'Akses ditolak. Dokumen hanya dapat dilihat untuk pengguna di instansi Anda.',
+            [],
+            403
+        );
+    }
 }
 
 // ------------------------------------------------------------------

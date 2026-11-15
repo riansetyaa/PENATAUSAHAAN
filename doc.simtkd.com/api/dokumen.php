@@ -24,6 +24,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../../includes/functions.php'; // otorisasi peran
 
 // ---- Migrasi bertahap (cutover), lihat laravel/docs/CUTOVER-TANPA-DOWNTIME.md
 // File ini MANDIRI (bukan bagian aplikasi utama), jadi pustaka proksi dimuat
@@ -258,7 +259,7 @@ if ($token === '') {
 }
 
 $tokenHash = hash('sha256', $token);
-$stmtUser  = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, peran FROM users WHERE api_token = ? LIMIT 1");
+$stmtUser  = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, peran, status FROM users WHERE api_token = ? LIMIT 1");
 $stmtUser->execute([$tokenHash]);
 $user = $stmtUser->fetch();
 if (!$user && preg_match('/^[a-f0-9]{32}$/', $token)) {
@@ -295,6 +296,17 @@ if (!$user && preg_match('/^[a-f0-9]{32}$/', $token)) {
 }
 if (!$user) {
     jsonOut(false, 'Token API tidak valid. Masuk kembali melalui menu "Tanda Tangan Dokumen" di SIM-TKD.', [], 401);
+}
+// Akun yang dinonaktifkan admin tidak boleh lagi memakai token lamanya.
+// Tanpa cek ini, token di URL tetap bisa membaca/menandatangani dokumen
+// sampai pengguna login ulang (rotasi token).
+if (($user['status'] ?? '') !== 'aktif') {
+    jsonOut(false, 'Akun Anda tidak aktif. Hubungi administrator.', [], 403);
+}
+// Aksi yang mengubah dokumen hanya untuk peran operasional.
+// "Pengguna Umum" tetap boleh melihat daftar/isi dokumen.
+if (in_array($action, ['ttd', 'ttd_gambar', 'delete'], true)) {
+    wajibBolehOperasi($user);
 }
 $userId = (int) $user['id'];
 

@@ -406,6 +406,151 @@ function ensureUsersColumns(PDO $pdo): void
 
     // Kolom monitoring login (Pengaturan -> Monitoring Pengguna).
     ensureLoginTracking($pdo);
+
+    // Peran "Dosen" dipakai manual book & halaman Monitoring Pengguna,
+    // tetapi ENUM lama belum memuatnya sehingga tidak bisa dipilih.
+    ensurePeranDosen($pdo);
+}
+
+/**
+ * Pastikan ENUM `users.peran` memuat "Dosen".
+ * -------------------------------------------
+ * Basis data lama dibuat sebelum peran Dosen ada. MySQL menolak nilai di
+ * luar ENUM (atau diam-diam menyimpan string kosong pada mode longgar),
+ * jadi opsi Dosen tidak akan pernah tersimpan tanpa ALTER ini.
+ *
+ * Aman dijalankan berulang: hanya mengubah kolom bila "Dosen" belum ada.
+ * Bila pengguna basis data tidak punya hak ALTER, kegagalan dicatat di log
+ * dan endpoint tetap berjalan (peran Dosen sekadar belum tersedia).
+ */
+function ensurePeranDosen(PDO $pdo): void
+{
+    static $sudahDicek = false;
+    if ($sudahDicek) {
+        return;
+    }
+    $sudahDicek = true;
+
+    try {
+        $row = $pdo->query("SHOW COLUMNS FROM `users` LIKE 'peran'")->fetch();
+        if (!$row) {
+            return;
+        }
+        $type = (string) ($row['Type'] ?? '');
+        if (stripos($type, "'Dosen'") !== false) {
+            return;
+        }
+
+        $pdo->exec(
+            "ALTER TABLE `users` MODIFY COLUMN `peran` "
+            . "ENUM('Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Dosen','Pengguna Umum') "
+            . "DEFAULT 'Pengguna Umum'"
+        );
+    } catch (Throwable $e) {
+        error_log('[SIM-TKD] ensurePeranDosen: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Hak akses berbasis peran (otorisasi).
+ * -------------------------------------
+ * Sebelumnya hampir semua endpoint hanya memeriksa "sudah login". Akibatnya
+ * akun berperan apa pun dalam satu instansi dapat membuat, mengubah, dan
+ * menyetujui dokumen milik siapa pun. Helper di bawah memberi satu tempat
+ * untuk aturan tersebut:
+ *
+ *   - semua peran boleh MELIHAT data;
+ *   - "Pengguna Umum" bersifat hanya-baca (tidak boleh mengubah data);
+ *   - "Operator" boleh membuat/mengubah, tetapi tidak menyetujui;
+ *   - "Dosen" boleh menyiapkan data induk dan memverifikasi AKLAP
+ *     (lihat manual book), sehingga termasuk peran operasional & penyetuju;
+ *   - Admin Dinas / Bendahara / Verifikator / Kepala Dinas boleh menyetujui
+ *     (verifikasi, otorisasi, validasi, approve) sesuai alur simulasi;
+ *   - username "admin" (superuser) selalu boleh.
+ *
+ * Catatan: aplikasi ini modul edukasi dengan satu akun mahasiswa yang
+ * menjalankan seluruh alur, sehingga Bendahara ikut diizinkan menyetujui.
+ * Bila kelak maker-checker ketat dibutuhkan, cukup ubah daftar pada
+ * fungsi-fungsi ini tanpa menyentuh endpoint satu per satu.
+ */
+
+/** Ambil pasangan [peran, username] dari sesi atau baris user eksplisit. */
+function peranPengguna(?array $user = null): array
+{
+    if ($user !== null) {
+        return [
+            trim((string) ($user['peran'] ?? '')),
+            trim((string) ($user['username'] ?? '')),
+        ];
+    }
+
+    return [
+        trim((string) ($_SESSION['peran'] ?? '')),
+        trim((string) ($_SESSION['username'] ?? '')),
+    ];
+}
+
+/** Apakah peran/username boleh mengubah data modul. */
+function bolehOperasi(?array $user = null): bool
+{
+    [$peran, $username] = peranPengguna($user);
+
+    if ($username === 'admin') {
+        return true;
+    }
+
+    return in_array($peran, [
+        'Admin Dinas',
+        'Operator',
+        'Bendahara',
+        'Verifikator',
+        'Kepala Dinas',
+        'Dosen',
+    ], true);
+}
+
+/** Apakah peran/username boleh menyetujui / memverifikasi dokumen. */
+function bolehSetujui(?array $user = null): bool
+{
+    [$peran, $username] = peranPengguna($user);
+
+    if ($username === 'admin') {
+        return true;
+    }
+
+    return in_array($peran, [
+        'Admin Dinas',
+        'Bendahara',
+        'Verifikator',
+        'Kepala Dinas',
+        'Dosen',
+    ], true);
+}
+
+/** Hentikan request (403) bila pengguna tidak boleh mengubah data. */
+function wajibBolehOperasi(?array $user = null): void
+{
+    if (!bolehOperasi($user)) {
+        jsonResponse(
+            false,
+            'Akses ditolak. Peran Anda hanya dapat melihat data. Hubungi Admin Dinas untuk perubahan peran.',
+            [],
+            403
+        );
+    }
+}
+
+/** Hentikan request (403) bila pengguna tidak boleh menyetujui dokumen. */
+function wajibBolehSetujui(?array $user = null): void
+{
+    if (!bolehSetujui($user)) {
+        jsonResponse(
+            false,
+            'Akses ditolak. Peran Anda tidak diizinkan menyetujui/memverifikasi dokumen.',
+            [],
+            403
+        );
+    }
 }
 
 /**
@@ -424,7 +569,7 @@ function daftarPeran(PDO $pdo): array
         return $cache;
     }
 
-    $bawaan = ['Admin Dinas', 'Operator', 'Bendahara', 'Verifikator', 'Kepala Dinas', 'Pengguna Umum'];
+    $bawaan = ['Admin Dinas', 'Operator', 'Bendahara', 'Verifikator', 'Kepala Dinas', 'Dosen', 'Pengguna Umum'];
 
     try {
         $row = $pdo->query("SHOW COLUMNS FROM `users` LIKE 'peran'")->fetch();

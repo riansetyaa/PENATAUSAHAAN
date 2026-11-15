@@ -58,8 +58,8 @@
                     <p class="page-subtitle" id="pageSubtitle">Tahun Anggaran --</p>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-outline"><i class="fas fa-print"></i> Cetak</button>
-                    <button class="btn btn-primary"><i class="fas fa-download"></i> Ekspor</button>
+                    <button type="button" class="btn btn-outline" id="btnCetakDashboard"><i class="fas fa-print"></i> Cetak</button>
+                    <button type="button" class="btn btn-primary" id="btnEksporDashboard"><i class="fas fa-download"></i> Ekspor</button>
                 </div>
             </div>
 
@@ -192,7 +192,7 @@
                         </div>
                     </div>
                     <div class="schedule-footer">
-                        <button class="btn btn-sm"><i class="fas fa-eye"></i> Lihat Rincian</button>
+                        <a class="btn btn-sm" href="../api/aklap_go.php"><i class="fas fa-eye"></i> Lihat Rincian</a>
                     </div>
                 </div>
             </div>
@@ -201,7 +201,7 @@
             <div class="card table-card">
                 <div class="card-header">
                     <h3><i class="fas fa-list"></i> Daftar Kegiatan Tahun <span id="tableTitleYear">--</span></h3>
-                    <a href="#" class="link-more">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+                    <button type="button" class="link-more" id="btnLihatSemuaKegiatan">Lihat Semua <i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="card-body table-body">
                     <table class="data-table">

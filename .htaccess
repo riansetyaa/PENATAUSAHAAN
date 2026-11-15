@@ -8,9 +8,20 @@
 </IfModule>
 
 # 2) Lindungi file sensitif dari akses langsung
-<FilesMatch "^(setup\.php|\.git|composer\.(json|lock))$">
+#    test-db.php adalah skrip uji lokal yang memuat kredensial database.
+<FilesMatch "^(setup\.php|test-db\.php|\.git|\.gitignore|composer\.(json|lock))$">
     Require all denied
 </FilesMatch>
+
+# 2a) Blokir SELURUH isi direktori .git (bukan hanya nama file ".git").
+#     <FilesMatch> di atas tidak menjangkau /.git/config, /.git/HEAD, dll.
+#     Tanpa aturan ini, metadata repo (termasuk riwayat berisi token lama)
+#     dapat diunduh dari document root produksi.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule (^|/)\.git(/|$) - [F,L,NC]
+    RewriteRule (^|/)\.kilo(/|$) - [F,L,NC]
+</IfModule>
 
 # 2b) File .env (rahasia) TIDAK BOLEH diakses lewat web, di mana pun.
 <FilesMatch "^\.env">

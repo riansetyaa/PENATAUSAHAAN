@@ -111,6 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $action = (string) ($body['action'] ?? 'create');
 
+    // Otorisasi peran: "Pengguna Umum" hanya-baca.
+    wajibBolehOperasi();
+
     if ($action === 'delete') {
         $id = (int) ($body['id'] ?? 0);
         if ($id <= 0) {

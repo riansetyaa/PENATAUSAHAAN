@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../../includes/functions.php'; // jsonResponse + otorisasi peran
 // Catatan: config/api.php (konstanta API_TOKEN legacy) telah DIHAPUS.
 // Token API bersifat dinamis — hash SHA-256 dari token rotasi-per-login
 // disimpan di users.api_token. Lihat api/login.php & includes/functions.php.
@@ -41,7 +42,7 @@ if ($token === '') {
     }
 }
 $tokenHash = hash('sha256', $token);
-$stmtUser = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, kota, provinsi, peran FROM users WHERE api_token = ? LIMIT 1");
+$stmtUser = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, kota, provinsi, peran, status FROM users WHERE api_token = ? LIMIT 1");
 $stmtUser->execute([$tokenHash]);
 $user = $stmtUser->fetch();
 if (!$user && $token !== '' && preg_match('/^[a-f0-9]{32}$/', $token)) {
@@ -75,6 +76,12 @@ if (!$user) {
     echo json_encode(['success' => false, 'message' => 'Token API tidak valid.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
+// Akun nonaktif tidak boleh memakai token lama.
+if (($user['status'] ?? '') !== 'aktif') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Akun Anda tidak aktif. Hubungi administrator.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 // SKPD/instansi pemilik token -> pemisahan data antar dinas (multi-tenant).
 // Fail-closed: token tanpa instansi ditolak (bukan melihat semua data).
 $skpdUser = trim((string) ($user['instansi'] ?? ''));
@@ -82,6 +89,15 @@ if ($skpdUser === '') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Instansi akun belum diatur. Hubungi administrator.'], JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+// Otorisasi peran: aksi baca terbuka untuk semua peran, aksi tulis hanya
+// untuk peran operasional, dan approve/reject hanya untuk peran penyetuju.
+if (in_array($action, ['jurnal_biasa'], true)) {
+    wajibBolehOperasi($user);
+}
+if (in_array($action, ['approve', 'reject', 'jurnal_status'], true)) {
+    wajibBolehSetujui($user);
 }
 
 // Seluruh aksi dibungkus try/catch: jika ada kolom/tabel yang belum ada di

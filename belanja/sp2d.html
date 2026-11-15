@@ -92,7 +92,8 @@
                         data.forEach(function (r) { dataRowCache[r.id] = r; });
                         tbody.innerHTML = data.map(function (r, i) {
                             var btn = '<button class="btn btn-sm" data-cetak="' + r.id + '"><i class="fas fa-print"></i> Cetak</button>';
-                            if (r.status === 'belum_diverifikasi') btn += '<button class="btn btn-sm" data-act="verifikasi" data-id="' + r.id + '">Verifikasi</button>';
+                            if (r.status === 'belum_diverifikasi') btn += '<button class="btn btn-sm" data-act="verifikasi" data-id="' + r.id + '">Verifikasi</button>'
+                                + '<button class="btn btn-sm btn-danger" data-act="tolak" data-id="' + r.id + '">Tolak</button>';
                             else if (r.status === 'sudah_diverifikasi') btn += '<button class="btn btn-sm" data-act="cair" data-id="' + r.id + '">Transfer Dana</button>';
                             return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.nomor_sp2d) + '</td><td>' + fmtTgl(r.tanggal) + '</td><td>' + esc(r.nomor_spm || '-') + '</td><td>' + esc(r.rekening || '-') + '</td><td class="num">' + rupiah(r.jumlah) + '</td><td>' + badge(r.status) + '</td><td>' + btn + '</td></tr>';
                         }).join('');
@@ -106,7 +107,7 @@
             function loadSpm() {
                 fetch('../api/belanja.php?action=spm_ver_list').then(function (r) { return r.json(); }).then(function (d) {
                     var sel = document.getElementById('spm_id');
-                    sel.innerHTML = '<option value="">-- Pilih SPM --</option>' + ((d && d.success) ? (d.data || []).map(function (s) { return '<option value="' + s.id + '">' + esc(s.nomor_spm) + ' (Rp ' + rupiah(s.jumlah) + ')</option>'; }).join('') : '');
+                    sel.innerHTML = '<option value="">-- Pilih SPM --</option>' + ((d && d.success) ? (d.data || []).map(function (s) { return '<option value="' + s.id + '" data-jumlah="' + Number(s.jumlah || 0) + '">' + esc(s.nomor_spm) + ' (Rp ' + rupiah(s.jumlah) + ')</option>'; }).join('') : '');
                 }).catch(function () { toast('Gagal memuat daftar SPM.'); });
             }
             document.getElementById('btnSimpan').addEventListener('click', function () {
@@ -123,6 +124,9 @@
                 if (act === 'verifikasi') {
                     if (!confirm('Verifikasi SP2D ini (Setujui)?')) return;
                     post({ action: 'sp2d_verifikasi', id: id, setuju: true }, function (d) { toast(d.message || (d.success ? 'Terverifikasi.' : 'Gagal.')); if (d.success) load(); });
+                } else if (act === 'tolak') {
+                    if (!confirm('Tolak SP2D ini?')) return;
+                    post({ action: 'sp2d_verifikasi', id: id, setuju: false }, function (d) { toast(d.message || (d.success ? 'Ditolak.' : 'Gagal.')); if (d.success) load(); });
                 } else if (act === 'cair') {
                     var tgl = prompt('Tanggal pencairan (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
                     if (tgl === null) return;
@@ -179,6 +183,14 @@
                     b.classList.add('active'); curTab = b.getAttribute('data-tab'); load();
                 });
             });
+            // Nominal SP2D otomatis mengikuti nilai SPM (server juga
+            // menolak nominal yang berbeda).
+            document.getElementById('spm_id').addEventListener('change', function () {
+                var opt = this.options[this.selectedIndex];
+                var j = opt ? opt.getAttribute('data-jumlah') : '';
+                if (j !== null && j !== '') document.getElementById('jumlah').value = Number(j);
+            });
+
             loadSpm(); load();
         })();
     </script>

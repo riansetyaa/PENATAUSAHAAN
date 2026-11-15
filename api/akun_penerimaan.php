@@ -112,6 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // skpd selalu dari sesi (jangan percaya input klien)
     $skpd   = requireInstansi();
 
+    // Otorisasi peran: "Pengguna Umum" hanya-baca.
+    wajibBolehOperasi();
+
     // ---------- 1. Simpan satu akun baru ----------
     if ($action === 'create') {
         $kode   = trim((string) ($body['kode_akun'] ?? ''));

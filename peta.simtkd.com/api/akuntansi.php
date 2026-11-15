@@ -45,6 +45,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../includes/auth.php';  // fallback sesi (sama host dengan app utama)
+require_once __DIR__ . '/../../includes/functions.php'; // jsonResponse + otorisasi peran
 require_once __DIR__ . '/../config/db.php';
 // Catatan: config/api.php (konstanta API_TOKEN legacy) telah DIHAPUS.
 // Token API bersifat dinamis — hash SHA-256 dari token rotasi-per-login
@@ -70,19 +71,25 @@ if ($token === '') {
     }
 }
 $tokenHash = hash('sha256', $token);
-$stmtUser = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, kota, provinsi, peran FROM users WHERE api_token = ? LIMIT 1");
+$stmtUser = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, kota, provinsi, peran, status FROM users WHERE api_token = ? LIMIT 1");
 $stmtUser->execute([$tokenHash]);
 $user = $stmtUser->fetch();
 // Fallback: bila token kosong/tidak valid, coba sesi PHP (halaman AKLAP dibuka
 // dari aplikasi utama pada host yang sama -> cookie sesi tersedia).
 if (!$user && isLoggedIn()) {
-    $stmtUser2 = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, kota, provinsi, peran FROM users WHERE id = ? LIMIT 1");
+    $stmtUser2 = $pdo->prepare("SELECT id, nama_lengkap, username, email, instansi, kota, provinsi, peran, status FROM users WHERE id = ? LIMIT 1");
     $stmtUser2->execute([(int) ($_SESSION['user_id'] ?? 0)]);
     $user = $stmtUser2->fetch();
 }
 if (!$user) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Token API tidak valid. Silakan buka modul Akuntansi melalui menu Akuntansi di SIM-TKD.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+// Akun nonaktif tidak boleh memakai token lama untuk membaca/menulis data.
+if (($user['status'] ?? '') !== 'aktif') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Akun Anda tidak aktif. Hubungi administrator.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 // SKPD/instansi pemilik token -> pemisahan data antar dinas (multi-tenant).
@@ -92,6 +99,29 @@ if ($skpdUser === '') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Instansi akun belum diatur. Hubungi administrator.'], JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+// ------------------------------------------------------------------
+// Otorisasi peran: semua peran boleh membaca, tetapi hanya peran
+// operasional yang boleh mengubah data. "Pengguna Umum" hanya-baca.
+// Approve/reject jurnal butuh peran penyetuju (bukan Operator).
+// ------------------------------------------------------------------
+$AKSI_TULIS = [
+    'akun_simpan', 'akun_hapus', 'akun_seed_coa',
+    'anggaran_simpan', 'anggaran_hapus', 'anggaran_sinkron_master',
+    'jurnal_simpan', 'jurnal_hapus', 'jurnal_status',
+    'buku_kas_simpan', 'buku_kas_hapus',
+    'kas_harian_simpan', 'kas_harian_hapus',
+    'register_ppkd_simpan',
+    'dokumen_kirim',
+    'rekonsiliasi_bank_simpan', 'rekonsiliasi_bank_hapus',
+    'jurnal_khusus_simpan', 'jurnal_khusus_hapus',
+];
+if (in_array($action, $AKSI_TULIS, true)) {
+    wajibBolehOperasi($user);
+}
+if ($action === 'jurnal_status') {
+    wajibBolehSetujui($user);
 }
 
 // Seluruh aksi dibungkus try/catch: kegagalan DB tetap mengembalikan JSON

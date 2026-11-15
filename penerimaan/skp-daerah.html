@@ -260,7 +260,8 @@
                         '<td><div class="row-actions">' +
                             '<button class="btn btn-sm btn-outline" data-action="print" data-id="' + p.id + '"><i class="fas fa-print"></i> Cetak</button>' +
                             (p.status === 'aktif'
-                                ? '<button class="btn btn-sm btn-outline" data-action="delete" data-id="' + p.id + '"><i class="fas fa-trash"></i> Hapus</button>'
+                                ? '<a class="btn btn-sm btn-outline" href="skp-daerah-tambah.html?id=' + p.id + '"><i class="fas fa-pen"></i> Ubah</a>'
+                                  + '<button class="btn btn-sm btn-outline" data-action="delete" data-id="' + p.id + '"><i class="fas fa-trash"></i> Hapus</button>'
                                 : '') +
                         '</div></td>' +
                     '</tr>';

@@ -4,8 +4,10 @@
  * ============================================
  * Menampilkan daftar akun beserta status login dan progres pengerjaan.
  * Wajib login DAN berperan Admin Dinas / Kepala Dinas / Dosen (atau
- * username "admin"). Endpoint ini sengaja TIDAK memakai requireInstansi()
- * karena admin/dosen perlu melihat seluruh akun lintas instansi.
+ * username "admin"). Dosen/superuser melihat lintas instansi; Admin Dinas
+ * dan Kepala Dinas dibatasi pada instansinya sendiri (lihat $whereLingkup).
+ * Karena itu endpoint ini tidak memakai requireInstansi(), tetapi tetap
+ * menerapkan filter instansi secara eksplisit.
  *
  * Progres dihitung dari data yang DIBUAT oleh masing-masing akun
  * (kolom user_id pada tabel modul), bukan dari data instansi. Dengan
@@ -42,6 +44,28 @@ if (!$boleh) {
 $pdo = db();
 ensureUsersColumns($pdo);
 
+// ------------------------------------------------------------------
+// Lingkup data (multi-tenant).
+//   - Dosen & username "admin" : lintas instansi (untuk penilaian).
+//   - Admin Dinas / Kepala Dinas : HANYA instansinya sendiri.
+// Endpoint ini tetap tidak memakai requireInstansi() agar dosen dapat
+// melihat semua OPD, tetapi admin OPD tidak boleh melihat OPD lain.
+// ------------------------------------------------------------------
+$lintasInstansi = ($peran === 'Dosen') || ($username === 'admin');
+$instansiAktor  = trim((string) ($_SESSION['instansi'] ?? ''));
+
+if (!$lintasInstansi && $instansiAktor === '') {
+    jsonResponse(
+        false,
+        'Instansi akun belum diatur. Hubungi administrator.',
+        [],
+        403
+    );
+}
+
+$whereLingkup  = $lintasInstansi ? '' : ' WHERE instansi = ?';
+$paramLingkup  = $lintasInstansi ? [] : [$instansiAktor];
+
 // Kolom pelacakan login bisa saja belum ada bila ALTER TABLE ditolak
 // (hak akses DB terbatas). Endpoint tetap berjalan dengan data login kosong.
 $adaKolomLogin = true;
@@ -54,7 +78,7 @@ try {
 
 try {
     if ($adaKolomLogin) {
-        $ringkasan = $pdo->query("
+        $stmtRingkasan = $pdo->prepare("
             SELECT
                 COUNT(*) AS total,
                 SUM(CASE WHEN status = 'aktif'    THEN 1 ELSE 0 END) AS aktif,
@@ -62,10 +86,10 @@ try {
                 SUM(CASE WHEN status = 'nonaktif' THEN 1 ELSE 0 END) AS nonaktif,
                 SUM(CASE WHEN last_login_at IS NOT NULL THEN 1 ELSE 0 END) AS sudah_login,
                 SUM(CASE WHEN last_login_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS login_7hari
-            FROM users
-        ")->fetch();
+            FROM users{$whereLingkup}
+        ");
     } else {
-        $ringkasan = $pdo->query("
+        $stmtRingkasan = $pdo->prepare("
             SELECT
                 COUNT(*) AS total,
                 SUM(CASE WHEN status = 'aktif'    THEN 1 ELSE 0 END) AS aktif,
@@ -73,21 +97,25 @@ try {
                 SUM(CASE WHEN status = 'nonaktif' THEN 1 ELSE 0 END) AS nonaktif,
                 0 AS sudah_login,
                 0 AS login_7hari
-            FROM users
-        ")->fetch();
+            FROM users{$whereLingkup}
+        ");
     }
+    $stmtRingkasan->execute($paramLingkup);
+    $ringkasan = $stmtRingkasan->fetch();
 
     $kolomLogin = $adaKolomLogin
         ? 'last_login_at, login_count, last_ip, last_activity_at'
         : 'NULL AS last_login_at, 0 AS login_count, NULL AS last_ip, NULL AS last_activity_at';
 
-    $penggunaMentah = $pdo->query("
+    $stmtPengguna = $pdo->prepare("
         SELECT id, nama_lengkap, nip, username, email, instansi, peran, status,
                created_at, otp_verifikasi_at, updated_at, $kolomLogin
-        FROM users
+        FROM users{$whereLingkup}
         ORDER BY nama_lengkap ASC
         LIMIT 1000
-    ")->fetchAll();
+    ");
+    $stmtPengguna->execute($paramLingkup);
+    $penggunaMentah = $stmtPengguna->fetchAll();
 } catch (Throwable $e) {
     error_log('[SIM-TKD monitoring] query utama gagal: ' . $e->getMessage());
     jsonResponse(false, 'Gagal membaca data pengguna dari basis data.', [], 500);
@@ -260,5 +288,7 @@ jsonResponse(true, 'OK', [
         'jumlah_langkah'   => count($definisi),
         'peran_tersedia'   => daftarPeran($pdo),
         'bisa_ubah_peran'  => ($peran === 'Admin Dinas' || $username === 'admin'),
+        'lingkup'          => $lintasInstansi ? 'lintas_instansi' : 'instansi',
+        'instansi'         => $lintasInstansi ? '' : $instansiAktor,
     ],
 ]);

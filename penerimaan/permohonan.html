@@ -138,7 +138,7 @@
     <div class="modal-overlay" id="modalPermohonan">
         <div class="modal">
             <div class="modal-header">
-                <h3><i class="fas fa-file-signature"></i> Tambah Permohonan</h3>
+                <h3><i class="fas fa-file-signature"></i> <span id="modalTitle">Tambah Permohonan</span></h3>
                 <button type="button" class="modal-close" id="modalClose" aria-label="Tutup">&times;</button>
             </div>
             <form id="formPermohonan">
@@ -179,7 +179,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" id="btnBatal">Batalkan</button>
-                    <button type="submit" class="btn btn-primary">Tambah Sekarang</button>
+                    <button type="submit" class="btn btn-primary" id="btnSimpanPermohonan">Tambah Sekarang</button>
                 </div>
             </form>
         </div>
@@ -215,6 +215,7 @@
             // ---------- State ----------
             let allData = [];
             let currentPage = 1;
+            let editingId = null;
 
             // ---------- Daftar bank (master dari github.com/riod94/list-bank-indonesia) ----------
             (window.DAFTAR_BANK || []).forEach(function (b) {
@@ -332,7 +333,15 @@
             }
 
             // ---------- Modal ----------
-            function openModal() {
+            function openModal(data) {
+                editingId = data ? data.id : null;
+                document.getElementById('modalTitle').textContent = data ? 'Ubah Permohonan' : 'Tambah Permohonan';
+                document.getElementById('btnSimpanPermohonan').textContent = data ? 'Simpan Perubahan' : 'Tambah Sekarang';
+                if (data) {
+                    document.getElementById('bank').value = data.bank || '';
+                    document.getElementById('namaPemilik').value = data.nama_rekening || '';
+                    document.getElementById('nomorRekening').value = data.nomor_rekening || '';
+                }
                 modal.classList.add('show');
                 document.getElementById('bank').focus();
             }
@@ -340,9 +349,12 @@
             function closeModal() {
                 modal.classList.remove('show');
                 formPermohonan.reset();
+                editingId = null;
+                document.getElementById('modalTitle').textContent = 'Tambah Permohonan';
+                document.getElementById('btnSimpanPermohonan').textContent = 'Tambah Sekarang';
             }
 
-            btnTambah.addEventListener('click', openModal);
+            btnTambah.addEventListener('click', function () { openModal(); });
             btnClose.addEventListener('click', closeModal);
             btnBatal.addEventListener('click', closeModal);
             modal.addEventListener('click', function (e) {
@@ -367,10 +379,15 @@
                 const btnSubmit = formPermohonan.querySelector('.btn-primary');
                 btnSubmit.disabled = true;
 
+                const payload = { bank: bank, nama_rekening: nama, nomor_rekening: nomor };
+                if (editingId) {
+                    payload.action = 'update';
+                    payload.id = editingId;
+                }
                 fetch('../api/permohonan.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ bank: bank, nama_rekening: nama, nomor_rekening: nomor })
+                    body: new URLSearchParams(payload)
                 })
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
@@ -436,11 +453,22 @@
                         showToast('Gagal menghubungi server.', 'error');
                     });
                 } else if (action === 'edit') {
-                    showToast('Fitur ubah permohonan #' + id + ' akan dibangun.', 'warning');
+                    const row = allData.find(function (p) { return String(p.id) === String(id); });
+                    if (!row) { showToast('Data permohonan tidak ditemukan.', 'error'); return; }
+                    openModal(row);
                 } else if (action === 'delete') {
-                    if (confirm('Yakin ingin menghapus permohonan #' + id + '?')) {
-                        showToast('Fitur hapus permohonan #' + id + ' akan dibangun.', 'warning');
-                    }
+                    if (!confirm('Yakin ingin menghapus permohonan ini? Data yang dihapus tidak dapat dikembalikan.')) return;
+                    fetch('../api/permohonan.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', id: id })
+                    })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        showToast(data.message || (data.success ? 'Permohonan dihapus.' : 'Gagal menghapus.'), data.success ? 'success' : 'error');
+                        if (data.success) loadPermohonan();
+                    })
+                    .catch(function () { showToast('Gagal menghubungi server.', 'error'); });
                 }
             });
 

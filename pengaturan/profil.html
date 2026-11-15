@@ -123,8 +123,8 @@
                         </div>
                         <div class="form-field">
                             <label for="inpInstansi">Instansi (SKPD)</label>
-                            <input type="text" id="inpInstansi" name="instansi" maxlength="150" placeholder="Dinas Kepemudaan dan Olahraga">
-                            <span class="hint">Perubahan instansi memengaruhi cakupan data dinas yang Anda akses.</span>
+                            <input type="text" id="inpInstansi" name="instansi" maxlength="150" placeholder="Dinas Kepemudaan dan Olahraga" readonly>
+                            <span class="hint">Instansi menentukan cakupan data dinas dan hanya dapat diubah oleh administrator.</span>
                         </div>
                         <div class="form-field">
                             <label for="inpUsername">Username</label>
@@ -222,8 +222,6 @@
                 return parseInt(p[2], 10) + ' ' + BULAN[parseInt(p[1], 10) - 1] + ' ' + p[0];
             }
 
-            let instansiAwal = '';
-
             // ===== Init: proteksi sesi + muat profil =====
             fetch('../api/session.php')
                 .then(function (res) { return res.json(); })
@@ -239,7 +237,6 @@
                 .then(function (d) {
                     if (!d || !d.success) return;
                     const p = d.profil || {};
-                    instansiAwal = p.instansi || '';
                     document.getElementById('ringkasanNama').textContent = p.nama_lengkap || '-';
                     document.getElementById('ringkasanNip').textContent = p.nip || 'belum diisi';
                     document.getElementById('ringkasanInstansi').textContent = p.instansi || '-';
@@ -261,29 +258,16 @@
                 const nama = document.getElementById('inpNama').value.trim();
                 const nip = document.getElementById('inpNip').value.trim();
                 const email = document.getElementById('inpEmail').value.trim();
-                const instansi = document.getElementById('inpInstansi').value.trim();
 
                 if (nama.length < 3) { showToast('Nama lengkap minimal 3 karakter.', 'warning'); return; }
                 if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showToast('Format email tidak valid.', 'warning'); return; }
-
-                // Konfirmasi bila instansi diubah (memengaruhi cakupan data multi-dinas)
-                if (instansi !== instansiAwal) {
-                    const ok = confirm(
-                        'Anda mengubah Instansi/SKPD.\n\n' +
-                        'Instansi menentukan pemisahan data antar dinas. ' +
-                        'Setelah diubah, data yang Anda akses akan mengikuti instansi baru.\n\nLanjutkan?'
-                    );
-                    if (!ok) {
-                        document.getElementById('inpInstansi').value = instansiAwal;
-                        return;
-                    }
-                }
 
                 const btn = document.getElementById('btnSimpanProfil');
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
-                const body = new URLSearchParams({ action: 'simpan', nama_lengkap: nama, nip: nip, email: email, instansi: instansi });
+                // Instansi tidak dikirim: nilainya dikunci di server (tenant key).
+                const body = new URLSearchParams({ action: 'simpan', nama_lengkap: nama, nip: nip, email: email });
                 fetch('../api/profil.php', { method: 'POST', body: body })
                     .then(function (r) { return r.json(); })
                     .then(function (d) {
@@ -291,7 +275,6 @@
                             showToast(d.message || 'Profil berhasil diperbarui.', 'success');
                             setNamaSidebar(d.profil.nama_lengkap);
                             setInstansiSidebar(d.profil.instansi);
-                            instansiAwal = d.profil.instansi;
                             document.getElementById('ringkasanNama').textContent = d.profil.nama_lengkap;
                             document.getElementById('ringkasanNip').textContent = d.profil.nip || 'belum diisi';
                             document.getElementById('ringkasanInstansi').textContent = d.profil.instansi || '-';

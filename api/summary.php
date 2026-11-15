@@ -31,7 +31,13 @@ if (!isLoggedIn()) {
 }
 
 $pdo    = db();
-$tahun  = (int) date('Y');
+// Tahun anggaran yang dipilih dari dashboard (tombol tahun grafik).
+// Dibatasi ke rentang wajar agar tidak menjadi input bebas.
+$tahun  = (int) ($_GET['tahun'] ?? date('Y'));
+if ($tahun < 2000 || $tahun > 2100) {
+    $tahun = (int) date('Y');
+}
+$semuaKegiatan = !empty($_GET['semua']);
 // Pemisahan data multi-dinas (kegiatan kini per instansi, fail-closed)
 $skpd   = requireInstansi();
 
@@ -64,8 +70,12 @@ foreach ($years as $y) {
     ];
 }
 
-// Daftar kegiatan tahun berjalan
-$stmt = $pdo->prepare("SELECT id, nama_kegiatan, tahun, pagu, realisasi, status FROM kegiatan WHERE tahun = ? AND (? = '' OR skpd = ?) ORDER BY pagu DESC LIMIT 10");
+// Daftar kegiatan tahun berjalan (tombol "Lihat Semua" meminta seluruh baris)
+$sqlKegiatan = "SELECT id, nama_kegiatan, tahun, pagu, realisasi, status
+                  FROM kegiatan
+                 WHERE tahun = ? AND (? = '' OR skpd = ?)
+                 ORDER BY pagu DESC" . ($semuaKegiatan ? '' : ' LIMIT 10');
+$stmt = $pdo->prepare($sqlKegiatan);
 $stmt->execute([$tahun, $skpd, $skpd]);
 $kegiatan = $stmt->fetchAll();
 

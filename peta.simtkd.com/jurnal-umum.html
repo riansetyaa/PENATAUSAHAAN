@@ -391,6 +391,39 @@
                     </div>
                 </div>
 
+                <!-- Approval jurnal otomatis: STBP / STS / SP2D -->
+                <div class="card" id="cardApproval">
+                    <div class="card-head"><i class="fas fa-check-double"></i> Approval Jurnal Otomatis
+                        <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-success" id="btnApproveJurnal"><i class="fas fa-check"></i> Approve Terpilih</button>
+                            <button class="btn" id="btnRejectJurnal" style="background:#dc2626;color:#fff;border:none;"><i class="fas fa-xmark"></i> Tolak Terpilih</button>
+                        </span>
+                    </div>
+                    <div class="card-body" style="padding:10px 16px;color:var(--muted);font-size:12.5px;">
+                        Jurnal otomatis dari STBP (penerimaan), STS (penyetoran), dan SP2D (belanja yang sudah dicairkan).
+                        Jurnal yang di-approve akan dihitung pada LRA dan Dashboard. Pilih baris lalu gunakan tombol approve/tolak.
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="c" style="width:36px;"><input type="checkbox" id="chkAllJurnal" title="Pilih semua"></th>
+                                    <th>No. Jurnal</th>
+                                    <th class="c">Tanggal</th>
+                                    <th>Transaksi</th>
+                                    <th>Dokumen</th>
+                                    <th class="num">Nilai (Rp)</th>
+                                    <th>Keterangan</th>
+                                    <th class="c">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyApproval">
+                                <tr><td colspan="8" style="text-align:center;color:#9aa4b2;padding:24px;">Memuat jurnal otomatis...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Master Akun (tersembunyi sampai tombol diklik) -->
                 <div class="card" id="cardMasterAkun" style="display:none;">
                     <div class="card-head"><i class="fas fa-layer-group"></i> Master Akun (Chart of Accounts)
@@ -1205,9 +1238,86 @@
                 }
             });
 
+            // ------------------------------------------------------------
+            // Approval jurnal otomatis (STBP / STS / SP2D) via api/aklap.php
+            // Endpoint approve/reject di aklap.php sebelumnya tidak dipakai
+            // halaman mana pun, sehingga LRA & Dashboard tidak pernah
+            // menghitung realisasi (hanya jurnal berstatus sudah_approve).
+            // ------------------------------------------------------------
+            function approvalUrl(action) {
+                return 'api/aklap.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + encodeURIComponent(action);
+            }
+            function badgeApproval(st) {
+                if (st === 'sudah_approve') return '<span class="badge badge-approved">Sudah Approve</span>';
+                if (st === 'ditolak') return '<span class="badge badge-rejected">Ditolak</span>';
+                return '<span class="badge badge-pending">Belum Approve</span>';
+            }
+            function loadApproval() {
+                var tb = document.getElementById('tbodyApproval');
+                if (!tb) return;
+                tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9aa4b2;padding:24px;">Memuat jurnal otomatis...</td></tr>';
+                fetch(approvalUrl('jurnal'))
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (!d || !d.success) {
+                            tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#b91c1c;padding:24px;">' + esc((d && d.message) || 'Gagal memuat jurnal otomatis.') + '</td></tr>';
+                            return;
+                        }
+                        var rows = d.data || [];
+                        if (!rows.length) {
+                            tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9aa4b2;padding:24px;">Belum ada jurnal otomatis. Jurnal muncul setelah STBP divalidasi, STS aktif, atau SP2D dicairkan.</td></tr>';
+                            return;
+                        }
+                        tb.innerHTML = rows.map(function (r) {
+                            var item = esc(r.sumber) + ':' + esc(r.id);
+                            return '<tr>' +
+                                '<td class="c"><input type="checkbox" data-item="' + item + '"></td>' +
+                                '<td>' + esc(r.no || '-') + '</td>' +
+                                '<td class="c">' + fmtTgl(r.tgl) + '</td>' +
+                                '<td>' + esc(r.transaksi || '-') + '</td>' +
+                                '<td>' + esc(r.dok || '-') + '</td>' +
+                                '<td class="num">' + fmtRp(r.nilai) + '</td>' +
+                                '<td>' + esc(r.ket || '-') + '</td>' +
+                                '<td class="c">' + badgeApproval(r.jurnal_status) + '</td>' +
+                            '</tr>';
+                        }).join('');
+                        var all = document.getElementById('chkAllJurnal');
+                        if (all) all.checked = false;
+                    })
+                    .catch(function () {
+                        tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#b91c1c;padding:24px;">Gagal terhubung ke server API.</td></tr>';
+                    });
+            }
+            function kirimApproval(action) {
+                var items = Array.prototype.slice.call(document.querySelectorAll('#tbodyApproval input[data-item]:checked'))
+                    .map(function (c) { return c.getAttribute('data-item'); });
+                if (!items.length) { toast('Pilih minimal satu jurnal.'); return; }
+                var pesan = action === 'approve'
+                    ? 'Approve ' + items.length + ' jurnal terpilih? Jurnal akan dihitung pada LRA & Dashboard.'
+                    : 'Tolak ' + items.length + ' jurnal terpilih?';
+                if (!confirm(pesan)) return;
+                fetch(approvalUrl(action), { method: 'POST', body: new URLSearchParams({ items: items.join(',') }) })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        toast((d && d.message) || 'Selesai.');
+                        if (d && d.success) loadApproval();
+                    })
+                    .catch(function () { toast('Gagal terhubung ke server API.'); });
+            }
+            var btnApproveJurnal = document.getElementById('btnApproveJurnal');
+            var btnRejectJurnal = document.getElementById('btnRejectJurnal');
+            if (btnApproveJurnal) btnApproveJurnal.addEventListener('click', function () { kirimApproval('approve'); });
+            if (btnRejectJurnal) btnRejectJurnal.addEventListener('click', function () { kirimApproval('reject'); });
+            var chkAllJurnal = document.getElementById('chkAllJurnal');
+            if (chkAllJurnal) chkAllJurnal.addEventListener('change', function () {
+                var on = chkAllJurnal.checked;
+                Array.prototype.forEach.call(document.querySelectorAll('#tbodyApproval input[data-item]'), function (c) { c.checked = on; });
+            });
+
             // Init
             muatAkun('');
             loadData();
+            loadApproval();
         })();
     </script>
 </body>

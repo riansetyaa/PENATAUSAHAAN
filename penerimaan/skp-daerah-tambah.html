@@ -58,8 +58,8 @@
         <main class="content">
             <div class="page-header">
                 <div>
-                    <h1 class="page-title">Tambah SKP Daerah</h1>
-                    <p class="page-subtitle">Buat Surat Ketetapan Pajak Daerah (SKP Daerah) baru</p>
+                    <h1 class="page-title" id="pageTitleSkp">Tambah SKP Daerah</h1>
+                    <p class="page-subtitle" id="pageSubtitleSkp">Buat Surat Ketetapan Pajak Daerah (SKP Daerah) baru</p>
                 </div>
                 <div class="page-actions">
                     <a href="skp-daerah.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Kembali</a>
@@ -169,6 +169,14 @@
         (function () {
             'use strict';
 
+            // Mode ubah: skp-daerah-tambah.html?id=N
+            const editId = new URLSearchParams(window.location.search).get('id');
+            if (editId) {
+                document.getElementById('pageTitleSkp').textContent = 'Ubah SKP Daerah';
+                document.getElementById('pageSubtitleSkp').textContent = 'Perbarui data Surat Ketetapan Pajak Daerah (SKP Daerah)';
+                document.title = 'Ubah SKP Daerah | SIM-TKD';
+            }
+
             // ---------- Prefill SKPD dari sesi ----------
             fetch('../api/session.php')
                 .then(function (res) { return res.json(); })
@@ -178,9 +186,36 @@
                         return;
                     }
                     document.getElementById('skpd').value = d.user.instansi || '';
-                    document.getElementById('tanggal').value = new Date().toISOString().slice(0, 10);
+                    if (!editId) document.getElementById('tanggal').value = new Date().toISOString().slice(0, 10);
                 })
                 .catch(function () { /* biarkan */ });
+
+            // ---------- Prefill data SKP saat mode ubah ----------
+            function prefillEditSkp() {
+                if (!editId) return;
+                fetch('../api/skp.php?id=' + encodeURIComponent(editId))
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        if (!d.success || !d.skp) {
+                            showToast((d && d.message) || 'Data SKP tidak ditemukan.', 'error');
+                            return;
+                        }
+                        var s = d.skp;
+                        document.getElementById('skpd').value = s.skpd || '';
+                        document.getElementById('nomorSkp').value = s.nomor_skp || '';
+                        document.getElementById('tanggal').value = String(s.tanggal || '').slice(0, 10);
+                        document.getElementById('jenisPajak').value = s.akun_kode || '';
+                        document.getElementById('namaPenyetor').value = s.nama_penyetor || '';
+                        document.getElementById('nilai').value = formatRupiahInput(s.nilai_keputusan);
+                        document.getElementById('alamat').value = s.alamat || '';
+                        document.getElementById('npwpd').value = s.npwpd || '';
+                        document.getElementById('objekPajak').value = s.objek_pajak || '';
+                        document.getElementById('masaDari').value = String(s.masa_pajak_dari || '').slice(0, 10);
+                        document.getElementById('masaAkhir').value = String(s.masa_pajak_akhir || '').slice(0, 10);
+                        document.getElementById('jatuhTempo').value = String(s.jatuh_tempo || '').slice(0, 10);
+                    })
+                    .catch(function () { showToast('Gagal memuat data SKP.', 'error'); });
+            }
 
             // ---------- Jenis pajak: diambil dari Akun Penerimaan (Pengaturan) ----------
             function loadAkunPenerimaan() {
@@ -203,6 +238,7 @@
                             opt.textContent = a.nama_akun + ' (' + a.kode_akun + ')';
                             sel.appendChild(opt);
                         });
+                        if (editId) prefillEditSkp();
                     })
                     .catch(function () {
                         sel.innerHTML = '';
@@ -251,7 +287,8 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'create',
+                        action: editId ? 'update' : 'create',
+                        id: editId || undefined,
                         nomor_skp: document.getElementById('nomorSkp').value.trim(),
                         tanggal: tanggal,
                         akun_kode: akunKode,
@@ -272,7 +309,9 @@
                     if (data.success) {
                         showToast(data.message + ' (Nomor: ' + (data.nomor || '') + ')', 'success');
                         setTimeout(function () {
-                            window.location.href = 'skp-daerah-cetak.html?id=' + (data.id || '');
+                            window.location.href = editId
+                                ? 'skp-daerah.html'
+                                : 'skp-daerah-cetak.html?id=' + (data.id || '');
                         }, 1300);
                     } else {
                         showToast(data.message || 'Gagal menyimpan SKP Daerah.', 'error');

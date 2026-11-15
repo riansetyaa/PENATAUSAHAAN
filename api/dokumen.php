@@ -40,6 +40,10 @@ if ($action !== 'kirim') {
     jsonResponse(false, 'Aksi tidak dikenal.', [], 422);
 }
 
+// Otorisasi peran: "Pengguna Umum" hanya-baca, tidak boleh membuat
+// dokumen tanda tangan.
+wajibBolehOperasi();
+
 $skpd   = requireInstansi();
 $userId = (int) ($_SESSION['user_id'] ?? 0);
 

@@ -103,7 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $q      = input('q');
     $status = input('status', 'belum_diverifikasi');
 
-    // Status khusus: STBP yang SIAP dimasukkan ke STS & jurnal (SUDAH melalui 3 tahap: verifikasi, otorisasi, validasi)
+    // Status khusus: STBP yang SIAP dimasukkan ke STS & jurnal (SUDAH melalui
+    // 3 tahap: verifikasi, otorisasi, validasi). Hanya status terakhir
+    // (sudah_divalidasi) yang diterima api/sts.php saat STS dibuat, jadi
+    // picker tidak boleh menampilkan status sebelumnya agar tidak buntu.
     $STS_ELIGIBLE = ['sudah_divalidasi'];
     $isStsReady = ($status === 'siap_sts');
 
@@ -120,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     $statusCond = $isStsReady
-        ? "s.status IN ('sudah_diotorisasi','sudah_divalidasi')
+        ? "s.status IN ('" . implode("','", $STS_ELIGIBLE) . "')
            AND NOT EXISTS (
                SELECT 1 FROM sts_detail sd
                INNER JOIN sts st ON st.id = sd.sts_id
@@ -194,6 +197,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $body = $_POST;
     }
     $action = $body['action'] ?? 'create';
+
+    // Otorisasi peran. Perubahan tahap (verifikasi/otorisasi/validasi)
+    // hanya untuk peran penyetuju; entri data untuk peran operasional.
+    wajibBolehOperasi();
+    if ($action === 'update_status') {
+        wajibBolehSetujui();
+    }
 
     // ---------- 0. Majukan tahap status STBP (verifikasi -> otorisasi -> validasi) ----------
     if ($action === 'update_status') {

@@ -47,6 +47,9 @@ if ($method === 'GET' && ($_GET['action'] ?? '') === 'anggaran_list') {
 
 // ---------------- POST: simpan anggaran LRA / neraca awal ----------------
 if ($method === 'POST') {
+    // Otorisasi peran: "Pengguna Umum" hanya-baca.
+    wajibBolehOperasi();
+
     $body = requestBody();
     if (($body['action'] ?? '') === 'anggaran_save') {
         $tahun = trim((string) ($body['tahun'] ?? date('Y')));

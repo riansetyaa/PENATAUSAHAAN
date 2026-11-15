@@ -100,6 +100,13 @@ if ($method === 'POST') {
     }
     $action = (string) ($body['action'] ?? 'create');
 
+    // Otorisasi peran: "Pengguna Umum" hanya-baca; verifikasi hanya
+    // untuk peran penyetuju.
+    wajibBolehOperasi();
+    if ($action === 'verifikasi') {
+        wajibBolehSetujui();
+    }
+
     // Aksi: perbarui status aktif (ceklist AKTIF di daftar permohonan)
     if ($action === 'set_aktif') {
         $id     = (int) ($body['id'] ?? 0);
@@ -166,6 +173,61 @@ if ($method === 'POST') {
         $stmt->execute([$id, $skpd]);
 
         jsonResponse(true, 'Rekening berhasil diverifikasi dan aktif.');
+    }
+
+    // Aksi: ubah data rekening. Perubahan data bank/nomor/nama mengembalikan
+    // status ke belum terverifikasi agar rekening yang berubah tidak tetap
+    // dianggap sah tanpa persetujuan ulang.
+    if ($action === 'update') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+        $bank  = trim((string) ($body['bank'] ?? ''));
+        $nama  = trim((string) ($body['nama_rekening'] ?? ''));
+        $nomor = trim((string) ($body['nomor_rekening'] ?? ''));
+        if ($bank === '') {
+            jsonResponse(false, 'Silakan pilih bank.', ['field' => 'bank'], 422);
+        }
+        if ($nama === '') {
+            jsonResponse(false, 'Nama pemilik rekening wajib diisi.', ['field' => 'nama_rekening'], 422);
+        }
+        if ($nomor === '') {
+            jsonResponse(false, 'Nomor rekening wajib diisi.', ['field' => 'nomor_rekening'], 422);
+        }
+
+        $cek = $pdo->prepare("SELECT id FROM permohonan WHERE id = ? AND skpd = ? LIMIT 1");
+        $cek->execute([$id, $skpd]);
+        if (!$cek->fetch()) {
+            jsonResponse(false, 'Data tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+
+        $stmt = $pdo->prepare("
+            UPDATE permohonan
+            SET bank = ?, nama_rekening = ?, nomor_rekening = ?,
+                status_terbit = 0, status_disetujui = 0, status_aktif = 0
+            WHERE id = ? AND skpd = ?
+        ");
+        $stmt->execute([$bank, $nama, $nomor, $id, $skpd]);
+
+        jsonResponse(true, 'Permohonan diperbarui. Rekening perlu diverifikasi ulang sebelum dipakai pada STBP/STS.');
+    }
+
+    // Aksi: hapus rekening. Tidak ada tabel lain yang menyimpan foreign key
+    // ke permohonan, jadi penghapusan permanen aman dilakukan di sini.
+    if ($action === 'delete') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+        $cek = $pdo->prepare("SELECT id FROM permohonan WHERE id = ? AND skpd = ? LIMIT 1");
+        $cek->execute([$id, $skpd]);
+        if (!$cek->fetch()) {
+            jsonResponse(false, 'Data tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+        $stmt = $pdo->prepare("DELETE FROM permohonan WHERE id = ? AND skpd = ?");
+        $stmt->execute([$id, $skpd]);
+        jsonResponse(true, 'Permohonan berhasil dihapus.');
     }
 
     $bank   = input('bank');

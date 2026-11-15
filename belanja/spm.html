@@ -74,8 +74,10 @@
                         data.forEach(function (r) { dataRowCache[r.id] = r; });
                         tbody.innerHTML = data.map(function (r, i) {
                             var btn = '<button class="btn btn-sm" data-cetak="' + r.id + '"><i class="fas fa-print"></i> Cetak</button>';
-                            if (r.status === 'belum_disetujui') btn += '<button class="btn btn-sm" data-act="persetujuan" data-id="' + r.id + '">Setujui</button>';
-                            else if (r.status === 'belum_diverifikasi') btn += '<button class="btn btn-sm" data-act="verifikasi" data-id="' + r.id + '">Verifikasi</button>';
+                            if (r.status === 'belum_disetujui') btn += '<button class="btn btn-sm" data-act="persetujuan" data-id="' + r.id + '">Setujui</button>'
+                                + '<button class="btn btn-sm btn-danger" data-act="tolak-setuju" data-id="' + r.id + '">Tolak</button>';
+                            else if (r.status === 'belum_diverifikasi') btn += '<button class="btn btn-sm" data-act="verifikasi" data-id="' + r.id + '">Verifikasi</button>'
+                                + '<button class="btn btn-sm btn-danger" data-act="tolak-verif" data-id="' + r.id + '">Tolak</button>';
                             return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.nomor_spm) + '</td><td>' + fmtTgl(r.tanggal) + '</td><td>' + esc(r.nomor_spp || '-') + '</td><td class="num">' + rupiah(r.jumlah) + '</td><td>' + badge(r.status) + '</td><td>' + btn + '</td></tr>';
                         }).join('');
                     })
@@ -97,6 +99,12 @@
                 } else if (act === 'verifikasi') {
                     if (!confirm('Verifikasi SPM ini (Setujui)?')) return;
                     post({ action: 'spm_verifikasi', id: id, setuju: true }, function (d) { toast(d.message || (d.success ? 'Terverifikasi.' : 'Gagal.')); if (d.success) load(); });
+                } else if (act === 'tolak-setuju') {
+                    if (!confirm('Tolak SPM ini pada tahap persetujuan?')) return;
+                    post({ action: 'spm_persetujuan', id: id, setuju: false }, function (d) { toast(d.message || (d.success ? 'Ditolak.' : 'Gagal.')); if (d.success) load(); });
+                } else if (act === 'tolak-verif') {
+                    if (!confirm('Tolak SPM ini pada tahap verifikasi?')) return;
+                    post({ action: 'spm_verifikasi', id: id, setuju: false }, function (d) { toast(d.message || (d.success ? 'Ditolak.' : 'Gagal.')); if (d.success) load(); });
                 }
             });
 

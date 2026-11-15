@@ -193,19 +193,19 @@
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">1. Tunai melalui bendahara penerimaan.</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="a1">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="a1">-</td>
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">2. Tunai melalui bend. penerimaan pembantu</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="a2">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="a2">-</td>
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">3. Melalui ke rekening bendahara penerimaan</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="a3">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="a3">-</td>
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">4. Melalui ke rekening kas umum daerah</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="a4">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="a4">-</td>
                         </tr>
                         <tr class="sec">
                             <td class="no">B.</td><td class="lbl">Jumlah penerimaan yang harus disetorkan (A1+A2+A3+A4)</td><td class="gap"></td>
@@ -221,19 +221,19 @@
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">1. Bendahara Penerimaan</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="d1">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="d1">-</td>
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">2. Bendahara Penerimaan Pembantu &hellip;&hellip;</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="d2">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="d2">-</td>
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">3. Bendahara Penerimaan Pembantu &hellip;&hellip;</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="d3">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="d3">-</td>
                         </tr>
                         <tr>
                             <td class="no"></td><td class="lbl sub">4. dst &hellip;&hellip;</td><td class="gap"></td>
-                            <td class="rp">Rp.</td><td class="num" id="d4">0,-</td>
+                            <td class="rp">Rp.</td><td class="num" id="d4">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -333,10 +333,11 @@
                 document.getElementById('signTanggal').textContent = formatTanggal(akhir || hariIni);
 
                 // A. Penerimaan (rincian per metode penyetoran)
-                document.getElementById('a1').textContent = formatRp(p.tunai);
-                document.getElementById('a2').textContent = '0,-';
-                document.getElementById('a3').textContent = formatRp(p.non_tunai);
-                document.getElementById('a4').textContent = '0,-';
+                var rp = data.rincian_penerimaan || {};
+                document.getElementById('a1').textContent = formatRp(rp.tunai_bendahara != null ? rp.tunai_bendahara : p.tunai);
+                document.getElementById('a2').textContent = formatRp(rp.tunai_pembantu || 0);
+                document.getElementById('a3').textContent = formatRp(rp.rekening_bendahara != null ? rp.rekening_bendahara : p.non_tunai);
+                document.getElementById('a4').textContent = formatRp(rp.rekening_kas_umum || 0);
                 document.getElementById('aTotal').textContent = formatRp(p.total);
 
                 // B. Jumlah penerimaan yang harus disetorkan
@@ -346,11 +347,12 @@
                 document.getElementById('cTotal').textContent = formatRp(data.penyetoran);
 
                 // D. Saldo Kas di Bendahara (B - C)
+                var rs = data.rincian_saldo || {};
                 document.getElementById('dTotal').textContent = formatRp(data.saldo);
-                document.getElementById('d1').textContent = formatRp(data.saldo);
-                document.getElementById('d2').textContent = '0,-';
-                document.getElementById('d3').textContent = '0,-';
-                document.getElementById('d4').textContent = '0,-';
+                document.getElementById('d1').textContent = formatRp(rs.bendahara != null ? rs.bendahara : data.saldo);
+                document.getElementById('d2').textContent = formatRp(rs.pembantu_1 || 0);
+                document.getElementById('d3').textContent = formatRp(rs.pembantu_2 || 0);
+                document.getElementById('d4').textContent = formatRp(rs.lainnya || 0);
 
                 // Tanda tangan (prefill bila input masih kosong)
                 var inPa = document.getElementById('namaPa');

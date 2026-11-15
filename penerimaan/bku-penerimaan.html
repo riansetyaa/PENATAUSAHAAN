@@ -556,6 +556,7 @@
                     </div>
                     <div class="bku-actions">
                         <button class="btn btn-primary" id="btnGenerate"><i class="fas fa-book"></i> BKU Penerimaan SKPD</button>
+                        <button class="btn btn-dark" id="btnKirimTtd"><i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan</button>
                         <button class="btn btn-success" id="btnCetak" onclick="window.print();"><i class="fas fa-print"></i> Cetak Sekarang</button>
                     </div>
                 </div>
@@ -720,7 +721,10 @@
                     });
             });
 
+            let lastBkuData = null;
+
             function renderBku(data) {
+                lastBkuData = data;
                 const entries = data.entries || [];
                 document.getElementById('bkuSheet').style.display = 'block';
                 document.getElementById('docPeriode').textContent =
@@ -753,6 +757,83 @@
                     '<p>Total Penerimaan (STBP) : ' + formatRupiah(tp) +
                         ' &nbsp;&nbsp;|&nbsp;&nbsp; Total Setoran Kas Daerah (STS) : ' + formatRupiah(tk) + '</p>';
             }
+
+            // ---------- Kirim ke antrean tanda tangan (doc.simtkd.com) ----------
+            function bersihNama(v) {
+                v = String(v || '').trim();
+                return /^[....…]+$/.test(v) || /^\(_+\)$/.test(v) ? '' : v;
+            }
+
+            function kirimTtd() {
+                const btn = document.getElementById('btnKirimTtd');
+                const sheet = document.getElementById('bkuSheet');
+                if (!btn) return;
+                if (!lastBkuData) {
+                    alert('Tampilkan BKU terlebih dahulu (klik "BKU Penerimaan SKPD").');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+                // Bangun HTML mandiri (CSS tertanam) agar bisa ditandatangani
+                let cssText = '';
+                try {
+                    const linkCss = document.querySelector('link[href*="dashboard.css"]');
+                    const req = new XMLHttpRequest();
+                    req.open('GET', linkCss ? linkCss.getAttribute('href') : '../css/dashboard.css', false);
+                    req.send();
+                    if (req.status >= 200 && req.status < 300) cssText += req.responseText;
+                } catch (e) { /* abaikan */ }
+                document.querySelectorAll('style').forEach(function (st) { cssText += '\n' + st.textContent; });
+                cssText += '\n#docArea .bku-sheet{position:relative;}\n@page{size:A4 landscape;margin:12mm;}\n';
+
+                const dari = document.getElementById('perDari').value;
+                const sampai = document.getElementById('perSampai').value;
+                const judul = 'BKU Penerimaan - Periode ' + formatTanggal(dari) + ' s.d ' + formatTanggal(sampai);
+                const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml(judul) + '</title><style>' + cssText + '</style></head>' +
+                    '<body style="margin:0;background:#fff;"><div id="docArea">' + sheet.outerHTML + '</div></body></html>';
+
+                const body = new URLSearchParams();
+                body.append('action', 'kirim');
+                body.append('jenis', 'BKU Penerimaan');
+                body.append('ref_id', '');
+                body.append('nomor', '');
+                body.append('judul', judul);
+                body.append('tanggal', sampai || new Date().toISOString().slice(0, 10));
+                body.append('konten_html', html);
+
+                const pttd = [
+                    { user: '', urutan: 1, jabatan: 'Pengguna Anggaran', nama: bersihNama(document.getElementById('signPA').textContent) },
+                    { user: 'self', urutan: 2, jabatan: 'Bendahara Penerimaan', nama: bersihNama(document.getElementById('signBP').textContent) }
+                ];
+                if (pttd[0].nama || pttd[1].nama) {
+                    body.append('penandatangan', JSON.stringify(pttd));
+                }
+
+                fetch('../api/dokumen.php', { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        if (d && d.success) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                            const t = document.createElement('div');
+                            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0e2140;color:#fff;padding:12px 18px;border-radius:8px;z-index:9999;font:13px -apple-system,system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25)';
+                            t.textContent = d.message || 'Dokumen terkirim ke antrean tanda tangan.';
+                            document.body.appendChild(t);
+                            setTimeout(function () { t.remove(); }, 4000);
+                        } else {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                            alert((d && d.message) || 'Gagal mengirim dokumen.');
+                        }
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                        alert('Gagal mengirim (jaringan).');
+                    });
+            }
+            document.getElementById('btnKirimTtd').addEventListener('click', kirimTtd);
 
             // ---------- Watermark ----------
             const sheet = document.getElementById('bkuSheet');

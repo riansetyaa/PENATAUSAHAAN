@@ -22,10 +22,48 @@ if (session_status() === PHP_SESSION_NONE) {
 
 /**
  * Cek apakah pengguna sudah login.
+ *
+ * Sesi divalidasi ulang ke basis data pada setiap request. Ini penting
+ * untuk keamanan: tanpa validasi, akun yang dinonaktifkan atau perannya
+ * diturunkan tetap memakai hak lamanya sampai ia logout (sesi bisa
+ * bertahan lama). Bila kolom/DB belum tersedia, sesi lama tetap dipakai
+ * agar aplikasi tidak ikut mati karena gangguan basis data.
  */
 function isLoggedIn(): bool
 {
-    return isset($_SESSION['user_id']);
+    if (!isset($_SESSION['user_id'])) {
+        return false;
+    }
+
+    if (function_exists('db')) {
+        try {
+            $stmt = db()->prepare("
+                SELECT username, nama_lengkap, email, instansi, peran, status
+                FROM users
+                WHERE id = ?
+                LIMIT 1
+            ");
+            $stmt->execute([(int) $_SESSION['user_id']]);
+            $user = $stmt->fetch();
+
+            if (!$user || ($user['status'] ?? '') !== 'aktif') {
+                destroySession();
+                return false;
+            }
+
+            // Selaraskan sesi dengan data terbaru (peran/instansi dapat
+            // diubah administrator kapan saja).
+            $_SESSION['username'] = (string) $user['username'];
+            $_SESSION['nama']     = (string) $user['nama_lengkap'];
+            $_SESSION['email']    = (string) $user['email'];
+            $_SESSION['instansi'] = (string) ($user['instansi'] ?? '');
+            $_SESSION['peran']    = (string) ($user['peran'] ?? '');
+        } catch (Throwable $e) {
+            error_log('[SIM-TKD] auth: gagal validasi sesi: ' . $e->getMessage());
+        }
+    }
+
+    return true;
 }
 
 /**

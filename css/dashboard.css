@@ -2161,6 +2161,11 @@ a {
     align-items: center;
     gap: 6px;
     transition: gap var(--transition);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .link-more:hover {

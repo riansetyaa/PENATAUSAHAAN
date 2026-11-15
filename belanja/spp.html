@@ -366,7 +366,8 @@
                         data.forEach(function (r) { dataRowCache[r.id] = r; });
                         tbody.innerHTML = data.map(function (r, i) {
                             var btn = '<button class="btn btn-sm" data-cetak="' + r.id + '"><i class="fas fa-print"></i> Cetak</button>';
-                            if (r.status === 'belum_diverifikasi') btn += '<button class="btn btn-sm" data-verif="' + r.id + '">Verifikasi</button>';
+                            if (r.status === 'belum_diverifikasi') btn += '<button class="btn btn-sm" data-verif="' + r.id + '">Verifikasi</button>'
+                                + '<button class="btn btn-sm btn-danger" data-tolak="' + r.id + '">Tolak</button>';
                             var ref = r.nomor_lpj ? esc(r.nomor_lpj) : (r.nomor_pengajuan ? esc(r.nomor_pengajuan) : (r.nama_rekanan || '-'));
                             return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.nomor_spp) + '</td><td>' + fmtTgl(r.tanggal) + '</td><td>' + esc(r.jenis_spp || '-') + '</td><td>' + esc(r.nomor_spd || '-') + '</td><td>' + ref + '</td><td class="num">' + rupiah(r.jumlah) + '</td><td class="num">' + rupiah(r.total_potongan) + '</td><td class="num">' + rupiah(r.total_pajak) + '</td><td>' + statusBadge(r.status) + '</td><td>' + btn + '</td></tr>';
                         }).join('');
@@ -419,6 +420,12 @@
             tbody.addEventListener('click', function (e) {
                 var c = e.target.closest('[data-cetak]');
                 if (c) { cetakSpp(parseInt(c.getAttribute('data-cetak'), 10)); return; }
+                var bt = e.target.closest('[data-tolak]');
+                if (bt) {
+                    if (!confirm('Tolak SPP ini? SPP berstatus ditolak dan tidak dapat diverifikasi lagi.')) return;
+                    post({ action: 'spp_verifikasi', id: parseInt(bt.getAttribute('data-tolak'), 10), setuju: false }, function (d) { toast(d.message || (d.success ? 'Ditolak.' : 'Gagal.')); if (d.success) load(); });
+                    return;
+                }
                 var b = e.target.closest('[data-verif]'); if (!b) return;
                 if (!confirm('Setujui SPP ini? Verifikasi setuju akan otomatis membuat SPM (netto setelah potongan/pajak).')) return;
                 post({ action: 'spp_verifikasi', id: parseInt(b.getAttribute('data-verif'), 10), setuju: true }, function (d) { toast(d.message || (d.success ? 'Terverifikasi.' : 'Gagal.')); if (d.success) load(); });

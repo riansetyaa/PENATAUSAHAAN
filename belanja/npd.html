@@ -94,8 +94,10 @@
                         data.forEach(function (r) { dataRowCache[r.id] = r; });
                         tbody.innerHTML = data.map(function (r, i) {
                             var btn = '<button class="btn btn-sm" data-cetak="' + r.id + '"><i class="fas fa-print"></i> Cetak</button>';
-                            if (r.status === 'diajukan') btn += '<button class="btn btn-sm" data-act="pa" data-id="' + r.id + '">Validasi PA</button>';
-                            else if (r.status === 'divalidasi_pa') btn += '<button class="btn btn-sm" data-act="bp" data-id="' + r.id + '">Validasi BP</button>';
+                            if (r.status === 'diajukan') btn += '<button class="btn btn-sm" data-act="pa" data-id="' + r.id + '">Validasi PA</button>'
+                                + '<button class="btn btn-sm btn-danger" data-act="tolak-pa" data-id="' + r.id + '">Tolak</button>';
+                            else if (r.status === 'divalidasi_pa') btn += '<button class="btn btn-sm" data-act="bp" data-id="' + r.id + '">Validasi BP</button>'
+                                + '<button class="btn btn-sm btn-danger" data-act="tolak-bp" data-id="' + r.id + '">Tolak</button>';
                             return '<tr><td>' + (i + 1) + '</td><td>' + esc(r.nomor_npd) + '</td><td>' + fmtTgl(r.tanggal) + '</td><td>' + esc(r.metode) + '</td><td>' + esc(r.kegiatan || (r.keterangan || '-')) + '</td><td class="num">' + rupiah(r.jumlah) + '</td><td>' + badge(r.status) + '</td><td>' + btn + '</td></tr>';
                         }).join('');
                     })
@@ -118,6 +120,8 @@
                 var act = b.getAttribute('data-act');
                 if (act === 'pa') { if (!confirm('Validasi (Setujui) NPD ini oleh PA/KPA?')) return; post({ action: 'npd_validasi_pa', id: id, setuju: true }, function (d) { toast(d.message || (d.success ? 'Divalidasi PA.' : 'Gagal.')); if (d.success) load(); }); }
                 else if (act === 'bp') { if (!confirm('Validasi (Setujui) NPD ini oleh BP/BPP?')) return; post({ action: 'npd_validasi_bp', id: id, setuju: true }, function (d) { toast(d.message || (d.success ? 'Divalidasi BP.' : 'Gagal.')); if (d.success) load(); }); }
+                else if (act === 'tolak-pa') { if (!confirm('Tolak NPD ini pada validasi PA/KPA?')) return; post({ action: 'npd_validasi_pa', id: id, setuju: false }, function (d) { toast(d.message || (d.success ? 'Ditolak.' : 'Gagal.')); if (d.success) load(); }); }
+                else if (act === 'tolak-bp') { if (!confirm('Tolak NPD ini pada validasi BP/BPP?')) return; post({ action: 'npd_validasi_bp', id: id, setuju: false }, function (d) { toast(d.message || (d.success ? 'Ditolak.' : 'Gagal.')); if (d.success) load(); }); }
             });
 
             function cetakNpd(id) {

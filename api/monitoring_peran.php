@@ -10,6 +10,8 @@
  * dapat melihat data, tetapi tidak dapat mengubah peran.
  *
  * Pengaman:
+ *   - Admin Dinas hanya dapat mengubah peran akun di instansinya sendiri
+ *     (username "admin" tetap lintas instansi).
  *   - Peran akun sendiri tidak dapat diubah (mencegah lockout).
  *   - Akun superuser "admin" tidak dapat diubah dari halaman ini.
  *   - Peran harus termasuk ENUM users.peran yang tersedia.
@@ -41,7 +43,7 @@ ensureUsersColumns($pdo);
 // ---------------------------------------------------------------
 $aktorId = (int) ($_SESSION['user_id'] ?? 0);
 $stmt = $pdo->prepare("
-    SELECT id, username, peran, status
+    SELECT id, username, peran, status, instansi
     FROM users
     WHERE id = ?
     LIMIT 1
@@ -84,7 +86,7 @@ if ($targetId === $aktorId) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT id, nama_lengkap, username, peran
+    SELECT id, nama_lengkap, username, peran, instansi
     FROM users
     WHERE id = ?
     LIMIT 1
@@ -94,6 +96,22 @@ $target = $stmt->fetch();
 
 if (!$target) {
     jsonResponse(false, 'Pengguna tidak ditemukan.', [], 404);
+}
+
+// Admin Dinas hanya boleh mengubah peran akun di instansinya sendiri.
+// Username "admin" (superuser) tetap lintas instansi.
+$aktorLintas = ($aktor['username'] === 'admin');
+$samaInstansi = strcasecmp(
+    trim((string) ($aktor['instansi'] ?? '')),
+    trim((string) ($target['instansi'] ?? ''))
+) === 0;
+if (!$aktorLintas && !$samaInstansi) {
+    jsonResponse(
+        false,
+        'Akses ditolak. Anda hanya dapat mengubah peran pengguna di instansi Anda.',
+        [],
+        403
+    );
 }
 if ($target['username'] === 'admin') {
     jsonResponse(

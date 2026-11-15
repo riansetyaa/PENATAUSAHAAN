@@ -146,6 +146,68 @@
         </footer>
     </div>
 
+    <!-- ================= MODAL PERBARUI STS ================= -->
+    <div class="modal-overlay" id="modalSts">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-pen"></i> Perbarui Data STS</h3>
+                <button type="button" class="modal-close" id="stsModalClose" aria-label="Tutup">&times;</button>
+            </div>
+            <form id="formStsEdit" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nomor STS</label>
+                        <input type="text" id="eNomorSts" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Penyetor</label>
+                        <input type="text" id="eNamaPenyetor" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal STS <span style="color:#e2542c;">*</span></label>
+                        <input type="date" id="eTanggalSts" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Acuan Dari</label>
+                        <input type="date" id="eTanggalDari" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Acuan Akhir</label>
+                        <input type="date" id="eTanggalAkhir" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Mengetahui</label>
+                        <input type="text" id="eMengetahui" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Kuasa Pengguna Anggaran</label>
+                        <input type="text" id="eKuasaKpa" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Bank</label>
+                        <input type="text" id="eNamaBank" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor Rekening</label>
+                        <input type="text" id="eNomorRekening" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Rekening</label>
+                        <input type="text" id="eNamaRekening" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan</label>
+                        <textarea id="eKeterangan" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="stsModalBatal">Batalkan</button>
+                    <button type="submit" class="btn btn-primary" id="stsModalSimpan">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../js/sidebar-menu.js"></script>
     <script src="../js/dashboard.js"></script>
     <script>
@@ -167,10 +229,13 @@
             const pageInfo = document.getElementById('pageInfo');
             const perPageSelect = document.getElementById('perPage');
             const btnBersihkan = document.getElementById('btnBersihkan');
+            const modalSts = document.getElementById('modalSts');
+            const formStsEdit = document.getElementById('formStsEdit');
 
             let allData = [];
             let currentPage = 1;
             let currentStatus = 'aktif';
+            let editingStsId = null;
 
             const STATUS_LABEL = { aktif: 'Aktif', dihapus: 'Dihapus' };
 
@@ -337,6 +402,78 @@
                 renderTable();
             });
 
+            // ---------- Modal perbarui data header STS ----------
+            function tglInput(v) {
+                return String(v || '').slice(0, 10);
+            }
+
+            function openEditSts(id) {
+                const row = allData.filter(function (p) { return String(p.id) === String(id); })[0];
+                if (!row) { showToast('Data STS tidak ditemukan.', 'error'); return; }
+                editingStsId = row.id;
+                document.getElementById('eNomorSts').value = row.nomor_sts || '';
+                document.getElementById('eNamaPenyetor').value = row.nama_penyetor || '';
+                document.getElementById('eTanggalSts').value = tglInput(row.tanggal_sts);
+                document.getElementById('eTanggalDari').value = tglInput(row.tanggal_acuan_dari);
+                document.getElementById('eTanggalAkhir').value = tglInput(row.tanggal_acuan_akhir);
+                document.getElementById('eMengetahui').value = row.mengetahui || '';
+                document.getElementById('eKuasaKpa').value = row.kuasa_pengguna_anggaran || '';
+                document.getElementById('eNamaBank').value = row.nama_bank || '';
+                document.getElementById('eNomorRekening').value = row.nomor_rekening || '';
+                document.getElementById('eNamaRekening').value = row.nama_rekening || '';
+                document.getElementById('eKeterangan').value = row.keterangan || '';
+                modalSts.classList.add('show');
+                document.getElementById('eTanggalSts').focus();
+            }
+
+            function closeEditSts() {
+                modalSts.classList.remove('show');
+                formStsEdit.reset();
+                editingStsId = null;
+            }
+
+            document.getElementById('stsModalClose').addEventListener('click', closeEditSts);
+            document.getElementById('stsModalBatal').addEventListener('click', closeEditSts);
+            modalSts.addEventListener('click', function (e) {
+                if (e.target === modalSts) closeEditSts();
+            });
+
+            formStsEdit.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const payload = {
+                    action: 'update',
+                    id: editingStsId,
+                    nama_penyetor: document.getElementById('eNamaPenyetor').value.trim(),
+                    tanggal_sts: document.getElementById('eTanggalSts').value,
+                    tanggal_acuan_dari: document.getElementById('eTanggalDari').value,
+                    tanggal_acuan_akhir: document.getElementById('eTanggalAkhir').value,
+                    mengetahui: document.getElementById('eMengetahui').value.trim(),
+                    kuasa_pengguna_anggaran: document.getElementById('eKuasaKpa').value.trim(),
+                    nama_bank: document.getElementById('eNamaBank').value.trim(),
+                    nomor_rekening: document.getElementById('eNomorRekening').value.trim(),
+                    nama_rekening: document.getElementById('eNamaRekening').value.trim(),
+                    keterangan: document.getElementById('eKeterangan').value.trim()
+                };
+                if (!payload.tanggal_sts) { showToast('Tanggal STS wajib diisi.', 'warning'); return; }
+                const btn = document.getElementById('stsModalSimpan');
+                btn.disabled = true;
+                fetch('../api/sts.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    btn.disabled = false;
+                    showToast(d.message || (d.success ? 'STS diperbarui.' : 'Gagal memperbarui.'), d.success ? 'success' : 'error');
+                    if (d.success) { closeEditSts(); loadSts(); }
+                })
+                .catch(function () {
+                    btn.disabled = false;
+                    showToast('Gagal menghubungi server.', 'error');
+                });
+            });
+
             // ---------- Aksi baris (dropdown) ----------
             tbody.addEventListener('click', function (e) {
                 const dropBtn = e.target.closest('.action-dropdown-btn');
@@ -356,7 +493,7 @@
                 if (action === 'print') {
                     window.location.href = 'sts-cetak.html?id=' + id;
                 } else if (action === 'update') {
-                    showToast('Perbarui Data STS #' + id + ' akan dibangun.', 'warning');
+                    openEditSts(id);
                 } else if (action === 'delete') {
                     var row = allData.filter(function (p) { return String(p.id) === String(id); })[0];
                     var label = (row && row.nomor_sts) ? row.nomor_sts : ('#' + id);

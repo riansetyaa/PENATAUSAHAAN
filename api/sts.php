@@ -85,12 +85,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmtK->execute($params);
         $kuasa = (string) ($stmtK->fetchColumn() ?: '');
 
+        $saldo = $penerimaan['total'] - $penyetoran;
+
+        // Rincian baris LPJ. Aplikasi hanya menyimpan dua metode
+        // penyetoran (tunai / non-tunai), sehingga jalur "bendahara
+        // penerimaan pembantu" dan "rekening kas umum" tidak punya
+        // sumber data dan bernilai nol. Nilai tetap dikirim eksplisit
+        // agar halaman tidak memakai angka placeholder hardcoded.
         jsonResponse(true, 'OK', [
             'periode' => ['dari' => $dari, 'akhir' => $akhir],
             'skpd'    => $skpd,
             'penerimaan' => $penerimaan,
+            'rincian_penerimaan' => [
+                'tunai_bendahara'    => $penerimaan['tunai'],
+                'tunai_pembantu'     => 0.0,
+                'rekening_bendahara' => $penerimaan['non_tunai'],
+                'rekening_kas_umum'  => 0.0,
+            ],
             'penyetoran' => $penyetoran,
-            'saldo'   => $penerimaan['total'] - $penyetoran,
+            'saldo'   => $saldo,
+            'rincian_saldo' => [
+                'bendahara'   => $saldo,
+                'pembantu_1'  => 0.0,
+                'pembantu_2'  => 0.0,
+                'lainnya'     => 0.0,
+            ],
             'bendahara' => (string) ($_SESSION['nama'] ?? ''),
             'kuasa_pengguna_anggaran' => $kuasa,
         ]);
@@ -279,6 +298,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $action = $body['action'] ?? 'create';
 
+    // Otorisasi peran: "Pengguna Umum" hanya-baca.
+    wajibBolehOperasi();
+
     if ($action === 'delete') {
         $id = (int) ($body['id'] ?? 0);
         if ($id <= 0) {
@@ -306,6 +328,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id'     => $id,
             'status' => 'dihapus',
         ]);
+    }
+
+    // Aksi: perbarui data header STS (rincian STBP & total tidak diubah di
+    // sini agar nilai yang sudah disetor tetap konsisten).
+    if ($action === 'update') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+        $tanggal_sts = trim((string) ($body['tanggal_sts'] ?? ''));
+        if ($tanggal_sts === '') {
+            jsonResponse(false, 'Tanggal STS wajib diisi.', [], 422);
+        }
+
+        $cur = $pdo->prepare("SELECT id, status FROM sts WHERE id = ?" . ($skpd !== '' ? " AND skpd = ?" : "") . " LIMIT 1");
+        $cur->execute($skpd !== '' ? [$id, $skpd] : [$id]);
+        $row = $cur->fetch();
+        if (!$row) {
+            jsonResponse(false, 'STS tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+        if ((string) $row['status'] === 'dihapus') {
+            jsonResponse(false, 'STS yang sudah dihapus tidak dapat diperbarui.', [], 422);
+        }
+
+        $upd = $pdo->prepare("
+            UPDATE sts SET
+                nama_penyetor = ?, tanggal_sts = ?, tanggal_acuan_dari = ?,
+                tanggal_acuan_akhir = ?, mengetahui = ?, kuasa_pengguna_anggaran = ?,
+                nama_bank = ?, nomor_rekening = ?, nama_rekening = ?, keterangan = ?
+            WHERE id = ?" . ($skpd !== '' ? ' AND skpd = ?' : '') . "
+        ");
+        $params = [
+            trim((string) ($body['nama_penyetor'] ?? '')),
+            $tanggal_sts,
+            (($v = trim((string) ($body['tanggal_acuan_dari'] ?? ''))) !== '' ? $v : null),
+            (($v = trim((string) ($body['tanggal_acuan_akhir'] ?? ''))) !== '' ? $v : null),
+            trim((string) ($body['mengetahui'] ?? '')),
+            trim((string) ($body['kuasa_pengguna_anggaran'] ?? '')),
+            trim((string) ($body['nama_bank'] ?? '')),
+            trim((string) ($body['nomor_rekening'] ?? '')),
+            trim((string) ($body['nama_rekening'] ?? '')),
+            trim((string) ($body['keterangan'] ?? '')),
+            $id,
+        ];
+        if ($skpd !== '') {
+            $params[] = $skpd;
+        }
+        $upd->execute($params);
+
+        jsonResponse(true, 'Data STS berhasil diperbarui.');
     }
 
     if ($action !== 'create') {
