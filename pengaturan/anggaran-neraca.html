@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anggaran &amp; Neraca Awal - SIM-TKD | Sistem Informasi Manajemen Tata Kelola Daerah</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; width:fit-content; max-width:100%; background:#eef2f7; padding:5px; border-radius:12px; }
+        .tab-btn { padding:9px 20px; border:none; border-radius:9px; background:transparent; color:#5a6c7d; cursor:pointer; font-size:13px; font-weight:600; transition:all .2s ease; font-family:inherit; white-space:nowrap; }
+        .tab-btn:hover { color:#1a3a6b; background:rgba(26,58,107,.07); }
+        .tab-btn.active { background:#ffffff; color:#1a3a6b; box-shadow:0 2px 8px rgba(15,23,42,.14); }
+
+        .toolbar { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; }
+        .toolbar .ctl { display:flex; flex-direction:column; gap:4px; }
+        .toolbar label { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
+        .toolbar input[type=number] { width:130px; height:38px; border:1px solid #d6dee8; border-radius:9px; padding:0 12px; font-size:14px; }
+        .toolbar input[type=number]:focus { outline:none; border-color:#1d3a6e; box-shadow:0 0 0 3px rgba(29,58,110,.12); }
+        .search-box { position:relative; flex:1; min-width:220px; }
+        .search-box i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:13px; }
+        .search-box input { width:100%; height:38px; border:1px solid #d6dee8; border-radius:9px; padding:0 12px 0 34px; font-size:13px; }
+        .search-box input:focus { outline:none; border-color:#1d3a6e; box-shadow:0 0 0 3px rgba(29,58,110,.12); }
+
+        .tbl-wrap { max-height:60vh; overflow:auto; border:1px solid #e2e8f0; border-radius:10px; }
+        table.data-table { min-width:720px; }
+        table.data-table thead th { position:sticky; top:0; z-index:2; background:#1d3a6e; color:#fff; font-size:12px; }
+        tr.grp td { background:#eef2f8; font-weight:800; color:#16305a; text-transform:uppercase; font-size:12px; letter-spacing:.5px; padding:8px 12px !important; border-top:2px solid #cbd5e1; }
+        .num-input { width:150px; text-align:right; padding:7px 10px; border:1px solid #d6dee8; border-radius:8px; font-size:13px; }
+        .num-input:focus { outline:none; border-color:#1d3a6e; box-shadow:0 0 0 3px rgba(29,58,110,.12); }
+        .save-row { margin-top:16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+        .save-row .total-info { font-size:12.5px; color:#16305a; font-weight:600; }
+        .badge-count { background:#e0e7ff; color:#3730a3; padding:5px 11px; border-radius:999px; font-size:12px; font-weight:700; }
+        .hint { font-size:12px; color:#64748b; margin:0 0 12px; line-height:1.5; }
+        .row-del { border:none; background:#fee2e2; color:#b91c1c; width:28px; height:28px; border-radius:8px; cursor:pointer; font-size:13px; line-height:1; }
+        .row-del:hover { background:#fecaca; }
+        .btn-add { border:1.5px dashed #1d3a6e; background:#f5f8ff; color:#1d3a6e; height:38px; padding:0 14px; border-radius:9px; cursor:pointer; font-size:13px; font-weight:600; }
+        .btn-add:hover { background:#e8efff; }
+    </style>
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle"><i class="fas fa-bars"></i></button>
+                <div class="breadcrumb"><i class="fas fa-home"></i><span>Beranda</span><i class="fas fa-chevron-right"></i><span>Pengaturan</span><i class="fas fa-chevron-right"></i><span class="current">Anggaran &amp; Neraca</span></div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item"><i class="fas fa-calendar-alt"></i><span id="currentDate">--</span></div>
+                <div class="topbar-item user"><div class="user-avatar small"><i class="fas fa-user-tie"></i></div><span id="topbarUserName">Admin Dinas</span></div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Anggaran LRA &amp; Neraca Awal</h1>
+                    <p class="page-subtitle">Atur pagu anggaran per akun (untuk Laporan Realisasi Anggaran) dan saldo awal (untuk Neraca).</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline" onclick="history.back();"><i class="fas fa-arrow-left"></i> Kembali</button>
+                </div>
+            </div>
+
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.65;display:flex;gap:12px;align-items:flex-start;">
+                <i class="fas fa-circle-info" style="margin-top:3px;"></i>
+                <div>
+                    <strong>Pagu anggaran kini dikelola di AKLAP &mdash; berbasis Master Akun (COA LRA).</strong><br>
+                    Buka halaman <a href="https://peta.simtkd.com/anggaran.html" style="color:#1d4ed8;font-weight:600;">Anggaran (Pagu)</a> di AKLAP: daftar akun otomatis mengikuti Master Akun, penyimpanan per akun+tahun
+                    (tidak menghapus baris lain), dan langsung terpakai untuk LRA, dashboard AKLAP, serta Buku Pembantu.
+                    Halaman ini tetap dapat dipakai untuk impor/penyesuaian massal, namun penyimpanan di sini mengganti seluruh baris tahun terpilih.
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="anggaran"><i class="fas fa-chart-line"></i> Anggaran LRA</button>
+                <button class="tab-btn" data-tab="neraca"><i class="fas fa-scale-balanced"></i> Neraca Awal</button>
+            </div>
+
+            <!-- TAB ANGGARAN -->
+            <div class="card" id="tab-anggaran">
+                <div class="card-head"><i class="fas fa-chart-line"></i> Pagu Anggaran per Akun (LRA) <span class="badge-count" id="cntAnggaran">0 akun</span></div>
+                <div class="card-body">
+                    <div class="toolbar">
+                        <div class="ctl"><label>Tahun Anggaran</label><input type="number" id="tahunAnggaran" value="2026" min="2000" max="2100"></div>
+                        <button class="btn btn-outline" id="btnMuatAnggaran" style="height:38px;"><i class="fas fa-sync"></i> Muat Akun</button>
+                        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="cariAnggaran" placeholder="Cari kode / nama akun ..."></div>
+                    </div>
+                    <p class="hint">Isi pagu anggaran (Rp) per akun pendapatan &amp; belanja — seluruh akun LRA. Angka ini tampil di kolom ANGGARAN pada Laporan Realisasi Anggaran (AKLAP).</p>
+                    <div class="tbl-wrap">
+                        <table class="data-table">
+                            <thead><tr><th style="width:40px;">No.</th><th style="width:130px;">Kode Akun</th><th>Uraian Akun</th><th style="width:190px;">Anggaran (Rp)</th></tr></thead>
+                            <tbody id="tbAnggaran"><tr><td colspan="4" style="text-align:center;color:#9098a5;padding:24px;">Memuat akun...</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div class="save-row">
+                        <span class="total-info" id="sumAnggaran"></span>
+                        <button class="btn btn-primary" id="btnSimpanAnggaran"><i class="fas fa-save"></i> Simpan Anggaran</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB NERACA -->
+            <div class="card" id="tab-neraca" style="display:none;">
+                <div class="card-head"><i class="fas fa-scale-balanced"></i> Saldo Awal Neraca <span class="badge-count" id="cntNeraca">0 akun</span></div>
+                <div class="card-body">
+                    <div class="toolbar">
+                        <div class="ctl"><label>Tahun Anggaran</label><input type="number" id="tahunNeraca" value="2026" min="2000" max="2100"></div>
+                        <button class="btn btn-outline" id="btnMuatNeraca" style="height:38px;"><i class="fas fa-sync"></i> Muat Akun</button>
+                        <button class="btn-add" id="btnTambahNeraca" style="height:38px;"><i class="fas fa-plus"></i> Tambah Akun</button>
+                        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="cariNeraca" placeholder="Cari kode / nama akun ..."></div>
+                    </div>
+                    <p class="hint">Isi saldo awal (Rp) per akun neraca lengkap (Aset Lancar, Investasi, Aset Tetap, Aset Lainnya, Kewajiban, Ekuitas) sebagai saldo pembukuan awal periode.</p>
+                    <div class="tbl-wrap">
+                        <table class="data-table">
+                            <thead><tr><th style="width:40px;">No.</th><th style="width:130px;">Kode Akun</th><th>Uraian Akun</th><th style="width:130px;">Jenis</th><th style="width:190px;">Saldo Awal (Rp)</th><th style="width:46px;">Aksi</th></tr></thead>
+                            <tbody id="tbNeraca"><tr><td colspan="5" style="text-align:center;color:#9098a5;padding:24px;">Memuat akun...</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div class="save-row">
+                        <span class="total-info" id="sumNeraca"></span>
+                        <button class="btn btn-primary" id="btnSimpanNeraca"><i class="fas fa-save"></i> Simpan Neraca Awal</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer"><span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span></footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2400); }
+            function esc(s) { var d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+            function rupiah(v) { return Number(v || 0).toLocaleString('id-ID'); }
+            function fmtNilai(v) { var n = Number(v || 0); return n ? String(n).replace(/\./g, '') : ''; }
+
+            // Seluruh akun LRA (177 akun) — sinkron dengan lra.html di AKLAP
+            var LRA_FALLBACK = [
+                ['4', 'PENDAPATAN DAERAH'],
+                ['4.1', 'PENDAPATAN ASLI DAERAH (PAD)'],
+                ['4.1.1', 'Pendapatan Pajak Daerah'],
+                ['4.1.1.01', 'Pajak Hotel'],
+                ['4.1.1.01.01', 'Hotel Bintang Berlian'],
+                ['4.1.1.01.02', 'Hotel Bintang Lima'],
+                ['4.1.1.01.03', 'Hotel Bintang Empat'],
+                ['4.1.1.01.04', 'Hotel Bintang Tiga'],
+                ['4.1.1.01.05', 'Hotel Bintang Dua'],
+                ['4.1.1.01.06', 'Hotel Bintang Satu'],
+                ['4.1.1.01.07', 'Hotel Melati Tiga'],
+                ['4.1.1.02', 'Pajak Restoran'],
+                ['4.1.1.02.01', 'Restoran'],
+                ['4.1.1.02.02', 'Rumah Makan'],
+                ['4.1.1.02.03', 'Kafe'],
+                ['4.1.1.02.04', 'Kantin'],
+                ['4.1.1.03', 'Pajak Hiburan'],
+                ['4.1.1.03.01', 'Tontonan Film/Bioskop'],
+                ['4.1.1.03.02', 'Pameran'],
+                ['4.1.1.03.03', 'Diskotek'],
+                ['4.1.1.03.04', 'Pacuan Kuda'],
+                ['4.1.1.04', 'Pajak Reklame'],
+                ['4.1.1.04.01', 'Reklame Papan/Billboard'],
+                ['4.1.1.04.02', 'Reklame Kain'],
+                ['4.1.1.04.09', 'Reklame Film/Slide'],
+                ['4.1.1.05', 'Penerangan Jalan Umum'],
+                ['4.1.1.05.01', 'Pajak Penerangan Jalan PLN'],
+                ['4.1.1.08', 'Pajak Air Bawah Tanah'],
+                ['4.1.1.08.01', 'Pajak Air Bawah Tanah'],
+                ['4.1.1.09', 'Pajak Sarang Burung Walet'],
+                ['4.1.1.09.01', 'Pajak Sarang Burung Walet'],
+                ['4.1.1.10', 'Pajak Lingkungan'],
+                ['4.1.1.10.01', 'Pajak Lingkungan'],
+                ['4.1.2', 'Pendapatan Retribusi Daerah'],
+                ['4.1.2.01', 'Retribusi Jasa Usaha'],
+                ['4.1.2.01.01', 'Retribusi Pemakaian Kekayaan Daerah'],
+                ['4.1.2.01.02', 'Retribusi Parkir'],
+                ['4.1.2.01.03', 'Retribusi Sewa Pasar Tradisional'],
+                ['4.1.3', 'Hasil Pengelolaan Kekayaan Daerah yang Dipisahkan'],
+                ['4.1.3.01', 'Bagian Laba atas Penyertaan Modal Pemerintah Daerah'],
+                ['4.1.3.01.01', 'BUMD - A'],
+                ['4.1.3.01.02', 'PT - B'],
+                ['4.1.3.04', 'Pendapatan Bunga Obligasi pada BUMN'],
+                ['4.1.3.04.01', 'BUMN - A'],
+                ['4.1.3.04.02', 'BUMN - B'],
+                ['4.1.4', 'Lain-Lain Pendapatan Asli Daerah yang Sah'],
+                ['4.1.4.01', 'Hasil Penjualan Aset Daerah yang Tidak Dipisahkan'],
+                ['4.1.4.01.01', 'Pelepasan Hak atas Tanah'],
+                ['4.1.4.02', 'Penerimaan Jasa Giro'],
+                ['4.1.4.02.03', 'Jasa Giro Dana Cadangan'],
+                ['4.1.4.03', 'Pendapatan Bunga Deposito'],
+                ['4.1.4.03.01', 'Rekening Deposito pada Bank'],
+                ['4.1.4.06.03', 'Denda Keterlambatan Pekerjaan Bidang PU'],
+                ['4.1.4.13', 'Tuntutan Ganti Kerugian Daerah'],
+                ['4.1.4.13.03', 'Kerugian Uang'],
+                ['4.2', 'DANA PERIMBANGAN'],
+                ['4.2.1', 'Bagi Hasil Pajak / Bagi Hasil Bukan Pajak'],
+                ['4.2.1.01', 'Bagi Hasil Pajak'],
+                ['4.2.1.01.01', 'Bagi Hasil PBB'],
+                ['4.2.1.01.02', 'Bagi Hasil BPHTB'],
+                ['4.2.1.01.03', 'Bagi Hasil PPh Psl 25 dan Psl 29 WPOPDN dan PPh Psl 21'],
+                ['4.2.1.02', 'Bagi Hasil Sumber Daya Alam'],
+                ['4.2.1.02.01', 'Bagi Hasil Iuran Hak Penguasaan Hutan'],
+                ['4.2.1.02.02', 'Bagi Hasil Provinsi Sumber Daya Hutan'],
+                ['4.2.1.02.03', 'Bagi Hasil Dana Reboisasi'],
+                ['4.2.2', 'Dana Alokasi Umum'],
+                ['4.2.2.01', 'Dana Alokasi Umum'],
+                ['4.2.2.01.01', 'Dana Alokasi Umum'],
+                ['4.2.3', 'Dana Alokasi Khusus'],
+                ['4.2.3.01', 'Dana Alokasi Khusus'],
+                ['4.2.3.01.01', 'Dana Alokasi Khusus'],
+                ['4.3', 'LAIN-LAIN PENDAPATAN DAERAH YANG SAH'],
+                ['4.3.1', 'Pendapatan Hibah'],
+                ['4.3.1.01', 'Pendapatan Hibah dari Pemerintah'],
+                ['4.3.1.01.01', 'Pendapatan Hibah dari Pemerintah'],
+                ['4.3.1.02', 'Pendapatan Hibah dari Pemerintah Daerah Lainnya'],
+                ['4.3.1.02.01', 'Pendapatan Hibah dari Pemerintah Daerah Lainnya'],
+                ['4.3.2', 'Pendapatan Dana Darurat'],
+                ['4.3.2.01', 'Penanggulangan Korban'],
+                ['4.3.2.01.01', 'Korban/Kerusakan Akibat Bencana Alam'],
+                ['4.3.3', 'Dana Bagi Hasil Pajak dari Provinsi dan Pemda Lainnya'],
+                ['4.3.3.01', 'Dana Bagi Hasil Pajak dari Provinsi'],
+                ['4.3.3.01.01', 'Bagi Hasil Pajak Kendaraan Bermotor'],
+                ['4.3.3.01.03', 'Bagi Hasil dari Bea Balik Nama Kendaraan Bermotor'],
+                ['4.3.3.02', 'Dana Bagi Hasil Pajak dari Provinsi Lainnya'],
+                ['4.3.3.02.01', 'Bagi Hasil Pajak dari Provinsi Lainnya'],
+                ['4.3.3.03', 'Dana Bagi Hasil Pajak dari Kabupaten dari Provinsi Lainnya'],
+                ['4.3.3.03.01', 'Dana Bagi Hasil Pajak dari Kabupaten dari Provinsi Lainnya'],
+                ['4.3.4', 'Dana Penyesuaian dan Otonomi Khusus'],
+                ['4.3.4.02', 'Dana Otonomi Khusus'],
+                ['4.3.4.02.01', 'Dana Otonomi Khusus'],
+                ['4.3.5', 'Bantuan Keuangan dari Pemerintah Provinsi atau Pemda Lain'],
+                ['4.3.5.01', 'Bantuan Keuangan Provinsi'],
+                ['4.3.5.01.01', 'Bantuan Keuangan dari Provinsi Setempat'],
+                ['5', 'BELANJA DAERAH'],
+                ['5.1', 'BELANJA OPERASI'],
+                ['5.1.1', 'Belanja Pegawai'],
+                ['5.1.1.01', 'Gaji dan Tunjangan'],
+                ['5.1.1.01.01', 'Gaji Pokok'],
+                ['5.1.1.01.02', 'Tunjangan Keluarga'],
+                ['5.1.1.01.03', 'Tunjangan Fungsional'],
+                ['5.1.1.01.04', 'Tunjangan Fungsional Umum'],
+                ['5.1.1.02', 'Tambahan Penghasilan PNS'],
+                ['5.1.1.02.01', 'Tambahan Penghasilan Berdasarkan Beban Kerja'],
+                ['5.1.1.02.04', 'Tambahan Penghasilan Berdasarkan Kelangkaan Profesi'],
+                ['5.1.2', 'Belanja Bunga'],
+                ['5.1.2.01', 'Bunga Utang Pinjaman'],
+                ['5.1.2.01.01', 'Bunga Utang Pinjaman kepada Pemerintah Pusat'],
+                ['5.1.2.01.02', 'Bunga Utang Pinjaman kepada Pemerintah Daerah Lainnya'],
+                ['5.1.2.02', 'Bunga Utang Obligasi'],
+                ['5.1.2.02.01', 'Bunga Utang Obligasi'],
+                ['5.1.3', 'Belanja Subsidi'],
+                ['5.1.3.01', 'Belanja Subsidi kepada Perusahaan/Lembaga'],
+                ['5.1.3.01.01', 'Belanja Subsidi kepada PDAM'],
+                ['5.1.3.01.02', 'Belanja Subsidi kepada Lembaga Masyarakat'],
+                ['5.1.4', 'Belanja Hibah'],
+                ['5.1.4.02', 'Belanja Hibah kepada Pemerintah Daerah Lainnya'],
+                ['5.1.4.02.01', 'dalam Provinsi'],
+                ['5.1.4.02.02', 'luar Provinsi'],
+                ['5.1.4.03', 'Belanja Hibah kepada Pemerintah Desa'],
+                ['5.1.4.03.01', 'Pemerintah Desa'],
+                ['5.1.4.06', 'Belanja Hibah kepada Kelompok/Anggota Masyarakat'],
+                ['5.1.4.06.01', 'Kepada Kelompok Masyarakat'],
+                ['5.1.5', 'Belanja Bantuan Sosial'],
+                ['5.1.5.01', 'Belanja Bantuan Sosial kepada Organisasi Sosial'],
+                ['5.1.5.01.01', 'Organisasi Sosial Kemasyarakatan Agama'],
+                ['5.1.5.04', 'Belanja Bantuan kepada Partai Politik'],
+                ['5.1.5.04.01', 'PAN'],
+                ['5.1.5.04.02', 'PKB'],
+                ['5.1.5.04.03', 'GOLKAR'],
+                ['5.1.5.04.04', 'PDIP'],
+                ['5.1.5.04.05', 'DEMOKRAT'],
+                ['5.1.5.04.06', 'PKS'],
+                ['5.1.5.04.07', 'PBB'],
+                ['5.1.6', 'Belanja Bagi Hasil'],
+                ['5.1.6.03', 'Belanja Bagi Hasil Pajak Daerah kepada Pemerintah Desa'],
+                ['5.1.6.03.01', 'Desa A'],
+                ['5.1.6.03.02', 'Desa B'],
+                ['5.1.6.05', 'Belanja Bagi Hasil Retribusi Daerah kepada Pemerintah Desa'],
+                ['5.1.6.05.01', 'Desa A'],
+                ['5.1.6.05.02', 'Desa B'],
+                ['5.1.7', 'Belanja Bantuan Keuangan'],
+                ['5.1.7.03', 'Belanja Bantuan Keuangan kepada Desa'],
+                ['5.1.7.03.01', 'Desa A'],
+                ['5.1.7.03.02', 'Desa B'],
+                ['5.1.8', 'Belanja Tidak Terduga'],
+                ['5.1.8.01', 'Belanja Tidak Terduga'],
+                ['5.1.8.01.01', 'Belanja Tidak Terduga'],
+                ['5.2', 'BELANJA LANGSUNG'],
+                ['5.2.1', 'Belanja Pegawai'],
+                ['5.2.1.01', 'Honorarium PNS'],
+                ['5.2.1.01.01', 'Belanja Honorarium Panitia Pelaksana Kegiatan'],
+                ['5.2.2', 'Belanja Barang dan Jasa'],
+                ['5.2.2.01', 'Belanja Barang dan Jasa'],
+                ['5.2.2.01.01', 'Belanja Telepon'],
+                ['5.2.2.01.02', 'Belanja Air'],
+                ['5.2.2.01.03', 'Belanja Listrik'],
+                ['5.2.2.01.04', 'Belanja Alat Tulis Kantor'],
+                ['5.2.2.01.05', 'Belanja Perangko, Materai'],
+                ['5.2.2.01.06', 'Belanja Cetak'],
+                ['5.2.2.01.07', 'Belanja Sewa Rumah/Gedung'],
+                ['5.2.2.01.09', 'Belanja Makan Minum Rapat'],
+                ['5.2.2.01.11', 'Belanja Makan Minum Kegiatan'],
+                ['5.2.2.01.12', 'Belanja Dokumen/Administrasi Tender'],
+                ['5.2.2.01.14', 'Belanja Penginapan'],
+                ['5.2.2.01.15', 'Belanja Perjalanan Dinas'],
+                ['5.2.2.01.16', 'Belanja Perjalanan Dinas Luar Daerah'],
+                ['5.2.2.07.04', 'Sewa Rumah Kontrakan Tugas Belajar'],
+                ['5.2.2.16.03', 'Belanja Beasiswa Tugas Belajar S2'],
+                ['5.2.2.21.13', 'Belanja Jasa Konsultan Akuntansi dan Keuangan'],
+                ['5.2.3', 'Belanja Modal'],
+                ['5.2.3.00.01', 'Belanja Modal - Tanah'],
+                ['5.2.3.00.02', 'Belanja Modal - Peralatan & Mesin'],
+                ['5.2.3.00.03', 'Belanja Modal - Gedung & Bangunan'],
+                ['5.2.3.00.04', 'Belanja Modal - Jalan, Irigasi & Jaringan'],
+                ['5.2.3.00.05', 'Belanja Modal - Aset Tetap Lainnya'],
+                ['5.2.3.00.12', 'Belanja Perangkat Lunak (software)']
+            ];
+            var NERACA_FALLBACK = [
+                ['1.1.1.01', 'Kas di Kas Daerah', 'aset'],
+                ['1.1.1.02', 'Kas di Bendahara Pengeluaran', 'aset'],
+                ['1.1.1.03', 'Kas di Bendahara Penerimaan', 'aset'],
+                ['1.1.1.04', 'Kas di Bank', 'aset'],
+                ['1.1.1.05', 'Kas Lainnya', 'aset'],
+                ['1.1.2.01', 'Deposito Berjangka', 'aset'],
+                ['1.1.2.02', 'Surat Berharga', 'aset'],
+                ['1.1.3.01', 'Piutang Pajak', 'aset'],
+                ['1.1.3.02', 'Piutang Retribusi', 'aset'],
+                ['1.1.3.03', 'Piutang Lainnya', 'aset'],
+                ['1.1.4.01', 'Persediaan Bahan Pakai Habis', 'aset'],
+                ['1.1.4.02', 'Persediaan Bahan/Material', 'aset'],
+                ['1.1.4.03', 'Persediaan Barang Diberikan/Diserahkan', 'aset'],
+                ['1.1.5.01', 'Beban Dibayar di Muka', 'aset'],
+                ['1.2.1.01', 'Investasi dalam Obligasi', 'aset'],
+                ['1.2.1.02', 'Investasi dalam Saham', 'aset'],
+                ['1.3.1.01', 'Tanah', 'aset'],
+                ['1.3.2.01', 'Peralatan dan Mesin', 'aset'],
+                ['1.3.3.01', 'Gedung dan Bangunan', 'aset'],
+                ['1.3.4.01', 'Jalan, Irigasi dan Jaringan', 'aset'],
+                ['1.3.5.01', 'Aset Tetap Lainnya', 'aset'],
+                ['1.3.6.01', 'Konstruksi Dalam Pengerjaan', 'aset'],
+                ['1.3.7.01', 'Akumulasi Penyusutan', 'aset'],
+                ['1.4.1.01', 'Aset Lainnya', 'aset'],
+                ['2.1.1.01', 'Utang Perhitungan Pihak Ketiga (PFK)', 'kewajiban'],
+                ['2.1.2.01', 'Utang Pajak', 'kewajiban'],
+                ['2.1.3.01', 'Utang Bunga', 'kewajiban'],
+                ['2.1.4.01', 'Utang Belanja', 'kewajiban'],
+                ['2.1.5.01', 'Utang Jangka Pendek Lainnya', 'kewajiban'],
+                ['2.2.1.01', 'Utang Jangka Panjang', 'kewajiban'],
+                ['3.1.1.01', 'Ekuitas', 'ekuitas']
+            ];
+            var JENIS_LBL = { aset: 'Aset', kewajiban: 'Kewajiban', ekuitas: 'Ekuitas' };
+            var JENIS_GRP = { aset: 'ASET', kewajiban: 'KEWAJIBAN', ekuitas: 'EKUITAS' };
+
+            // ---------------- ANGGARAN ----------------
+            var anggaranRows = [];
+            function updateSumAnggaran() {
+                var sum = 0; anggaranRows.forEach(function (r) { sum += Number(r.anggaran || 0); });
+                document.getElementById('sumAnggaran').textContent = 'Total Anggaran: Rp ' + rupiah(sum);
+                document.getElementById('cntAnggaran').textContent = anggaranRows.length + ' akun';
+            }
+            function renderAnggaran() {
+                var tb = document.getElementById('tbAnggaran');
+                var q = (document.getElementById('cariAnggaran').value || '').toLowerCase();
+                var rows = anggaranRows.filter(function (r) { return !q || (r.kode + ' ' + r.nama).toLowerCase().indexOf(q) >= 0; });
+                if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9098a5;padding:24px;">Tidak ada akun yang cocok.</td></tr>'; return; }
+                var html = '', lastG = '';
+                rows.forEach(function (r, i) {
+                    var g = String(r.kode).charAt(0) === '5' ? 'BELANJA DAERAH' : 'PENDAPATAN DAERAH';
+                    if (g !== lastG) { html += '<tr class="grp"><td colspan="4">' + g + '</td></tr>'; lastG = g; }
+                    html += '<tr>' +
+                        '<td>' + (i + 1) + '</td>' +
+                        '<td><input class="num-input" data-i="' + r._i + '" data-f="kode" value="' + esc(r.kode) + '" style="width:120px;text-align:left;"></td>' +
+                        '<td><input data-i="' + r._i + '" data-f="nama" value="' + esc(r.nama) + '" style="width:100%;border:1px solid #d6dee8;border-radius:8px;padding:7px 10px;font-size:13px;"></td>' +
+                        '<td><input class="num-input" data-i="' + r._i + '" data-f="anggaran" type="number" min="0" step="0.01" value="' + (r.anggaran || '') + '" placeholder="0"></td>' +
+                    '</tr>';
+                });
+                tb.innerHTML = html;
+            }
+            function loadAnggaran() {
+                var tahun = document.getElementById('tahunAnggaran').value || new Date().getFullYear();
+                document.getElementById('tbAnggaran').innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9098a5;padding:24px;">Memuat...</td></tr>';
+                var savedMap = {};
+                fetch('../api/akuntansi_setup.php?action=anggaran_list&tahun=' + encodeURIComponent(tahun)).then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        // Selalu tampilkan SEMUA akun LRA (177 akun dari lra.html)
+                        (d && d.success ? d.data : []).forEach(function (s) { savedMap[s.kode_akun] = Number(s.anggaran); });
+                        anggaranRows = LRA_FALLBACK.map(function (a, i) { return { _i: i, kode: a[0], nama: a[1], anggaran: savedMap[a[0]] || '' }; });
+                        updateSumAnggaran(); renderAnggaran();
+                    }).catch(function () {
+                        document.getElementById('tbAnggaran').innerHTML = '<tr><td colspan="4" style="text-align:center;color:#b91c1c;padding:24px;">Gagal memuat data. Periksa koneksi lalu klik Muat Akun.</td></tr>';
+                    });
+            }
+            document.getElementById('btnMuatAnggaran').addEventListener('click', loadAnggaran);
+            document.getElementById('cariAnggaran').addEventListener('input', renderAnggaran);
+            document.getElementById('tbAnggaran').addEventListener('input', function (e) {
+                var t = e.target; if (!t.dataset.i) return;
+                anggaranRows[+t.dataset.i][t.dataset.f] = t.value;
+                if (t.dataset.f === 'anggaran') updateSumAnggaran();
+            });
+            document.getElementById('btnSimpanAnggaran').addEventListener('click', function () {
+                var tahun = document.getElementById('tahunAnggaran').value || new Date().getFullYear();
+                var rows = anggaranRows.map(function (r) { return { kode_akun: r.kode, nama_akun: r.nama, anggaran: Number(r.anggaran || 0) }; });
+                fetch('../api/akuntansi_setup.php', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'anggaran_save', tahun: tahun, rows: rows })
+                }).then(function (r) { return r.json(); }).then(function (d) {
+                    toast(d.message || (d.success ? 'Tersimpan.' : 'Gagal.'));
+                    if (d.success) loadAnggaran();
+                }).catch(function () { toast('Gagal terhubung ke server.'); });
+            });
+
+            // ---------------- NERACA ----------------
+            var neracaRows = [];
+            var _nextNeracaId = 1000;
+            function findNeraca(i) {
+                for (var j = 0; j < neracaRows.length; j++) if (neracaRows[j]._i === i) return neracaRows[j];
+                return null;
+            }
+            function kodeParts(k) {
+                if (!k || !String(k).trim()) return [999999]; // kode kosong selalu di akhir
+                return String(k).trim().split('.').map(function (p) { var n = parseInt(p, 10); return isNaN(n) ? 0 : n; });
+            }
+            function compareKode(a, b) {
+                var pa = kodeParts(a), pb = kodeParts(b), n = Math.max(pa.length, pb.length);
+                for (var i = 0; i < n; i++) {
+                    var x = pa[i] === undefined ? 0 : pa[i], y = pb[i] === undefined ? 0 : pb[i];
+                    if (x !== y) return x - y;
+                }
+                return 0;
+            }
+            function sortNeracaRows() {
+                neracaRows.sort(function (a, b) { return compareKode(a.kode, b.kode); });
+            }
+            function updateSumNeraca() {
+                var a = 0, k = 0, e = 0;
+                neracaRows.forEach(function (r) {
+                    var v = Number(r.saldo || 0);
+                    if (r.jenis === 'aset') a += v; else if (r.jenis === 'kewajiban') k += v; else e += v;
+                });
+                document.getElementById('sumNeraca').textContent = 'Aset: Rp ' + rupiah(a) + ' | Kewajiban: Rp ' + rupiah(k) + ' | Ekuitas: Rp ' + rupiah(e);
+                document.getElementById('cntNeraca').textContent = neracaRows.length + ' akun';
+            }
+            function renderNeraca() {
+                var tb = document.getElementById('tbNeraca');
+                var q = (document.getElementById('cariNeraca').value || '').toLowerCase();
+                var rows = neracaRows.filter(function (r) { return !q || (r.kode + ' ' + r.nama).toLowerCase().indexOf(q) >= 0; });
+                if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9098a5;padding:24px;">Tidak ada akun yang cocok.</td></tr>'; return; }
+                var html = '', lastG = '';
+                rows.forEach(function (r, i) {
+                    var g = JENIS_GRP[r.jenis] || 'LAINNYA';
+                    if (g !== lastG) { html += '<tr class="grp"><td colspan="6">' + g + '</td></tr>'; lastG = g; }
+                    html += '<tr>' +
+                        '<td>' + (i + 1) + '</td>' +
+                        '<td><input class="num-input" data-i="' + r._i + '" data-f="kode" value="' + esc(r.kode) + '" style="width:120px;text-align:left;"></td>' +
+                        '<td><input data-i="' + r._i + '" data-f="nama" value="' + esc(r.nama) + '" style="width:100%;border:1px solid #d6dee8;border-radius:8px;padding:7px 10px;font-size:13px;"></td>' +
+                        '<td><select data-i="' + r._i + '" data-f="jenis" style="width:100%;padding:7px 10px;border:1px solid #d6dee8;border-radius:8px;font-size:13px;">' +
+                            ['aset', 'kewajiban', 'ekuitas'].map(function (j) { return '<option value="' + j + '"' + (r.jenis === j ? ' selected' : '') + '>' + JENIS_LBL[j] + '</option>'; }).join('') +
+                        '</select></td>' +
+                        '<td><input class="num-input" data-i="' + r._i + '" data-f="saldo" type="number" step="0.01" value="' + (r.saldo || '') + '" placeholder="0"></td>' +
+                        '<td><button class="row-del" data-i="' + r._i + '" title="Hapus akun"><i class="fas fa-trash"></i></button></td>' +
+                    '</tr>';
+                });
+                tb.innerHTML = html;
+            }
+            function loadNeraca() {
+                var tahun = document.getElementById('tahunNeraca').value || new Date().getFullYear();
+                document.getElementById('tbNeraca').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9098a5;padding:24px;">Memuat...</td></tr>';
+                fetch('../api/akuntansi_setup.php?action=neraca_list&tahun=' + encodeURIComponent(tahun)).then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        var saved = (d && d.success) ? d.data : [];
+                        var savedMap = {}, fallbackKodes = {};
+                        saved.forEach(function (s) { savedMap[s.kode_akun] = { saldo: Number(s.saldo), jenis: s.jenis, nama: s.nama_akun }; });
+                        NERACA_FALLBACK.forEach(function (a) { fallbackKodes[a[0]] = true; });
+                        var i = 0;
+                        neracaRows = NERACA_FALLBACK.map(function (a) {
+                            var s = savedMap[a[0]];
+                            return { _i: i++, kode: a[0], nama: a[1], jenis: a[2], saldo: s ? s.saldo : '' };
+                        });
+                        // Akun tambahan (custom) dari DB yang tidak ada di daftar standar
+                        saved.forEach(function (s) {
+                            if (!fallbackKodes[s.kode_akun]) {
+                                neracaRows.push({ _i: i++, kode: s.kode_akun, nama: savedMap[s.kode_akun].nama, jenis: savedMap[s.kode_akun].jenis, saldo: savedMap[s.kode_akun].saldo });
+                            }
+                        });
+                        _nextNeracaId = i;
+                        sortNeracaRows(); // urutkan menurut nomor akun
+                        updateSumNeraca(); renderNeraca();
+                    }).catch(function () {
+                        document.getElementById('tbNeraca').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#b91c1c;padding:24px;">Gagal memuat data. Periksa koneksi lalu klik Muat Akun.</td></tr>';
+                    });
+            }
+            document.getElementById('btnMuatNeraca').addEventListener('click', loadNeraca);
+            function tambahAkunNeraca() {
+                var r = { _i: _nextNeracaId++, kode: '', nama: '', jenis: 'aset', saldo: '' };
+                neracaRows.push(r);
+                sortNeracaRows(); // baris kosong (kode '') otomatis di akhir
+                renderNeraca();
+                var inp = document.querySelector('#tbNeraca input[data-i="' + r._i + '"][data-f="kode"]');
+                if (inp) inp.focus();
+            }
+            document.getElementById('btnTambahNeraca').addEventListener('click', tambahAkunNeraca);
+            document.getElementById('cariNeraca').addEventListener('input', renderNeraca);
+            document.getElementById('tbNeraca').addEventListener('input', function (e) {
+                var t = e.target; if (!t.dataset.i) return;
+                var r = findNeraca(+t.dataset.i); if (!r) return;
+                r[t.dataset.f] = t.value;
+                if (t.dataset.f === 'saldo') updateSumNeraca();
+            });
+            document.getElementById('tbNeraca').addEventListener('change', function (e) {
+                var t = e.target; if (!t.dataset.i) return;
+                var r = findNeraca(+t.dataset.i); if (!r) return;
+                if (t.dataset.f === 'jenis') {
+                    r.jenis = t.value;
+                } else if (t.dataset.f === 'kode') {
+                    r.kode = t.value;
+                    sortNeracaRows(); // susun ulang menurut nomor akun
+                    renderNeraca();
+                    var inp = document.querySelector('#tbNeraca input[data-i="' + r._i + '"][data-f="kode"]');
+                    if (inp) inp.focus();
+                    return;
+                }
+                updateSumNeraca(); renderNeraca();
+            });
+            document.getElementById('tbNeraca').addEventListener('click', function (e) {
+                var btn = e.target.closest('.row-del');
+                if (!btn) return;
+                neracaRows = neracaRows.filter(function (r) { return r._i !== +btn.dataset.i; });
+                updateSumNeraca(); renderNeraca();
+            });
+            document.getElementById('btnSimpanNeraca').addEventListener('click', function () {
+                var tahun = document.getElementById('tahunNeraca').value || new Date().getFullYear();
+                var rows = neracaRows.filter(function (r) { return String(r.kode || '').trim() !== ''; }).map(function (r) { return { kode_akun: r.kode, nama_akun: r.nama, saldo: Number(r.saldo || 0), jenis: r.jenis }; });
+                fetch('../api/akuntansi_setup.php', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'neraca_save', tahun: tahun, rows: rows })
+                }).then(function (r) { return r.json(); }).then(function (d) {
+                    toast(d.message || (d.success ? 'Tersimpan.' : 'Gagal.'));
+                    if (d.success) loadNeraca();
+                }).catch(function () { toast('Gagal terhubung ke server.'); });
+            });
+
+            // TABS
+            document.querySelectorAll('.tab-btn').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
+                    b.classList.add('active');
+                    var t = b.getAttribute('data-tab');
+                    document.getElementById('tab-anggaran').style.display = (t === 'anggaran') ? '' : 'none';
+                    document.getElementById('tab-neraca').style.display = (t === 'neraca') ? '' : 'none';
+                });
+            });
+
+            loadAnggaran(); loadNeraca();
+        })();
+    </script>
+    <script>
+        // Sisipkan token API ke tautan modul AKLAP (pola sama dengan js/dashboard.js)
+        // agar halaman Anggaran (Pagu) di peta.simtkd.com terbuka tanpa login ulang.
+        (function () {
+            var TOKEN = '';
+            function pasang() {
+                if (!TOKEN) return;
+                Array.prototype.forEach.call(document.querySelectorAll('a[href*="peta.simtkd.com"]'), function (a) {
+                    if (a.href.indexOf('token=') !== -1) return;
+                    a.href += (a.href.indexOf('?') === -1 ? '?' : '&') + 'token=' + encodeURIComponent(TOKEN);
+                });
+            }
+            fetch('../api/session.php')
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (d && d.success && d.user && d.user.api_token) TOKEN = d.user.api_token;
+                    pasang();
+                })
+                .catch(function () {});
+            document.addEventListener('click', function (e) {
+                var a = e.target && e.target.closest ? e.target.closest('a[href*="peta.simtkd.com"]') : null;
+                if (!a || !TOKEN || a.href.indexOf('token=') !== -1) return;
+                a.href += (a.href.indexOf('?') === -1 ? '?' : '&') + 'token=' + encodeURIComponent(TOKEN);
+            }, true);
+        })();
+    </script>
+</body>
+</html>

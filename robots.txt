@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /database/
+Disallow: /logs/
+Disallow: /webhook/
+Disallow: /belanja/
+Disallow: /penerimaan/
+Disallow: /pengaturan/
+Disallow: /dashboard
+Disallow: /dashboard.html
+Disallow: /peta.simtkd.com/
+Disallow: /doc.simtkd.com/
+Disallow: /demo-popup.html
+
+Sitemap: https://simtkd.com/sitemap.xml

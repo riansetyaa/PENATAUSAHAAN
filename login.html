@@ -2,8 +2,11 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah</title>
+    <meta name="description" content="Masuk ke SIM-TKD (Modul Edukasi) - Sistem Informasi Manajemen Tata Kelola Daerah dari Politeknik Negeri Bandung.">
+    <link rel="canonical" href="https://simtkd.com/login.html">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -51,13 +54,13 @@
                     <!-- Username -->
                     <div class="form-group">
                         <label for="username">
-                            <i class="fas fa-user"></i> Nama Pengguna (Username)
+                            <i class="fas fa-user"></i> Username / Email
                         </label>
                         <input 
                             type="text" 
                             id="username" 
                             class="form-control" 
-                            placeholder="Masukkan username Anda"
+                            placeholder="Masukkan username atau email Anda"
                             autocomplete="off"
                             required
                         >
@@ -107,6 +110,13 @@
                         </div>
                     </div>
 
+                    <!-- Lupa password -->
+                    <div class="form-group" style="text-align: right; margin-top: -4px;">
+                        <a href="lupa-password.html" style="font-size: 13px; color: var(--primary); font-weight: 600; text-decoration: none;">
+                            <i class="fas fa-key"></i> Lupa Kata Sandi?
+                        </a>
+                    </div>
+
                     <!-- Tombol Login -->
                     <div class="form-group">
                         <button type="submit" class="btn-login" id="btnLogin">
@@ -121,10 +131,30 @@
                     </div>
                 </form>
 
-                <!-- Belum punya akun -->
+                <!-- Akun belum diverifikasi (status pending) -->
+                <div class="alert alert-warning" id="aktivasiBox" style="display: none;">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>Akun Anda belum diverifikasi.
+                        <a href="aktivasi.html" id="linkAktivasi"
+                           style="color:#16305a;font-weight:700;text-decoration:underline;">
+                            Aktifkan Akun Sekarang
+                        </a>
+                    </span>
+                </div>
+
+                <!-- Belum punya akun / belum aktivasi -->
                 <div class="auth-switch">
-                    <span>Belum memiliki akun?</span>
-                    <a href="daftar.html"><i class="fas fa-user-plus"></i> Daftar Sekarang</a>
+                    <div>
+                        <span>Belum memiliki akun?</span>
+                        <a href="daftar.html"><i class="fas fa-user-plus"></i> Daftar Sekarang</a>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <span>Akun sudah terdaftar tapi belum aktif?</span>
+                    </div>
+                    <a href="aktivasi.html"
+                       style="display:inline-flex;align-items:center;gap:8px;margin:8px 0 0 0;padding:8px 18px;border:2px solid var(--primary);border-radius:8px;font-weight:700;color:var(--primary);text-decoration:none;">
+                        <i class="fas fa-envelope-open-text"></i> AKTIVASI AKUN
+                    </a>
                 </div>
             </div>
 

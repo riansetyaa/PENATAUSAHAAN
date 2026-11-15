@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Neraca - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy: #16305a;
+            --navy-dark: #0e2140;
+            --navy-mid: #1d3a6e;
+            --blue: #1f6feb;
+            --red: #dc2626;
+            --green: #16a34a;
+            --bg: #eef1f6;
+            --card: #ffffff;
+            --border: #d8dee9;
+            --text: #1f2937;
+            --muted: #6b7280;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: var(--navy);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 58px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.2);
+            position: relative;
+            z-index: 20;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: #fff; color: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; letter-spacing: .3px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #fff; color: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700;
+        }
+
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+
+        .sidebar {
+            width: 236px;
+            background: var(--navy-dark);
+            color: #cbd5e1;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 10px 0 20px;
+            transition: margin-left .25s ease;
+        }
+        .sidebar.collapsed { margin-left: -236px; }
+        .sidebar-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid rgba(255,255,255,.25);
+            background: rgba(255,255,255,.08);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: background .2s ease;
+        }
+        .sidebar-toggle:hover { background: rgba(255,255,255,.2); }
+        .side-title {
+            font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase;
+            color: #7d8db1; padding: 14px 18px 6px;
+        }
+        .side-link {
+            display: flex; align-items: center; gap: 11px;
+            padding: 10px 18px; color: #cbd5e1; text-decoration: none;
+            font-size: 13.5px; border-left: 3px solid transparent;
+        }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .side-arrow { margin-left: auto; font-size: 11px; transition: transform .2s; color: #7d8db1; }
+        .side-group.open .side-arrow { transform: rotate(90deg); }
+        .side-sub { display: none; padding-left: 10px; }
+        .side-sub.open { display: block; }
+        .side-sub .side-link { padding: 8px 16px; font-size: 13px; color: #9fb0d3; }
+        .side-sub .side-link i { font-size: 12px; }
+        .side-sub .side-link:hover { color: #fff; }
+        .side-sub .side-link.active { color: #fff; background: var(--navy-mid); border-left-color: #4c9aff; }
+
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .breadcrumb-bar {
+            background: #fff; border-bottom: 1px solid var(--border);
+            padding: 10px 22px; display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; flex-wrap: wrap;
+        }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back {
+            background: var(--navy); color: #fff; border: none;
+            padding: 7px 14px; border-radius: 6px; cursor: pointer;
+            font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px;
+            text-decoration: none;
+        }
+        .btn-back:hover { background: var(--navy-mid); }
+
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06);
+            margin-bottom: 18px;
+        }
+        .card-head {
+            padding: 12px 18px; border-bottom: 1px solid var(--border);
+            font-weight: 700; font-size: 13.5px; color: var(--navy);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card-body { padding: 16px 18px; }
+        .ctl-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1.4fr auto auto;
+            gap: 14px; align-items: end;
+        }
+        .ctl-field { display: flex; flex-direction: column; gap: 5px; }
+        .ctl-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .ctl-field select, .ctl-field input {
+            height: 36px; border: 1px solid var(--border); border-radius: 6px;
+            padding: 0 10px; font-size: 13px; background: #fff; color: var(--text);
+            width: 100%;
+        }
+        .ctl-field input:focus, .ctl-field select:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .ctl-actions { display: flex; gap: 8px; align-items: end; }
+
+        .btn {
+            border: none; border-radius: 6px; padding: 9px 16px; cursor: pointer;
+            font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px;
+            height: 36px; white-space: nowrap;
+        }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-danger { background: var(--red); color: #fff; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: #15803d; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-menu {
+            display: none; position: absolute; right: 0; top: calc(100% + 4px);
+            background: #fff; border: 1px solid var(--border); border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.14); min-width: 170px; z-index: 30; padding: 5px;
+        }
+        .dropdown-menu.open { display: block; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 8px; width: 100%;
+            border: none; background: none; padding: 8px 10px; border-radius: 6px;
+            font-size: 12.5px; color: var(--text); cursor: pointer; text-align: left;
+        }
+        .dropdown-item:hover { background: #f1f5f9; color: var(--navy); }
+
+        .sheet {
+            background: #fff; border: 1px solid var(--border); border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(16,24,40,.06); padding: 28px 30px;
+            overflow-x: auto;
+        }
+        .sheet-head { text-align: center; margin-bottom: 20px; }
+        .sheet-head .instansi { font-size: 13px; font-weight: 600; }
+        .sheet-head .skpd { font-size: 12.5px; font-weight: 600; margin-top: 2px; }
+        .sheet-head .judul { font-size: 15px; font-weight: 700; margin-top: 12px; text-transform: uppercase; }
+        .sheet-head .tahun { font-size: 13px; font-weight: 600; margin-top: 2px; }
+        .sheet-head .periode { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        table.lra { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table.lra th {
+            background: var(--navy); color: #fff; text-align: center;
+            padding: 8px 10px; border: 1px solid #12264a; font-size: 11.5px;
+            white-space: nowrap;
+        }
+        table.lra td { padding: 7px 10px; border: 1px solid #c9d2e0; vertical-align: top; }
+        table.lra td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        table.lra td.kode { white-space: nowrap; text-align: center; }
+        tr.r-section td { background: #e8edf6; font-weight: 700; }
+        tr.r-total td { font-weight: 700; background: #f3f6fb; }
+        tr.r-detail:hover { background: #f8fafc; }
+
+        .footer {
+            text-align: center; padding: 14px; font-size: 12px;
+            color: var(--muted); border-top: 1px solid var(--border); background: #fff;
+        }
+
+        #toast {
+            position: fixed; bottom: 24px; right: 24px; z-index: 99;
+            background: var(--navy-dark); color: #fff; padding: 12px 18px;
+            border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25);
+            opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none;
+        }
+        #toast.show { opacity: 1; transform: translateY(0); }
+
+        @page { size: A4 landscape; margin: 12mm; }
+        @media print {
+            .topbar, .sidebar, .breadcrumb-bar, .page-head, .controls-card, .footer, #toast { display: none !important; }
+            body { background: #fff; }
+            .content { padding: 0; }
+            .sheet { border: none; box-shadow: none; border-radius: 0; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= TOPBAR ================= -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand">
+                <b>AKLAP · SIM-TKD</b>
+                <span>Aplikasi Laporan Akuntansi Pemerintahan</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="region">
+                <b id="regionProvinsi">-</b>
+                <span id="regionKota">-</span>
+            </div>
+            <div class="topbar-user">
+                <div class="avatar" id="regionAvatar">?</div>
+                <span id="regionNama" style="font-size:13px;">-</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <!-- ================= MAIN ================= -->
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb">
+                    <i class="fas fa-house"></i> <a href="index.html">Home</a>
+                    <i class="fas fa-chevron-right"></i> Laporan Keuangan
+                    <i class="fas fa-chevron-right"></i> <span class="current">Neraca</span>
+                </div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <h1>Laporan Neraca</h1>
+                    <p>Laporan Posisi Keuangan (Neraca) - Saldo awal dari Pengaturan Akuntansi.</p>
+                </div>
+
+                <!-- Kontrol -->
+                <div class="card controls-card">
+                    <div class="card-head"><i class="fas fa-sliders"></i> Pengaturan Laporan</div>
+                    <div class="card-body">
+                        <div class="ctl-grid">
+                            <div class="ctl-field">
+                                <label>Tahun Anggaran</label>
+                                <input type="number" id="tahunNeraca" value="2026" min="2000" max="2100">
+                            </div>
+                            <div class="ctl-actions">
+                                <button class="btn btn-primary" id="btnTerapkan"><i class="fas fa-check"></i> Terapkan</button>
+                                <button class="btn btn-danger" id="btnReset"><i class="fas fa-rotate-left"></i> Reset</button>
+                            </div>
+                            <div class="ctl-actions">
+                                <div class="dropdown">
+                                    <button class="btn btn-success" id="btnCetak"><i class="fas fa-print"></i> Cetak <i class="fas fa-chevron-down"></i></button>
+                                    <div class="dropdown-menu" id="menuCetak">
+                                        <button class="dropdown-item" data-act="print"><i class="fas fa-print"></i> Cetak Neraca</button>
+                                        <button class="dropdown-item" data-act="pdf"><i class="fas fa-file-pdf"></i> Ekspor PDF</button>
+                                        <button class="dropdown-item" data-act="xls"><i class="fas fa-file-excel"></i> Ekspor Excel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Laporan -->
+                <div class="sheet" id="sheet">
+                    <div class="sheet-head">
+                        <div class="instansi" id="kopPemerintah">-</div>
+                        <div class="skpd" id="kopSkpd">-</div>
+                        <div class="judul">NERACA</div>
+                        <div class="tahun">PER 31 DESEMBER <span id="kopTahun">2026</span></div>
+                        <div class="periode" id="periodeText">Saldo per 31 Desember 2026 (Saldo Awal)</div>
+                    </div>
+                    <table class="lra">
+                        <thead>
+                            <tr>
+                                <th style="width:130px;">Kode Rekening</th>
+                                <th>URAIAN</th>
+                                <th style="width:150px;" class="num">SALDO AWAL (Rp)</th>
+                                <th style="width:150px;" class="num">SALDO AKHIR (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="neracaBody">
+                            <tr><td colspan="4" style="text-align:center;color:#9098a5;padding:20px;">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <footer class="footer">
+                &copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)
+            </footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script>
+        // Profil akun dari database (pendaftaran)
+        (function () {
+            function set(txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; }
+            var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var init = nama.trim().charAt(0).toUpperCase() || '?';
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = init;
+                    var prov = (u.provinsi || '').trim();
+                    var inst = (u.instansi || '').trim();
+                    var kopP = document.getElementById('kopPemerintah');
+                    var kopS = document.getElementById('kopSkpd');
+                    if (kopP) kopP.textContent = prov ? ('PEMERINTAH PROVINSI ' + prov.toUpperCase()) : '';
+                    if (kopS) kopS.textContent = inst ? inst.toUpperCase() : '';
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+        (function () {
+            'use strict';
+
+            var DATA = [
+                { type: 'section', level: 0, kode: '1', uraian: 'ASET', target: '' },
+                { type: 'section', level: 1, kode: '1.1', uraian: 'ASET LANCAR', target: '' },
+                { type: 'section', level: 2, kode: '1.1.1', uraian: 'KAS DAN SETARA KAS', target: '' },
+                { type: 'detail', level: 3, kode: '1.1.1.01', uraian: 'Kas di Kas Daerah' },
+                { type: 'detail', level: 3, kode: '1.1.1.02', uraian: 'Kas di Bendahara Pengeluaran' },
+                { type: 'detail', level: 3, kode: '1.1.1.03', uraian: 'Kas di Bendahara Penerimaan' },
+                { type: 'detail', level: 3, kode: '1.1.1.04', uraian: 'Kas di Bank' },
+                { type: 'detail', level: 3, kode: '1.1.1.05', uraian: 'Kas Lainnya' },
+                { type: 'section', level: 2, kode: '1.1.2', uraian: 'INVESTASI JANGKA PENDEK', target: '' },
+                { type: 'detail', level: 3, kode: '1.1.2.01', uraian: 'Deposito Berjangka' },
+                { type: 'detail', level: 3, kode: '1.1.2.02', uraian: 'Surat Berharga' },
+                { type: 'section', level: 2, kode: '1.1.3', uraian: 'PIUTANG', target: '' },
+                { type: 'detail', level: 3, kode: '1.1.3.01', uraian: 'Piutang Pajak' },
+                { type: 'detail', level: 3, kode: '1.1.3.02', uraian: 'Piutang Retribusi' },
+                { type: 'detail', level: 3, kode: '1.1.3.03', uraian: 'Piutang Lainnya' },
+                { type: 'section', level: 2, kode: '1.1.4', uraian: 'PERSEDIAAN', target: '' },
+                { type: 'detail', level: 3, kode: '1.1.4.01', uraian: 'Persediaan Bahan Pakai Habis' },
+                { type: 'detail', level: 3, kode: '1.1.4.02', uraian: 'Persediaan Bahan/Material' },
+                { type: 'detail', level: 3, kode: '1.1.4.03', uraian: 'Persediaan Barang Diberikan/Diserahkan' },
+                { type: 'section', level: 2, kode: '1.1.5', uraian: 'BEBAN DIBAYAR DI MUKA', target: '' },
+                { type: 'detail', level: 3, kode: '1.1.5.01', uraian: 'Beban Dibayar di Muka' },
+                { type: 'section', level: 1, kode: '1.2', uraian: 'INVESTASI JANGKA PANJANG', target: '' },
+                { type: 'detail', level: 2, kode: '1.2.1.01', uraian: 'Investasi dalam Obligasi' },
+                { type: 'detail', level: 2, kode: '1.2.1.02', uraian: 'Investasi dalam Saham' },
+                { type: 'section', level: 1, kode: '1.3', uraian: 'ASET TETAP', target: '' },
+                { type: 'section', level: 2, kode: '1.3.1', uraian: 'TANAH', target: '' },
+                { type: 'detail', level: 3, kode: '1.3.1.01', uraian: 'Tanah' },
+                { type: 'section', level: 2, kode: '1.3.2', uraian: 'PERALATAN DAN MESIN', target: '' },
+                { type: 'detail', level: 3, kode: '1.3.2.01', uraian: 'Peralatan dan Mesin' },
+                { type: 'section', level: 2, kode: '1.3.3', uraian: 'GEDUNG DAN BANGUNAN', target: '' },
+                { type: 'detail', level: 3, kode: '1.3.3.01', uraian: 'Gedung dan Bangunan' },
+                { type: 'section', level: 2, kode: '1.3.4', uraian: 'JALAN, IRIGASI DAN JARINGAN', target: '' },
+                { type: 'detail', level: 3, kode: '1.3.4.01', uraian: 'Jalan, Irigasi dan Jaringan' },
+                { type: 'section', level: 2, kode: '1.3.5', uraian: 'ASET TETAP LAINNYA', target: '' },
+                { type: 'detail', level: 3, kode: '1.3.5.01', uraian: 'Aset Tetap Lainnya' },
+                { type: 'section', level: 2, kode: '1.3.6', uraian: 'KONSTRUKSI DALAM PENGERJAAN', target: '' },
+                { type: 'detail', level: 3, kode: '1.3.6.01', uraian: 'Konstruksi Dalam Pengerjaan' },
+                { type: 'section', level: 2, kode: '1.3.7', uraian: 'AKUMULASI PENYUSUTAN', target: '' },
+                { type: 'detail', level: 3, kode: '1.3.7.01', uraian: 'Akumulasi Penyusutan' },
+                { type: 'section', level: 1, kode: '1.4', uraian: 'ASET LAINNYA', target: '' },
+                { type: 'detail', level: 2, kode: '1.4.1.01', uraian: 'Aset Lainnya' },
+                { type: 'total', level: 0, kode: '', uraian: 'TOTAL ASET', target: '1' },
+                { type: 'section', level: 0, kode: '2', uraian: 'KEWAJIBAN', target: '' },
+                { type: 'section', level: 1, kode: '2.1', uraian: 'KEWAJIBAN JANGKA PENDEK', target: '' },
+                { type: 'detail', level: 2, kode: '2.1.1.01', uraian: 'Utang Perhitungan Pihak Ketiga (PFK)' },
+                { type: 'detail', level: 2, kode: '2.1.2.01', uraian: 'Utang Pajak' },
+                { type: 'detail', level: 2, kode: '2.1.3.01', uraian: 'Utang Bunga' },
+                { type: 'detail', level: 2, kode: '2.1.4.01', uraian: 'Utang Belanja' },
+                { type: 'detail', level: 2, kode: '2.1.5.01', uraian: 'Utang Jangka Pendek Lainnya' },
+                { type: 'section', level: 1, kode: '2.2', uraian: 'KEWAJIBAN JANGKA PANJANG', target: '' },
+                { type: 'detail', level: 2, kode: '2.2.1.01', uraian: 'Utang Jangka Panjang' },
+                { type: 'total', level: 0, kode: '', uraian: 'TOTAL KEWAJIBAN', target: '2' },
+                { type: 'section', level: 0, kode: '3', uraian: 'EKUITAS', target: '' },
+                { type: 'detail', level: 1, kode: '3.1.1.01', uraian: 'Ekuitas' },
+                { type: 'total', level: 0, kode: '', uraian: 'TOTAL EKUITAS', target: '3' },
+                { type: 'total', level: 0, kode: '', uraian: 'TOTAL KEWAJIBAN DAN EKUITAS', target: '2|3' }
+            ];
+
+            function fmtN(v) {
+                if (v === 0 || v === null || v === undefined) return '0';
+                return Number(v).toLocaleString('id-ID');
+            }
+            function esc(t) {
+                var d = document.createElement('div');
+                d.textContent = String(t || '');
+                return d.innerHTML;
+            }
+
+            function render() {
+                var html = DATA.map(function (r) {
+                    var cls = r.type === 'section' ? 'r-section' : (r.type === 'total' ? 'r-total' : 'r-detail');
+                    var pad = (r.level || 0) * 14;
+                    return '<tr class="' + cls + '">' +
+                        '<td class="kode">' + esc(r.kode) + '</td>' +
+                        '<td style="padding-left:' + pad + 'px;">' + esc(r.uraian) + '</td>' +
+                        '<td class="num">' + fmtN(r.saldoAwal) + '</td>' +
+                        '<td class="num">' + fmtN(r.saldoAkhir) + '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('neracaBody').innerHTML = html;
+            }
+
+            function toast(msg) {
+                var t = document.getElementById('toast');
+                t.textContent = msg;
+                t.classList.add('show');
+                clearTimeout(toast._t);
+                toast._t = setTimeout(function () { t.classList.remove('show'); }, 2400);
+            }
+
+            document.getElementById('btnTerapkan').addEventListener('click', function () {
+                var tahun = document.getElementById('tahunNeraca').value || '2026';
+                document.getElementById('kopTahun').textContent = tahun;
+                document.getElementById('periodeText').textContent = 'Saldo per 31 Desember ' + tahun + ' (Saldo Awal)';
+                loadNeraca();
+            });
+            document.getElementById('btnReset').addEventListener('click', function () {
+                document.getElementById('tahunNeraca').value = '2026';
+                loadNeraca();
+                toast('Pengaturan direset ke default.');
+            });
+            document.getElementById('btnCetak').addEventListener('click', function (e) {
+                e.stopPropagation();
+                document.getElementById('menuCetak').classList.toggle('open');
+            });
+            document.getElementById('menuCetak').addEventListener('click', function (e) {
+                var it = e.target.closest('.dropdown-item');
+                if (!it) return;
+                this.classList.remove('open');
+                if (it.getAttribute('data-act') === 'print') { window.print(); }
+                else { toast(it.getAttribute('data-act') === 'pdf' ? 'Ekspor PDF (demo).' : 'Ekspor Excel (demo).'); }
+            });
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu.open').forEach(function (m) { m.classList.remove('open'); });
+                }
+            });
+
+            // Muat saldo awal dari pengaturan akuntansi (neraca_awal)
+            function loadNeraca() {
+                var tahun = document.getElementById('tahunNeraca').value || '2026';
+                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=neraca_rekap&tahun=' + encodeURIComponent(tahun);
+                fetch(url)
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (!(data && data.success)) {
+                            toast((data && data.message) || 'Gagal memuat data Neraca.');
+                            return;
+                        }
+                        var map = {};
+                        (data.data || []).forEach(function (r) { map[r.kode_akun] = Number(r.saldo || 0); });
+
+                        function sumChildren(kodeList) {
+                            var parts = String(kodeList || '').split('|');
+                            var total = 0;
+                            Object.keys(map).forEach(function (k) {
+                                parts.forEach(function (kd) {
+                                    if (kd && (k === kd || k.indexOf(kd + '.') === 0)) total += (map[k] || 0);
+                                });
+                            });
+                            return total;
+                        }
+
+                        DATA.forEach(function (r) {
+                            if (r.kode) {
+                                r.saldoAwal = map[r.kode] || 0;
+                                r.saldoAkhir = r.saldoAwal;
+                            } else {
+                                r.saldoAwal = 0;
+                                r.saldoAkhir = 0;
+                            }
+                        });
+                        // Section & total: agregat dari sub-akun
+                        DATA.forEach(function (r) {
+                            if (r.type === 'section' && r.kode) {
+                                r.saldoAwal = sumChildren(r.kode);
+                                r.saldoAkhir = r.saldoAwal;
+                            }
+                            if (r.type === 'total') {
+                                r.saldoAwal = sumChildren(r.target);
+                                r.saldoAkhir = r.saldoAwal;
+                            }
+                        });
+                        render();
+                    })
+                    .catch(function () {
+                        toast('Gagal terhubung ke server API. Periksa token & koneksi.');
+                    });
+            }
+
+            render();
+            loadNeraca();
+        })();
+    </script>
+</body>
+</html>

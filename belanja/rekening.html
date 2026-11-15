@@ -2,15 +2,17 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekening Bank SKPD - Belanja | SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .toast { position:fixed; top:auto; bottom:20px; right:20px; left:auto; height:auto; width:auto; min-width:0; max-width:420px; background:#2c3e50; color:#fff; padding:12px 18px; border-radius:8px; font-size:13px; opacity:0; transform:none; animation:none; transition:opacity .3s; z-index:9999; pointer-events:none; }
         .toast.show { opacity:1; pointer-events:auto; }
         .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px 16px; }
-        .form-grid label { font-size:12px; font-weight:600; color:#5a6c7d; display:block; margin-bottom:6px; }
+        .form-grid label { font-size:13px; font-weight:600; color:#5a6c7d; display:block; margin-bottom:6px; }
         .form-grid input, .form-grid select { width:100%; height:40px; border:1px solid #d0d5dd; border-radius:8px; padding:0 12px; font-size:13px; font-family:inherit; color:#1f2937; background:#fff; transition:border-color .2s ease, box-shadow .2s ease; }
         .form-grid input:focus, .form-grid select:focus { outline:none; border-color:#2c5aa0; box-shadow:0 0 0 3px rgba(44,90,160,.12); }
         .form-grid select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7a90' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:34px; cursor:pointer; }
@@ -21,45 +23,7 @@
     </style>
 </head>
 <body>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header"><div class="sidebar-logo"><img src="../img/Logo Polban.png" alt="Logo POLBAN"><div class="sidebar-title"><span class="title-main">SIM-TKD</span><span class="title-sub">Modul Edukasi</span></div></div><button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button></div>
-        <div class="sidebar-user"><div class="user-avatar"><i class="fas fa-user-tie"></i></div><div class="user-info"><span class="user-name" id="sidebarUserName">Admin Dinas</span><span class="user-role" id="sidebarUserRole">Dinas Kepemudaan dan Olahraga</span></div></div>
-        <nav class="sidebar-menu">
-            <span class="menu-label">MENU UTAMA</span>
-            <a href="../dashboard/dashboard.html" class="menu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-            <div class="menu-group" data-menu="penerimaan">
-                <a href="#" class="menu-item has-submenu"><i class="fas fa-arrow-down"></i><span>Penerimaan</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="../penerimaan/permohonan.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>Permohonan</span></a>
-                    <a href="../penerimaan/stbp-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>STBP</span></a>
-                    <a href="../penerimaan/sts-pembuatan.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>STS</span></a>
-                    <a href="../penerimaan/bku-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Penerimaan</span></a>
-                </div>
-            </div>
-            <div class="menu-group open" data-menu="belanja">
-                <a href="#" class="menu-item has-submenu active"><i class="fas fa-arrow-up"></i><span>Belanja</span><i class="fas fa-chevron-down submenu-arrow"></i></a>
-                <div class="submenu">
-                    <a href="index.html" class="menu-item submenu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-                    <a href="rekanan.html" class="menu-item submenu-item"><i class="fas fa-handshake"></i><span>Daftar Rekanan</span></a>
-                    <a href="rekening.html" class="menu-item submenu-item active"><i class="fas fa-university"></i><span>Rekening Bank SKPD</span></a>
-                    <a href="spd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>SPD</span></a>
-                    <a href="spp.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>SPP</span></a>
-                    <a href="spm.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>SPM</span></a>
-                    <a href="sp2d.html" class="menu-item submenu-item"><i class="fas fa-money-check-alt"></i><span>SP2D</span></a>
-                    <a href="lpj.html" class="menu-item submenu-item"><i class="fas fa-clipboard-check"></i><span>LPJ</span></a>
-                    <a href="pengajuan-tu.html" class="menu-item submenu-item"><i class="fas fa-paper-plane"></i><span>Pengajuan TU</span></a>
-                    <a href="npd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>NPD</span></a>
-                    <a href="besaran-up.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Besaran UP</span></a>
-                    <a href="kebijakan-spd.html" class="menu-item submenu-item"><i class="fas fa-gavel"></i><span>Kebijakan SPD</span></a>
-                    <a href="bku-belanja.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Belanja</span></a>
-                </div>
-            </div>
-            <a href="../api/aklap_go.php" class="menu-item"><i class="fas fa-book"></i><span>Akuntansi</span></a>
-            <span class="menu-label">AKUN</span>
-            <a href="../api/logout.php" class="menu-item menu-logout"><i class="fas fa-sign-out-alt"></i><span>Keluar</span></a>
-        </nav>
-        <div class="sidebar-footer"><span>&copy; 2026 SIM-TKD POLBAN</span></div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
     <div class="overlay" id="overlay"></div>
     <div class="main-wrapper">
         <header class="topbar">
@@ -99,7 +63,35 @@
         <footer class="footer"><span>&copy; 2026 SIM-TKD - Modul Edukasi | Politeknik Negeri Bandung</span></footer>
     </div>
     <div id="toast" class="toast"></div>
+
+    <!-- Modal Validasi Rekening (BUD) -->
+    <div class="modal-overlay" id="modalValidasi">
+        <div class="modal">
+            <div class="modal-header"><h3><i class="fas fa-check-circle"></i> Validasi Rekening (BUD)</h3><button class="modal-close" id="vClose"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Bank</label>
+                    <input type="text" id="vBank" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Nama Pemilik</label>
+                    <input type="text" id="vPemilik" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="vNoRek">Nomor Rekening *</label>
+                    <input type="text" id="vNoRek" class="form-control" placeholder="Masukkan nomor rekening" inputmode="numeric">
+                    <div class="form-hint"><i class="fas fa-info-circle"></i> Nomor rekening akan disimpan dan rekening diaktifkan.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="vTolak"><i class="fas fa-times"></i> Tolak</button>
+                <button type="button" class="btn btn-primary" id="vSimpan"><i class="fas fa-check"></i> Validasi &amp; Aktifkan</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/daftar-bank.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
     <script src="../js/dashboard.js"></script>
     <script>
         (function () {
@@ -113,6 +105,7 @@
                 }
             })();
             var curTab = 'permohonan';
+            var dataRowCache = {};
             function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2400); }
             function esc(s) { var d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
             var LBL = { permohonan: ['Permohonan', 'type-warn'], pengajuan: ['Diajukan', 'type-warn'], pembuatan: ['Nomor Dibuat', 'type-warn'], aktif: ['Aktif', 'type-in'], ditolak: ['Ditolak', 'type-muted'] };
@@ -124,6 +117,8 @@
                     .then(function (d) {
                         var data = (d && d.success) ? (d.data || []) : [];
                         if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9098a5;">Belum ada data rekening.</td></tr>'; return; }
+                        dataRowCache = {};
+                        data.forEach(function (r) { dataRowCache[r.id] = r; });
                         tbody.innerHTML = data.map(function (r, i) {
                             var btn = '';
                             if (r.status === 'permohonan') btn = '<button class="btn btn-sm" data-act="ajukan" data-id="' + r.id + '">Ajukan (PA)</button>';
@@ -143,13 +138,39 @@
                     toast(d.message || (d.success ? 'Tersimpan.' : 'Gagal.')); if (d.success) { document.getElementById('bank').value = ''; document.getElementById('nama_pemilik').value = ''; load(); }
                 });
             });
+            var validasiId = 0;
+            function openValidasi(r) {
+                validasiId = r.id;
+                document.getElementById('vBank').value = r.bank || '';
+                document.getElementById('vPemilik').value = r.nama_pemilik || '';
+                document.getElementById('vNoRek').value = r.nomor_rekening || '';
+                document.getElementById('modalValidasi').classList.add('show');
+                setTimeout(function () { document.getElementById('vNoRek').focus(); }, 60);
+            }
+            function closeValidasi() { document.getElementById('modalValidasi').classList.remove('show'); }
+
             tbody.addEventListener('click', function (e) {
                 var b = e.target.closest('[data-act]'); if (!b) return;
                 var id = parseInt(b.getAttribute('data-id'), 10);
                 var act = b.getAttribute('data-act');
                 if (act === 'ajukan') { if (!confirm('Ajukan rekening ini ke BUD (PA)?')) return; post({ action: 'rekening_skpd_ajukan', id: id }, function (d) { toast(d.message || (d.success ? 'Diajukan.' : 'Gagal.')); if (d.success) load(); }); }
                 else if (act === 'nomor') { var no = prompt('Masukkan nomor rekening:'); if (no === null || no.trim() === '') return; post({ action: 'rekening_skpd_nomor', id: id, nomor_rekening: no.trim() }, function (d) { toast(d.message || (d.success ? 'Nomor dibuat.' : 'Gagal.')); if (d.success) load(); }); }
-                else if (act === 'validasi') { if (!confirm('Validasi & aktifkan rekening ini (BUD)?')) return; post({ action: 'rekening_skpd_validasi', id: id, setuju: true }, function (d) { toast(d.message || (d.success ? 'Aktif.' : 'Gagal.')); if (d.success) load(); }); }
+                else if (act === 'validasi') {
+                    // Buka popup input nomor rekening
+                    var row = dataRowCache[id] || null;
+                    openValidasi(row || { id: id });
+                }
+            });
+            document.getElementById('vClose').addEventListener('click', closeValidasi);
+            document.getElementById('vTolak').addEventListener('click', function () {
+                closeValidasi();
+                post({ action: 'rekening_skpd_validasi', id: validasiId, setuju: false }, function (d) { toast(d.message || (d.success ? 'Ditolak.' : 'Gagal.')); if (d.success) load(); });
+            });
+            document.getElementById('vSimpan').addEventListener('click', function () {
+                var no = document.getElementById('vNoRek').value.trim();
+                if (no === '') { toast('Nomor rekening wajib diisi.', 'warning'); document.getElementById('vNoRek').focus(); return; }
+                closeValidasi();
+                post({ action: 'rekening_skpd_validasi', id: validasiId, setuju: true, nomor_rekening: no }, function (d) { toast(d.message || (d.success ? 'Aktif.' : 'Gagal.')); if (d.success) load(); });
             });
             document.querySelectorAll('.tab-btn').forEach(function (b) {
                 b.addEventListener('click', function () {
