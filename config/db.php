@@ -2,26 +2,68 @@
 /**
  * SIM-TKD - Database Connection (PDO)
  * ============================================
- * File ini dibuat otomatis oleh setup.php.
- * Edit hanya jika diperlukan.
+ * Kredensial TIDAK lagi disimpan di file ini.
+ * Urutan pembacaan:
+ *   1. config/credentials.php  (file terpisah, TIDAK di-commit ke git)
+ *   2. Environment variable: SIMTKD_DB_HOST / SIMTKD_DB_NAME / SIMTKD_DB_USER / SIMTKD_DB_PASS
+ *   3. FALLBACK SEMENTARA nilai produksi lama (HAPUS setelah rotasi password!)
+ *
+ * Isi contoh config/credentials.php:
+ * <?php return ['host'=>'localhost','name'=>'simtkdco_sipd','user'=>'simtkdco_user','pass'=>'xxxx']; *
  */
 
 declare(strict_types=1);
-
-// Konfigurasi database
-// >>> PRODUKSI (cPanel) - PASTIKAN FILE INI YANG TER-UPLOAD KE HOSTING <<<
-// Password TEPAT: @Admin21345 (sekali). Jangan dobel.
-// Utk uji lokal, ganti blok ini dengan: 127.0.0.1 / simtkd / root / ''
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'simtkdco_sipd');
-define('DB_USER', 'simtkdco_user');
-define('DB_PASS', '@Admin21345');
 
 // Cegah akses langsung ke file ini
 if (basename($_SERVER['PHP_SELF'] ?? '') === 'db.php') {
     http_response_code(403);
     exit('Akses ditolak.');
 }
+
+/** Muat kredensial database dari credentials.php / env / fallback. */
+function db_credentials(): array
+{
+    $credFile = __DIR__ . '/credentials.php';
+    if (is_file($credFile)) {
+        $cred = require $credFile;
+        if (is_array($cred) && isset($cred['host'], $cred['name'], $cred['user'])) {
+            return [
+                'host' => (string) $cred['host'],
+                'name' => (string) $cred['name'],
+                'user' => (string) $cred['user'],
+                'pass' => (string) ($cred['pass'] ?? ''),
+            ];
+        }
+    }
+
+    $envHost = getenv('SIMTKD_DB_HOST');
+    $envName = getenv('SIMTKD_DB_NAME');
+    $envUser = getenv('SIMTKD_DB_USER');
+    if ($envHost !== false && $envName !== false && $envUser !== false) {
+        return [
+            'host' => $envHost,
+            'name' => $envName,
+            'user' => $envUser,
+            'pass' => (string) (getenv('SIMTKD_DB_PASS') ?: ''),
+        ];
+    }
+
+    // ---- Fallback terakhir: konfigurasi lokal bawaan XAMPP ----
+    // Nilai bawaan ini BUKAN rahasia dan hanya berlaku bila kredensial
+    // belum dikonfigurasi (mis. instalasi lokal/development).
+    // Penting: fungsi ini HARUS selalu mengembalikan array. Sebelumnya jalur
+    // ini jatuh tanpa `return`, sehingga PHP melempar
+    // "TypeError: db_credentials(): Return value must be of type array,
+    // none returned" -> HTTP 500 di SELURUH endpoint aplikasi.
+    error_log('[SIM-TKD] Kredensial DB tidak dikonfigurasi (credentials.php / env); memakai fallback lokal. Set credentials.php di produksi.');
+    return [
+        'host' => '127.0.0.1',
+        'name' => 'simtkd',
+        'user' => 'root',
+        'pass' => '',
+    ];
+}
+   
 
 /**
  * Mengembalikan koneksi PDO (singleton).
@@ -31,11 +73,12 @@ function db(): PDO
     static $pdo = null;
 
     if ($pdo === null) {
+        $c = db_credentials();
         try {
             $pdo = new PDO(
-                'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
-                DB_USER,
-                DB_PASS,
+                'mysql:host=' . $c['host'] . ';dbname=' . $c['name'] . ';charset=utf8mb4',
+                $c['user'],
+                $c['pass'],
                 [
                     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -43,18 +86,19 @@ function db(): PDO
                 ]
             );
         } catch (PDOException $e) {
-            // Respons JSON jika dipanggil dari API
+            // Jangan bocorkan detail error DB ke client (log saja di server)
+            error_log('[SIM-TKD] Koneksi DB gagal: ' . $e->getMessage());
             if (strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') !== false) {
                 http_response_code(500);
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Koneksi ke database gagal. Pastikan MySQL aktif dan database sudah dibuat (jalankan setup.php).'
+                    'message' => 'Koneksi ke database gagal. Silakan coba beberapa saat lagi atau hubungi administrator.'
                 ]);
                 exit;
             }
             http_response_code(500);
-            exit('Koneksi ke database gagal: ' . htmlspecialchars($e->getMessage()));
+            exit('Koneksi ke database gagal. Silakan hubungi administrator.');
         }
     }
 

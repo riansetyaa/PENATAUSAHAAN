@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi Dokumen — SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand">
+                <b>DOKUMEN · SIM-TKD</b>
+                <span>Verifikasi Dokumen Elektronik</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="index.html" class="btn-keluar" style="text-decoration:none;"><i class="fas fa-file-lines"></i> Daftar Dokumen</a>
+        </div>
+    </header>
+
+    <div class="verify-box">
+        <div class="card card-pad">
+            <h2 style="margin:0 0 6px;color:var(--biru);font-size:18px;">Cek Keaslian Dokumen</h2>
+            <p class="muted" style="margin:0 0 14px;font-size:13px;">
+                Pindai <strong>barcode (QR)</strong> yang tertera pada dokumen Anda,
+                atau masukkan kode verifikasi dokumen bila Anda mengetahuinya.
+            </p>
+            <input type="text" id="kode" class="code-input" placeholder="TTD-XXXXXXXX" maxlength="12" autocomplete="off">
+            <div style="margin-top:12px;">
+                <button type="button" class="btn btn-teal" id="btnCek"><i class="fas fa-magnifying-glass"></i> Verifikasi</button>
+            </div>
+            <div id="hasil"></div>
+        </div>
+    </div>
+
+    <div class="footer">SIM-TKD · Tanda Tangan Elektronik Dokumen — doc.simtkd.com</div>
+
+    <script>
+    (function () {
+        'use strict';
+        function esc(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+
+        function cek() {
+            var kode = (document.getElementById('kode').value || '').trim().toUpperCase();
+            var box = document.getElementById('hasil');
+            if (!kode) { box.innerHTML = ''; return; }
+            box.innerHTML = '<div class="muted" style="margin-top:12px;">Memeriksa…</div>';
+            fetch('api/dokumen.php?action=verify&kode=' + encodeURIComponent(kode))
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (!d.success && d.ditemukan === false) {
+                        box.innerHTML = '<div class="verif-result invalid"><h4><i class="fas fa-circle-xmark"></i> Tidak Ditemukan</h4>' + esc(d.message) + '</div>';
+                        return;
+                    }
+                    if (!d.success) { box.innerHTML = '<div class="verif-result invalid"><h4>Gagal</h4>' + esc(d.message || 'Terjadi kesalahan.') + '</div>'; return; }
+                    var dok = d.dokumen || {};
+                    var p = d.penandatangan || {};
+                    if (d.valid) {
+                        box.innerHTML =
+                            '<div class="verif-result valid">' +
+                            '<h4><i class="fas fa-circle-check"></i> Dokumen Valid</h4>' +
+                            '<div>' + esc(d.message) + '</div>' +
+                            '<div style="margin-top:10px;line-height:1.7;">' +
+                            '<div><strong>Jenis</strong> : ' + esc(dok.jenis || '-') + '</div>' +
+                            '<div><strong>Nomor</strong> : ' + esc(dok.nomor || '-') + '</div>' +
+                            '<div><strong>Judul</strong> : ' + esc(dok.judul || '-') + '</div>' +
+                            '<div><strong>SKPD</strong> : ' + esc(dok.skpd || '-') + '</div>' +
+                            '<div><strong>Penandatangan</strong> : ' + esc(p.nama || '-') + (p.jabatan ? ' (' + esc(p.jabatan) + ')' : '') + '</div>' +
+                            '<div><strong>NIP</strong> : ' + esc(p.nip || '-') + '</div>' +
+                            '<div><strong>Waktu TTD</strong> : ' + esc(dok.waktu || '-') + '</div>' +
+                            '</div></div>';
+                    } else {
+                        box.innerHTML = '<div class="verif-result invalid"><h4><i class="fas fa-triangle-exclamation"></i> Belum / Tidak Valid</h4>' + esc(d.message) + '</div>';
+                    }
+                })
+                .catch(function () {
+                    document.getElementById('hasil').innerHTML = '<div class="verif-result invalid"><h4>Gagal</h4>Tidak dapat menghubungi server verifikasi.</div>';
+                });
+        }
+
+        document.getElementById('btnCek').addEventListener('click', cek);
+        document.getElementById('kode').addEventListener('keydown', function (e) { if (e.key === 'Enter') cek(); });
+
+        // Isi otomatis bila dibuka dari QR (?kode=)
+        try {
+            var k = new URLSearchParams(window.location.search).get('kode');
+            if (k) { document.getElementById('kode').value = k.toUpperCase(); cek(); }
+        } catch (e) {}
+    })();
+    </script>
+</body>
+</html>

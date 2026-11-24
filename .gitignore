@@ -1,2 +1,22 @@
 .DS_Store
 **/.DS_Store
+
+# Kredensial database (jangan pernah di-commit)
+config/credentials.php
+peta.simtkd.com/config/credentials.php
+doc.simtkd.com/config/credentials.php
+
+# Konfigurasi email/SMTP pengirim OTP (berisi password) — contoh: config/mail.example.php
+config/mail.php
+
+# Berkas log server (berisi catatan kode OTP untuk bantuan admin)
+logs/otp.log.php
+logs/*.log
+
+# Secret webhook deploy
+.webhook_secret
+.webhook_secret_staging
+test-db.php
+
+# Aplikasi Laravel: dipelihara terpisah, tidak di-commit di repo ini
+laravel/

@@ -1,0 +1,391 @@
+/* ============================================================
+   SIM-TKD (doc.simtkd.com) - Stylesheet
+   Tampilan DISAMAKAN dengan AKLAP (peta.simtkd.com) & SIM-TKD:
+   topbar navy, sidebar gelap, card putih, badge, tabel senada.
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --navy: #16305a;
+    --navy-dark: #0e2140;
+    --navy-mid: #1d3a6e;
+    --blue: #1f6feb;
+    --blue-light: #4c9aff;
+    --green: #16a34a;
+    --green-dark: #15803d;
+    --teal: #0f766e;
+    --bg: #eef1f6;
+    --card: #ffffff;
+    --border: #d8dee9;
+    --text: #1f2937;
+    --muted: #6b7280;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-size: 14px;
+}
+.hidden { display: none !important; }
+.muted { color: #9aa4b2; }
+a { color: var(--blue); }
+
+/* ---------- Topbar (senada AKLAP) ---------- */
+.topbar {
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 58px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+    position: relative;
+    z-index: 20;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-left .logo-badge {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #fff; color: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; overflow: hidden; flex-shrink: 0;
+}
+.topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.topbar-left .brand { line-height: 1.15; }
+.topbar-left .brand b { font-size: 15px; letter-spacing: .3px; display: block; }
+.topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.topbar-right .region { text-align: right; line-height: 1.15; }
+.topbar-right .region b { font-size: 12.5px; display: block; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+.topbar-user { display: flex; align-items: center; gap: 8px; }
+.topbar-user .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #fff; color: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700;
+}
+.topbar-user .nama { font-size: 13px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-user .btn-keluar {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.4);
+    color: #fff; border-radius: 6px; padding: 6px 10px;
+    font-size: 12px; cursor: pointer; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px;
+    text-decoration: none;
+}
+.topbar-user .btn-keluar:hover { background: rgba(255,255,255,.22); }
+
+/* ---------- Body layout + Sidebar (senada AKLAP) ---------- */
+.body-wrap { display: flex; flex: 1; min-height: 0; }
+.sidebar {
+    width: 236px;
+    background: var(--navy-dark);
+    color: #cbd5e1;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 10px 0 20px;
+    transition: margin-left .25s ease;
+}
+.sidebar.collapsed { margin-left: -236px; }
+
+/* Tombol minimize sidebar (disuntikkan oleh js/sidebar.js) */
+.sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background .2s ease;
+}
+.sidebar-toggle:hover { background: rgba(255,255,255,.2); }
+
+.side-title {
+    font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: #7d8db1; padding: 14px 18px 6px;
+}
+.side-link {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 18px; color: #cbd5e1; text-decoration: none;
+    font-size: 13.5px; border-left: 3px solid transparent;
+}
+.side-link i { width: 18px; text-align: center; font-size: 14px; }
+.side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.side-link.active { background: var(--navy-mid); color: #fff; border-left-color: var(--blue-light); }
+
+/* ---------- Main + breadcrumb (senada AKLAP) ---------- */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.breadcrumb-bar {
+    background: #fff; border-bottom: 1px solid var(--border);
+    padding: 10px 22px; display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap;
+}
+.breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+.breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+.crumb a { color: var(--blue); text-decoration: none; }
+.crumb .current { color: var(--text); font-weight: 600; }
+.btn-back {
+    background: var(--navy); color: #fff; border: none;
+    padding: 7px 14px; border-radius: 6px; cursor: pointer;
+    font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px;
+    text-decoration: none; font-family: inherit;
+}
+.btn-back:hover { background: var(--navy-mid); }
+.content { padding: 20px 22px; flex: 1; }
+
+/* ---------- Card (senada AKLAP) ---------- */
+.card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06);
+    margin-bottom: 18px;
+}
+.card-head {
+    padding: 12px 18px; border-bottom: 1px solid var(--border);
+    font-weight: 700; font-size: 13.5px; color: var(--navy);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.card-head .right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 16px 18px; }
+
+.page-head { margin-bottom: 16px; }
+.page-head h1 { font-size: 19px; color: var(--navy); }
+.page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+/* ---------- Statistik (senada AKLAP) ---------- */
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 18px; }
+.stat-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 1px 3px rgba(16,24,40,.06);
+}
+.stat-card .ic {
+    width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff;
+}
+.ic.navy { background: linear-gradient(135deg, var(--navy), var(--navy-mid)); }
+.ic.blue { background: linear-gradient(135deg, #1f6feb, #4c9aff); }
+.ic.green { background: linear-gradient(135deg, #12835c, #16a34a); }
+.ic.amber { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.stat-card .info b { display: block; font-size: 22px; color: var(--navy); font-variant-numeric: tabular-nums; }
+.stat-card .info span { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+/* ---------- Tabel (senada AKLAP) ---------- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+    background: #f1f5f9; color: #334155; text-align: left;
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px;
+    white-space: nowrap;
+}
+tbody td { padding: 10px 12px; border-bottom: 1px solid #edf0f5; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8fafc; }
+.empty { text-align: center; color: #9aa4b2; padding: 28px; font-size: 13px; }
+
+/* ---------- Badge (senada AKLAP) ---------- */
+.badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+.badge-approved { background: #dcfce7; color: #15803d; }
+.badge-pending { background: #fef3c7; color: #b45309; }
+.badge-rejected { background: #fee2e2; color: #b91c1c; }
+/* varian nama lain yang dipakai dokumen.html */
+.badge.selesai { background: #dcfce7; color: #15803d; }
+.badge.menunggu { background: #fef3c7; color: #b45309; }
+
+/* ---------- Tombol ---------- */
+.btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; border-radius: 6px; padding: 8px 14px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    font-family: inherit; text-decoration: none; color: #fff;
+    background: var(--navy);
+}
+.btn:hover { background: var(--navy-mid); }
+.btn.btn-green { background: var(--green); }
+.btn.btn-green:hover { background: var(--green-dark); }
+.btn.btn-blue { background: var(--blue); }
+.btn.btn-blue:hover { background: #1a5fd0; }
+.btn.btn-outline { background: #fff; color: var(--navy); border: 1px solid var(--border); }
+.btn.btn-outline:hover { background: #f8fafc; }
+.btn.btn-outline.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn.btn-danger-outline { background: #fff; color: #b91c1c; border: 1px solid #fecaca; }
+.btn.btn-danger-outline:hover { background: #fef2f2; }
+.btn:disabled { opacity: .65; cursor: default; }
+.btn-sm { padding: 6px 10px; font-size: 12px; }
+
+/* ---------- Viewer dokumen + panel samping ---------- */
+.doc-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+@media (max-width: 980px) { .doc-grid { grid-template-columns: 1fr; } }
+.viewer-card { background: #5c6470; border-radius: 10px; padding: 14px; border: 1px solid var(--border); }
+.viewer-card.placing { outline: 2px dashed var(--blue-light); outline-offset: 3px; }
+
+/* Bar orientasi pratinjau: Otomatis / Potret / Lanskap + Cetak */
+.viewer-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.vb-label { color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .2px; }
+.vb-seg { display: inline-flex; background: rgba(255,255,255,.15); border-radius: 8px; padding: 3px; gap: 2px; }
+.vb-seg button {
+    border: 0; background: transparent; color: #e5e9f0; cursor: pointer;
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;
+}
+.vb-seg button:hover { background: rgba(255,255,255,.14); }
+.vb-seg button.active { background: #fff; color: var(--navy); }
+.vb-hint { flex: 1; min-width: 140px; color: rgba(255,255,255,.75); font-size: 11.5px; }
+.vb-print {
+    border: 0; background: #fff; color: var(--navy); cursor: pointer;
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    padding: 6px 14px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+}
+.vb-print:hover { background: #eef2f7; }
+
+/* Kertas pratinjau: dirender selebar A4 asli lalu diskalakan (JS) agar pas.
+   Lembaran ditampilkan di atas "meja" gelap + bayangan agar batas kertas jelas. */
+.viewer-frame-wrap {
+    position: relative; overflow: hidden; border-radius: 8px;
+    background: linear-gradient(180deg, #4a5160, #3f4551);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+    padding: 14px; /* harus sama dengan PAPER_PAD di dokumen.html */
+    min-height: 320px;
+}
+.viewer-frame-wrap iframe {
+    border: none; border-radius: 2px; background: #fff; display: block;
+    box-shadow: 0 1px 3px rgba(0,0,0,.30), 0 6px 18px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.16);
+}
+/* Overlay saat dokumen dimuat */
+.viewer-frame-wrap.loading::after {
+    content: "Memuat pratinjau…";
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(52,58,69,.55);
+    color: #e6eaf2; font-size: 13px; font-weight: 600; letter-spacing: .3px;
+}
+.side-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); padding: 16px; margin-bottom: 14px; }
+.side-card h3 { margin: 0 0 10px; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+.side-card h3 .ok { color: #065f46; }
+.info-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12.5px; padding: 7px 0; }
+.info-row + .info-row { border-top: 1px dashed #e8ecf3; }
+.info-row .k { color: var(--muted); flex-shrink: 0; }
+.info-row .v { font-weight: 600; text-align: right; word-break: break-word; }
+
+/* Baris tombol seragam (pengganti inline style) & panel mode penempatan */
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-row.mt { margin-top: 12px; }
+.btn-block { width: 100%; justify-content: center; }
+.place-box {
+    background: #eef4ff; border: 1px solid #c7d7f5; border-radius: 8px;
+    padding: 10px 12px; margin-top: 10px;
+}
+/* Panel samping tetap terlihat saat dokumen panjang digulir */
+@media (min-width: 981px) {
+    .doc-grid > div:last-child {
+        position: sticky; top: 14px;
+        max-height: calc(100vh - 28px); overflow-y: auto;
+    }
+}
+
+/* ---------- Kanvas tanda tangan ---------- */
+#pad {
+    width: 100%;
+    height: 160px;
+    background: #fafcff;
+    border: 1.5px dashed #94a3b8;
+    border-radius: 8px;
+    cursor: crosshair;
+    touch-action: none;
+    display: block;
+}
+.pad-note { font-size: 11.5px; color: var(--muted); margin: 6px 0 10px; line-height: 1.5; }
+
+/* ---------- Modal perbesar kanvas tanda tangan ---------- */
+.pad-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.pad-modal-card {
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+    width: min(94vw, 920px);
+    max-height: 92vh; overflow-y: auto;
+    padding: 18px 20px 20px;
+    animation: padModalIn 0.18s ease-out;
+}
+@keyframes padModalIn {
+    from { transform: scale(0.96) translateY(8px); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+}
+.pad-modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+}
+.pad-modal-head h3 {
+    font-size: 15px; font-weight: 800; color: var(--navy);
+    display: flex; align-items: center; gap: 8px;
+}
+.pad-modal-head h3 i { color: var(--primary); }
+.pad-modal-close {
+    border: 1px solid var(--border); background: #fff; color: var(--muted);
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.pad-modal-close:hover { background: #f1f5f9; color: var(--navy); }
+/* Kanvas tanda tangan tampil besar saat berada di dalam modal */
+#padModal #pad {
+    width: 100%;
+    height: min(46vh, 360px);
+    border-width: 2px;
+}
+
+.place-row { display: flex; align-items: center; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+.place-row .lbl { font-size: 12px; font-weight: 700; color: var(--navy); }
+
+/* ---------- Toast + footer (senada AKLAP) ---------- */
+.toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 99;
+    background: var(--navy-dark); color: #fff; padding: 12px 18px;
+    border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none;
+    max-width: 90vw;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.footer {
+    text-align: center; padding: 14px; font-size: 12px;
+    color: var(--muted); border-top: 1px solid var(--border); background: #fff;
+}
+
+/* ---------- Verifikasi publik ---------- */
+.verify-box { max-width: 560px; margin: 0 auto; width: 100%; padding: 20px 18px 40px; }
+.verif-result { border-radius: 10px; padding: 16px; margin-top: 14px; font-size: 13.5px; }
+.verif-result.valid { background: #ecfdf5; border: 1px solid #6ee7b7; }
+.verif-result.invalid { background: #fef2f2; border: 1px solid #fca5a5; }
+.verif-result h4 { margin: 0 0 8px; font-size: 15px; }
+.verif-result.valid h4 { color: #15803d; }
+.verif-result.invalid h4 { color: #b91c1c; }
+.code-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; }
+}
+
+

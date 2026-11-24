@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Popup SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#eee; font-family:Inter,system-ui,sans-serif; }
+        .demo-card { background:#fff; border-radius:16px; padding:36px; box-shadow:0 4px 24px rgba(0,0,0,.1); text-align:center; max-width:460px; }
+        .demo-card h2 { margin:0 0 6px; color:#0f172a; }
+        .demo-card p { color:#64748b; margin:0 0 24px; font-size:14px; }
+        .demo-grid { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+        .demo-btn { padding:10px 20px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; color:#fff; transition:transform .1s; }
+        .demo-btn:active { transform:scale(.95); }
+        .demo-btn.info { background:#2563eb; }
+        .demo-btn.success { background:#16a34a; }
+        .demo-btn.error { background:#dc2626; }
+        .demo-btn.warning { background:#d97706; }
+        .demo-btn.alert { background:#16305a; }
+    </style>
+</head>
+<body>
+    <div class="demo-card">
+        <h2>🧪 Demo Popup SIM-TKD</h2>
+        <p>Popup pengganti <code>alert()</code> bawaan browser — gaya AKLAP.</p>
+        <div class="demo-grid">
+            <button class="demo-btn info" onclick="popupAlert('Data berhasil dimuat.','info')">Info</button>
+            <button class="demo-btn success" onclick="popupAlert('Dokumen berhasil dikirim ke TTD.','success')">Sukses</button>
+            <button class="demo-btn error" onclick="popupAlert('Gagal memuat laporan.','error','Gagal!')">Error</button>
+            <button class="demo-btn warning" onclick="alert('Mohon pilih periode terlebih dahulu.')">⚠️ alert() lama</button>
+            <button class="demo-btn alert" onclick="popupAlert('Pesan dengan auto-tutup 3 detik.','success','Auto-Close',3000)">Auto-tutup</button>
+        </div>
+    </div>
+    <script src="js/popup.js"></script>
+</body>
+</html>

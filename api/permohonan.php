@@ -15,6 +15,10 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
+// ---- Migrasi bertahap (cutover). Bawaan: MATI (perilaku legacy tidak berubah).
+require_once __DIR__ . '/../includes/cutover.php';
+cutover_maybe_proxy(__FILE__);
+
 if (!isLoggedIn()) {
     jsonResponse(false, 'Tidak terautentikasi.', [], 401);
 }
@@ -22,13 +26,22 @@ if (!isLoggedIn()) {
 $pdo    = db();
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Pemisahan data multi-dinas (fail-closed).
+//
+// PENTING: variabel ini HARUS diinisialisasi SEBELUM percabangan metode.
+// Sebelumnya hanya di-set di dalam blok GET, sehingga pada aksi POST
+// (set_aktif & verifikasi) $skpd bernilai null. Akibatnya syarat
+// "AND (? = '' OR skpd = ?)" tidak pernah bernilai benar sehingga UPDATE
+// tidak pernah menyentuh baris mana pun -> aksi tersebut selalu membalas
+// 404 "Data tidak ditemukan atau bukan milik instansi Anda."
+$skpd = requireInstansi();
+
 // ============================================
 // GET - Daftar permohonan
 // ============================================
 if ($method === 'GET') {
     $q     = input('q');
     $aktif = input('aktif', ''); // '1' = hanya rekening yang disetujui & aktif (untuk STBP)
-    $skpd  = (string) ($_SESSION['instansi'] ?? ''); // pemisahan data multi-dinas
 
     $sql    = "SELECT p.*, u.nama_lengkap AS dibuat_oleh
                FROM permohonan p
@@ -87,6 +100,13 @@ if ($method === 'POST') {
     }
     $action = (string) ($body['action'] ?? 'create');
 
+    // Otorisasi peran: "Pengguna Umum" hanya-baca; verifikasi hanya
+    // untuk peran penyetuju.
+    wajibBolehOperasi();
+    if ($action === 'verifikasi') {
+        wajibBolehSetujui();
+    }
+
     // Aksi: perbarui status aktif (ceklist AKTIF di daftar permohonan)
     if ($action === 'set_aktif') {
         $id     = (int) ($body['id'] ?? 0);
@@ -94,12 +114,30 @@ if ($method === 'POST') {
         if ($id <= 0) {
             jsonResponse(false, 'ID tidak valid.', [], 422);
         }
-        $skpdS = (string) ($_SESSION['instansi'] ?? ''); // scope multi-dinas
-        $stmt = $pdo->prepare("UPDATE permohonan SET status_aktif = ? WHERE id = ? AND (? = '' OR skpd = ?)");
-        $stmt->execute([$status, $id, $skpdS, $skpdS]);
-        if ($stmt->rowCount() === 0) {
+        // Cek keberadaan baris lebih dulu. rowCount() pada UPDATE hanya
+        // menghitung baris yang BERUBAH: mencentang ulang nilai yang sama
+        // menghasilkan 0 dan dulu salah dilaporkan sebagai 404.
+        $cek = $pdo->prepare(
+            "SELECT status_terbit, status_disetujui, status_aktif
+             FROM permohonan WHERE id = ? AND skpd = ? LIMIT 1"
+        );
+        $cek->execute([$id, $skpd]);
+        $row = $cek->fetch();
+
+        if (!$row) {
             jsonResponse(false, 'Data tidak ditemukan atau bukan milik instansi Anda.', [], 404);
         }
+
+        if ((int) $row['status_aktif'] !== $status) {
+            $stmt = $pdo->prepare("UPDATE permohonan SET status_aktif = ? WHERE id = ? AND skpd = ?");
+            $stmt->execute([$status, $id, $skpd]);
+        }
+
+        // Rekening baru bisa dipakai STBP/STS bila sudah disetujui.
+        if ($status === 1 && empty($row['status_disetujui'])) {
+            jsonResponse(true, 'Rekening diaktifkan. Klik tombol Verifikasi agar rekening dapat dipakai pada STBP/STS.');
+        }
+
         jsonResponse(true, $status ? 'Rekening diaktifkan.' : 'Rekening dinonaktifkan.');
     }
 
@@ -109,26 +147,102 @@ if ($method === 'POST') {
         if ($id <= 0) {
             jsonResponse(false, 'ID tidak valid.', [], 422);
         }
-        $skpdS = (string) ($_SESSION['instansi'] ?? ''); // scope multi-dinas
-        $stmt = $pdo->prepare("UPDATE permohonan SET status_terbit = 1, status_disetujui = 1, status_aktif = 1 WHERE id = ? AND (? = '' OR skpd = ?)");
-        $stmt->execute([$id, $skpdS, $skpdS]);
-        if ($stmt->rowCount() === 0) {
+        $cek = $pdo->prepare(
+            "SELECT status_terbit, status_disetujui, status_aktif
+             FROM permohonan WHERE id = ? AND skpd = ? LIMIT 1"
+        );
+        $cek->execute([$id, $skpd]);
+        $row = $cek->fetch();
+
+        if (!$row) {
             jsonResponse(false, 'Data tidak ditemukan atau bukan milik instansi Anda.', [], 404);
         }
+
+        // Idempoten: verifikasi ulang bukan error.
+        if ((int) $row['status_terbit'] === 1
+            && (int) $row['status_disetujui'] === 1
+            && (int) $row['status_aktif'] === 1) {
+            jsonResponse(true, 'Rekening sudah diverifikasi dan aktif.');
+        }
+
+        $stmt = $pdo->prepare(
+            "UPDATE permohonan
+             SET status_terbit = 1, status_disetujui = 1, status_aktif = 1
+             WHERE id = ? AND skpd = ?"
+        );
+        $stmt->execute([$id, $skpd]);
+
         jsonResponse(true, 'Rekening berhasil diverifikasi dan aktif.');
+    }
+
+    // Aksi: ubah data rekening. Perubahan data bank/nomor/nama mengembalikan
+    // status ke belum terverifikasi agar rekening yang berubah tidak tetap
+    // dianggap sah tanpa persetujuan ulang.
+    if ($action === 'update') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+        $bank  = trim((string) ($body['bank'] ?? ''));
+        $nama  = trim((string) ($body['nama_rekening'] ?? ''));
+        $nomor = trim((string) ($body['nomor_rekening'] ?? ''));
+        if ($bank === '') {
+            jsonResponse(false, 'Silakan pilih bank.', ['field' => 'bank'], 422);
+        }
+        if ($nama === '') {
+            jsonResponse(false, 'Nama pemilik rekening wajib diisi.', ['field' => 'nama_rekening'], 422);
+        }
+        if ($nomor === '') {
+            jsonResponse(false, 'Nomor rekening wajib diisi.', ['field' => 'nomor_rekening'], 422);
+        }
+
+        $cek = $pdo->prepare("SELECT id FROM permohonan WHERE id = ? AND skpd = ? LIMIT 1");
+        $cek->execute([$id, $skpd]);
+        if (!$cek->fetch()) {
+            jsonResponse(false, 'Data tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+
+        $stmt = $pdo->prepare("
+            UPDATE permohonan
+            SET bank = ?, nama_rekening = ?, nomor_rekening = ?,
+                status_terbit = 0, status_disetujui = 0, status_aktif = 0
+            WHERE id = ? AND skpd = ?
+        ");
+        $stmt->execute([$bank, $nama, $nomor, $id, $skpd]);
+
+        jsonResponse(true, 'Permohonan diperbarui. Rekening perlu diverifikasi ulang sebelum dipakai pada STBP/STS.');
+    }
+
+    // Aksi: hapus rekening. Tidak ada tabel lain yang menyimpan foreign key
+    // ke permohonan, jadi penghapusan permanen aman dilakukan di sini.
+    if ($action === 'delete') {
+        $id = (int) ($body['id'] ?? 0);
+        if ($id <= 0) {
+            jsonResponse(false, 'ID tidak valid.', [], 422);
+        }
+        $cek = $pdo->prepare("SELECT id FROM permohonan WHERE id = ? AND skpd = ? LIMIT 1");
+        $cek->execute([$id, $skpd]);
+        if (!$cek->fetch()) {
+            jsonResponse(false, 'Data tidak ditemukan atau bukan milik instansi Anda.', [], 404);
+        }
+        $stmt = $pdo->prepare("DELETE FROM permohonan WHERE id = ? AND skpd = ?");
+        $stmt->execute([$id, $skpd]);
+        jsonResponse(true, 'Permohonan berhasil dihapus.');
     }
 
     $bank   = input('bank');
     $nama   = input('nama_rekening');
     $nomor  = input('nomor_rekening');
-    // skpd selalu dari sesi (jangan percaya input klien)
-    $skpd   = (string) ($_SESSION['instansi'] ?? '');
+    // skpd selalu dari sesi (sudah di-set di atas, jangan percaya input klien)
 
     if ($bank === '') {
         jsonResponse(false, 'Silakan pilih bank.', ['field' => 'bank'], 422);
     }
     if ($nama === '') {
         jsonResponse(false, 'Nama pemilik rekening wajib diisi.', ['field' => 'nama_rekening'], 422);
+    }
+    if ($nomor === '') {
+        jsonResponse(false, 'Nomor rekening wajib diisi.', ['field' => 'nomor_rekening'], 422);
     }
 
     $stmt = $pdo->prepare("

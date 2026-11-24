@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Kas Penerimaan dan Pengeluaran (BUD) - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #16305a; --navy-dark: #0e2140; --navy-mid: #1d3a6e;
+            --blue: #1f6feb; --green: #16a34a; --green-dark: #15803d;
+            --bg: #eef1f6; --card: #ffffff; --border: #d8dee9;
+            --text: #1f2937; --muted: #6b7280;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 58px; box-shadow: 0 2px 6px rgba(0,0,0,.2); position: relative; z-index: 20; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .logo-badge { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+        .topbar-left .logo-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-left .brand { line-height: 1.15; }
+        .topbar-left .brand b { font-size: 15px; display: block; }
+        .topbar-left .brand span { font-size: 11.5px; opacity: .85; display: block; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-right .region { text-align: right; line-height: 1.15; }
+        .topbar-right .region b { font-size: 12.5px; display: block; }
+        .topbar-right .region span { font-size: 11px; opacity: .85; display: block; }
+        .topbar-user { display: flex; align-items: center; gap: 8px; }
+        .topbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+        .body-wrap { display: flex; flex: 1; min-height: 0; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .sidebar { width: 236px; background: var(--navy-dark); color: #cbd5e1; flex-shrink: 0; overflow-y: auto; padding: 10px 0 20px; transition: margin-left .25s ease; }
+        .sidebar.collapsed { margin-left: -236px; }
+        .side-title { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: #7d8db1; padding: 14px 18px 6px; }
+        .side-link { display: flex; align-items: center; gap: 11px; padding: 10px 18px; color: #cbd5e1; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+        .side-link i { width: 18px; text-align: center; font-size: 14px; }
+        .side-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .side-link.active { background: var(--navy-mid); color: #fff; border-left-color: #4c9aff; }
+        .side-group .side-link { cursor: pointer; }
+        .side-arrow { margin-left: auto; font-size: 11px; transition: transform .2s; color: #7d8db1; }
+        .side-group.open .side-arrow { transform: rotate(90deg); }
+        .side-sub { display: none; padding-left: 10px; }
+        .side-sub.open { display: block; }
+        .side-sub .side-link { padding: 8px 16px; font-size: 13px; color: #9fb0d3; }
+        .side-sub .side-link i { font-size: 12px; }
+        .side-sub .side-link:hover { color: #fff; }
+        .side-sub .side-link.active { color: #fff; background: var(--navy-mid); border-left-color: #4c9aff; }
+        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .breadcrumb-bar .crumb { font-size: 13px; color: var(--muted); }
+        .breadcrumb-bar .crumb i { font-size: 11px; margin: 0 7px; color: #9aa4b2; }
+        .crumb a { color: var(--blue); text-decoration: none; }
+        .crumb .current { color: var(--text); font-weight: 600; }
+        .btn-back { background: var(--navy); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+        .btn-back:hover { background: var(--navy-mid); }
+        .footer { text-align: center; padding: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+    </style>
+    <style>
+        .content { padding: 20px 22px; flex: 1; }
+        .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .page-head h1 { font-size: 19px; color: var(--navy); }
+        .page-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; max-width: 700px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 18px; }
+        .card-head { padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 16px 18px; }
+        .filter-grid { display: grid; gap: 14px; align-items: end; }
+        .filter-field { display: flex; flex-direction: column; gap: 5px; }
+        .filter-field label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+        .filter-field select, .filter-field input { height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; color: var(--text); width: 100%; }
+        .filter-field select:focus, .filter-field input:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+        .filter-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; height: 36px; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: #1a5fd0; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: var(--green-dark); }
+        .btn-dark { background: var(--navy-mid); color: #fff; }
+        .btn-dark:hover { background: var(--navy); }
+        .btn-muted { background: #e2e8f0; color: var(--text); }
+        .btn-muted:hover { background: #cbd5e1; }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+        .stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(16,24,40,.06); }
+        .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; }
+        .stat .val { font-size: 17px; font-weight: 700; color: var(--navy); margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .stat.income .val { color: #15803d; }
+        .stat.expense .val { color: #b45309; }
+        .preview-label { font-weight: 700; color: var(--navy); font-size: 13.5px; margin: 6px 0 10px; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99; background: var(--navy-dark); color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 18px rgba(0,0,0,.25); opacity: 0; transform: translateY(12px); transition: all .25s ease; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        @media (max-width: 1024px) { .filter-grid { grid-template-columns: repeat(2, 1fr) !important; } .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: 0; top: 58px; bottom: 0; z-index: 40; } .filter-grid { grid-template-columns: 1fr !important; } .stat-grid { grid-template-columns: 1fr; } }
+    </style>
+    <style>
+        /* ===== Blanko Buku Kas Penerimaan dan Pengeluaran (BUD) ===== */
+        #kasDoc { width: 100%; max-width: 900px; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 24px 26px; margin: 0 auto 18px; color: #000; font-family: "Times New Roman", Times, serif; font-size: 12px; line-height: 1.35; overflow-x: auto; }
+        #kasDoc .kas-head { text-align: center; margin-bottom: 6px; }
+        #kasDoc .kas-head .pem, #kasDoc .kas-head .title, #kasDoc .kas-head .sub { font-size: 13px; font-weight: 700; text-transform: uppercase; }
+        #kasDoc .kas-rp { text-align: right; font-size: 11.5px; margin: 0 2px 2px 0; }
+        #kasDoc table.kas { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        #kasDoc table.kas th, #kasDoc table.kas td { border: 1px solid #000; padding: 3px 5px; font-size: 10.5px; vertical-align: top; }
+        #kasDoc table.kas th { text-align: center; font-weight: 700; }
+        #kasDoc table.kas th.garis { text-decoration: underline; }
+        #kasDoc table.kas td.c { text-align: center; }
+        #kasDoc table.kas td.num { text-align: right; white-space: nowrap; }
+        #kasDoc table.kas tr.saldo-awal td, #kasDoc table.kas tr.total td { font-weight: 700; }
+        #kasDoc table.kas tbody tr.fill td { height: 19px; border-bottom-style: dotted; }
+        #kasDoc .kas-signs { margin-top: 22px; display: flex; justify-content: space-between; gap: 40px; font-size: 11.5px; }
+        #kasDoc .kas-sign { flex: 1; text-align: center; }
+        #kasDoc .kas-sign p { margin: 0; line-height: 1.6; }
+        #kasDoc .kas-sign .sig { height: 68px; }
+        #kasDoc .kas-sign .name { font-weight: 700; }
+        #kasDoc .kas-sign .nip { font-size: 10.5px; }
+        @media print {
+            @page { size: A4 portrait; margin: 12mm; }
+            body { background: #fff !important; display: block; }
+            .topbar, .breadcrumb-bar, .sidebar, .footer, #toast, .page-head, .card, .stat-grid, .preview-label { display: none !important; }
+            .content { padding: 0 !important; }
+            #kasDoc { display: block !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; max-width: none !important; overflow: visible !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="logo-badge"><img src="img/Logo Polban.png" alt="Logo POLBAN"></div>
+            <div class="brand"><b>AKLAP · SIM-TKD</b><span>Aplikasi Laporan Akuntansi Pemerintahan</span></div>
+        </div>
+        <div class="topbar-right">
+            <div class="region"><b id="regionProvinsi">-</b><span id="regionKota">-</span></div>
+            <div class="topbar-user"><div class="avatar" id="regionAvatar">?</div><span id="regionNama" style="font-size:13px;">-</span></div>
+        </div>
+    </header>
+
+    <div class="body-wrap">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main">
+            <div class="breadcrumb-bar">
+                <div class="crumb"><i class="fas fa-house"></i> <a href="index.html">Home</a><i class="fas fa-chevron-right"></i><span>Buku Kas</span><i class="fas fa-chevron-right"></i><span class="current">Buku Kas Penerimaan &amp; Pengeluaran (BUD)</span></div>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+            </div>
+
+            <div class="content">
+                <div class="page-head">
+                    <div>
+                        <h1>Buku Kas Penerimaan dan Pengeluaran (BUD)</h1>
+                        <p>Buku Kas Umum <strong>Bendahara Umum Daerah</strong>: gabungan transaksi <a href="buku-penerimaan-ppkd.html" style="color:var(--blue);">Buku Kas Penerimaan</a> dan <a href="buku-pengeluaran-ppkd.html" style="color:var(--blue);">Buku Kas Pengeluaran</a> dalam satu daftar kronologis dengan <strong>saldo berjalan</strong>.</p>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <a class="btn btn-muted" href="buku-penerimaan-ppkd.html" title="Catat transaksi penerimaan"><i class="fas fa-plus"></i> Input Penerimaan</a>
+                        <a class="btn btn-muted" href="buku-pengeluaran-ppkd.html" title="Catat transaksi pengeluaran"><i class="fas fa-plus"></i> Input Pengeluaran</a>
+                        <button class="btn btn-muted" id="btnCetak"><i class="fas fa-print"></i> Cetak</button>
+                        <button class="btn btn-dark" id="btnKirimTtd"><i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan</button>
+                        <input type="text" id="fNamaPpkd" placeholder="Nama PPKD (manual)" title="Nama pejabat PPKD pada blok tanda tangan kiri"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:200px;background:#fff;color:var(--text);">
+                        <input type="text" id="fNip" placeholder="NIP BUD (dari Profil)" title="NIP Bendahara Umum Daerah — otomatis dari Profil, dapat ditimpa manual"
+                               style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;width:190px;background:#fff;color:var(--text);">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><i class="fas fa-filter"></i> Periode &amp; Saldo Awal</div>
+                    <div class="card-body">
+                        <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="filter-field"><label>Tanggal Awal</label><input type="date" id="fDari"></div>
+                            <div class="filter-field"><label>Tanggal Akhir</label><input type="date" id="fSampai"></div>
+                            <div class="filter-field"><label>Saldo Awal (Rp) &mdash; opsional</label><input type="text" id="fSaldoAwal" inputmode="numeric" placeholder="otomatis dari mutasi sebelumnya" autocomplete="off"></div>
+                            <div class="filter-field">
+                                <label>&nbsp;</label>
+                                <div class="filter-actions">
+                                    <button class="btn btn-primary" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                                    <button class="btn btn-muted" id="btnBulanIni"><i class="fas fa-calendar-day"></i> Bulan Ini</button>
+                                    <button class="btn btn-muted" id="btnReset"><i class="fas fa-eraser"></i> Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat"><div class="lbl">Jumlah Transaksi</div><div class="val" id="statBaris">0</div></div>
+                    <div class="stat income"><div class="lbl">Total Penerimaan</div><div class="val" id="statPenerimaan">Rp 0</div></div>
+                    <div class="stat expense"><div class="lbl">Total Pengeluaran</div><div class="val" id="statPengeluaran">Rp 0</div></div>
+                    <div class="stat"><div class="lbl">Saldo Akhir</div><div class="val" id="statSaldo">Rp 0</div></div>
+                </div>
+
+                <div class="preview-label"><i class="fas fa-file-invoice"></i> Pratinjau Dokumen Buku Kas (hasil cetak)</div>
+                <div class="kas-doc" id="kasDoc"></div>
+            </div>
+
+            <footer class="footer">&copy; 2026 AKLAP - Modul Edukasi SIM-TKD | Politeknik Negeri Bandung (Jurusan Akuntansi)</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
+
+    <script>
+        // Profil ringkas di topbar
+        (function () {
+            var url = 'api/akuntansi.php?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=profil';
+            fetch(url)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!(d && d.success) || !d.user) return;
+                    var u = d.user;
+                    var set = function (txt, id) { var el = document.getElementById(id); if (el) el.textContent = (txt && txt !== '') ? txt : '-'; };
+                    set(u.provinsi, 'regionProvinsi');
+                    set(u.kota ? ('Kota/Kab: ' + u.kota) : '', 'regionKota');
+                    var nama = u.nama || u.username || '';
+                    set(nama, 'regionNama');
+                    var av = document.getElementById('regionAvatar');
+                    if (av) av.textContent = nama.trim().charAt(0).toUpperCase() || '?';
+                })
+                .catch(function () {});
+        })();
+    </script>
+    <script>
+(function () {
+    'use strict';
+
+    var API = 'api/akuntansi.php';
+    var BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+                 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    var DATA = null;
+    var disentuh = {};
+    var META = { kota: '', bendahara: '', instansi: '', nip: '', nipProfil: '', namaPpkd: '' };
+
+    function esc(t) { var d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+    function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2800); }
+    function urlAksi(action) { return API + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=' + action; }
+    function fmtAngka(v) { return Number(v || 0).toLocaleString('id-ID'); }
+    function fmtRp(v) { return 'Rp ' + fmtAngka(v); }
+    function angkaNol(v) { var n = Number(v || 0); return n === 0 ? '-' : fmtAngka(n); }
+    function angkaMentah(teks) {
+        var s = String(teks == null ? '' : teks).replace(/[^\d-]/g, '');
+        if (s === '' || s === '-') return 0;
+        var n = parseInt(s, 10);
+        return isNaN(n) ? NaN : n;
+    }
+    function fmtTglPendek(s) {
+        if (!s) return '';
+        var p = String(s).split('-');
+        return p.length === 3 ? p[2] + '-' + p[1] + '-' + p[0] : String(s);
+    }
+    function fmtTglPanjang(s) {
+        if (!s) return '-';
+        var p = String(s).split('-');
+        if (p.length !== 3) return String(s);
+        return parseInt(p[2], 10) + ' ' + BULAN[parseInt(p[1], 10)] + ' ' + p[0];
+    }
+    function tanggalHariIni() {
+        var now = new Date();
+        return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    }
+    function awalBulanIni() { var n = new Date(); return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-01'; }
+    // ---- Isian manual (Nama PPKD & NIP BUD) di atas dokumen ----
+    function bacaSimpanan(kunci) {
+        try { return (localStorage.getItem(kunci) || '').trim(); } catch (e) { return ''; }
+    }
+    function tulisSimpanan(kunci, nilai) {
+        try { if (nilai === '') localStorage.removeItem(kunci); else localStorage.setItem(kunci, nilai); } catch (e) {}
+    }
+    function sinkronIsianManual() {
+        var elNama = document.getElementById('fNamaPpkd');
+        var elNip  = document.getElementById('fNip');
+        if (!disentuh.fNamaPpkd && elNama.value.trim() === '') elNama.value = bacaSimpanan('simtkd_nama_ppkd');
+        if (!disentuh.fNip && elNip.value.trim() === '') elNip.value = bacaSimpanan('simtkd_nip') || (META.nipProfil || '');
+        META.namaPpkd = elNama.value.trim();
+        META.nip = elNip.value.trim();
+    }
+    function pasangIsianManual() {
+        [['fNamaPpkd', 'simtkd_nama_ppkd'], ['fNip', 'simtkd_nip']].forEach(function (pasangan) {
+            var el = document.getElementById(pasangan[0]);
+            if (!el) return;
+            el.addEventListener('input', function () {
+                disentuh[pasangan[0]] = true;
+                tulisSimpanan(pasangan[1], el.value.trim());
+                sinkronIsianManual();
+                renderDoc();
+            });
+        });
+    }
+
+    // Saldo awal manual: kosong = pakai hitungan API (mutasi sebelum periode)
+    function saldoAwalParam() {
+        var teks = document.getElementById('fSaldoAwal').value.trim();
+        if (teks === '') return '';
+        var n = angkaMentah(teks);
+        return isNaN(n) ? '' : String(n);
+    }
+
+    function urlList() {
+        var q = urlAksi('buku_kas_umum');
+        var d = document.getElementById('fDari').value;
+        var s = document.getElementById('fSampai').value;
+        var sa = saldoAwalParam();
+        if (d)  q += '&dari=' + encodeURIComponent(d);
+        if (s)  q += '&akhir=' + encodeURIComponent(s);
+        if (sa !== '') q += '&saldo_awal=' + encodeURIComponent(sa);
+        return q;
+    }
+
+    function loadData() {
+        var doc = document.getElementById('kasDoc');
+        doc.innerHTML = '<div style="padding:24px;text-align:center;color:#9aa4b2;">Memuat buku kas...</div>';
+        fetch(urlList())
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (!(d && d.success)) {
+                    doc.innerHTML = '<div style="padding:24px;text-align:center;color:#b91c1c;">' + esc((d && d.message) || 'Gagal memuat buku kas.') + '</div>';
+                    return;
+                }
+                DATA = d;
+                META.kota = d.kota || '';
+                META.bendahara = d.bendahara || '';
+                META.instansi = d.instansi || '';
+                META.nipProfil = d.nip || '';
+                if (!disentuh.fSaldoAwal) {
+                    document.getElementById('fSaldoAwal').value = Number(d.saldo_awal || 0) !== 0 ? fmtAngka(d.saldo_awal) : '';
+                }
+                sinkronIsianManual();
+                renderDoc();
+                renderStat();
+            })
+            .catch(function (err) {
+                if (window.console && console.error) console.error('Buku Kas BUD: gagal memuat', err);
+                doc.innerHTML = '<div style="padding:24px;text-align:center;color:#b91c1c;">Gagal memuat data. (' + esc((err && err.message) || 'unknown') + ')</div>';
+            });
+    }
+
+    function renderStat() {
+        if (!DATA) return;
+        document.getElementById('statBaris').textContent = DATA.total || 0;
+        document.getElementById('statPenerimaan').textContent = fmtRp(DATA.total_penerimaan);
+        document.getElementById('statPengeluaran').textContent = fmtRp(DATA.total_pengeluaran);
+        document.getElementById('statSaldo').textContent = fmtRp(DATA.saldo_akhir);
+    }
+    function kopPemerintah() {
+        var kota = String(META.kota || '').trim();
+        return kota ? ('PEMERINTAH ' + kota.toUpperCase()) : 'PEMERINTAH DAERAH';
+    }
+
+    function renderDoc() {
+        var doc = document.getElementById('kasDoc');
+        if (!doc) return;
+        if (!DATA) { doc.innerHTML = ''; return; }
+
+        var saldoAwal = Number(DATA.saldo_awal || 0);
+        var mulai = document.getElementById('fDari').value || (DATA.data && DATA.data.length ? DATA.data[0].tanggal : '');
+        var baris = [];
+
+        // Baris 1: saldo awal (seperti blanko: Uraian "Saldo")
+        baris.push('<tr class="saldo-awal">' +
+            '<td class="c">1</td>' +
+            '<td class="c">' + esc(fmtTglPendek(mulai)) + '</td>' +
+            '<td>Saldo</td>' +
+            '<td class="num">-</td>' +
+            '<td class="num">-</td>' +
+            '<td class="num">' + fmtAngka(saldoAwal) + '</td>' +
+        '</tr>');
+
+        (DATA.data || []).forEach(function (r, i) {
+            baris.push('<tr>' +
+                '<td class="c">' + (i + 2) + '</td>' +
+                '<td class="c">' + esc(fmtTglPendek(r.tanggal)) + '</td>' +
+                '<td>' + esc(r.uraian || r.no_bukti || '-') + '</td>' +
+                '<td class="num">' + angkaNol(r.penerimaan) + '</td>' +
+                '<td class="num">' + angkaNol(r.pengeluaran) + '</td>' +
+                '<td class="num">' + fmtAngka(r.saldo) + '</td>' +
+            '</tr>');
+        });
+
+        var jml = (DATA.data || []).length;
+        if (!jml) {
+            baris.push('<tr><td colspan="6" class="c" style="padding:10px;">Belum ada transaksi penerimaan/pengeluaran pada periode ini.</td></tr>');
+        }
+
+        // Baris total (menutup daftar): penerimaan & pengeluaran periode + saldo akhir
+        baris.push('<tr class="total">' +
+            '<td class="c"></td><td class="c"></td>' +
+            '<td>Jumlah</td>' +
+            '<td class="num">' + angkaNol(DATA.total_penerimaan) + '</td>' +
+            '<td class="num">' + angkaNol(DATA.total_pengeluaran) + '</td>' +
+            '<td class="num">' + fmtAngka(DATA.saldo_akhir) + '</td>' +
+        '</tr>');
+
+        var tglTtd = document.getElementById('fSampai').value || tanggalHariIni();
+        doc.innerHTML =
+            '<div class="kas-head">' +
+              '<div class="pem">' + esc(kopPemerintah()) + '</div>' +
+              '<div class="title">BUKU KAS PENERIMAAN DAN PENGELUARAN</div>' +
+              '<div class="sub">BENDAHARA UMUM DAERAH</div>' +
+            '</div>' +
+            '<div class="kas-rp">(Rp)</div>' +
+            '<table class="kas">' +
+              '<thead>' +
+                '<tr>' +
+                  '<th style="width:6%;">No</th>' +
+                  '<th style="width:12%;" class="garis">Tanggal</th>' +
+                  '<th class="garis">Uraian</th>' +
+                  '<th style="width:14%;" class="garis">Penerimaan</th>' +
+                  '<th style="width:14%;" class="garis">Pengeluaran</th>' +
+                  '<th style="width:15%;" class="garis">Saldo</th>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' + baris.join('') + '</tbody>' +
+            '</table>' +
+            '<div class="kas-signs">' +
+              '<div class="kas-sign">' +
+                '<p>Mengentahui PPKD</p>' +
+                '<div class="sig"></div>' +
+                '<p class="name">( ' + esc(META.namaPpkd || '..........................................') + ' )</p>' +
+              '</div>' +
+              '<div class="kas-sign">' +
+                '<p>' + esc((META.kota || '........................') + ', ' + fmtTglPanjang(tglTtd)) + '</p>' +
+                '<p>Bendahara Umum Daerah</p>' +
+                '<div class="sig"></div>' +
+                '<p class="name">( ' + esc(META.bendahara || '............................') + ' )</p>' +
+                (META.nip ? '<p class="nip">NIP : ' + esc(META.nip) + '</p>' : '') +
+              '</div>' +
+            '</div>';
+    }
+    function cssCetak() {
+        return '*{margin:0;padding:0;box-sizing:border-box;font-family:"Times New Roman",Times,serif;}' +
+            'body{background:#fff;color:#000;font-size:11pt;}' +
+            '.kas-doc{width:100%;padding:8px;color:#000;}' +
+            '.kas-doc .kas-head{text-align:center;margin-bottom:6px;}' +
+            '.kas-doc .kas-head .pem,.kas-doc .kas-head .title,.kas-doc .kas-head .sub{font-size:12.5pt;font-weight:bold;text-transform:uppercase;}' +
+            '.kas-doc .kas-rp{text-align:right;font-size:10.5pt;margin:0 2px 2px 0;}' +
+            '.kas-doc table.kas{width:100%;border-collapse:collapse;table-layout:fixed;}' +
+            '.kas-doc table.kas th,.kas-doc table.kas td{border:1px solid #000;padding:2px 4px;font-size:9.5pt;vertical-align:top;}' +
+            '.kas-doc table.kas th{text-align:center;font-weight:bold;} .kas-doc table.kas th.garis{text-decoration:underline;}' +
+            '.kas-doc table.kas td.c{text-align:center;} .kas-doc table.kas td.num{text-align:right;white-space:nowrap;}' +
+            '.kas-doc table.kas tr.saldo-awal td,.kas-doc table.kas tr.total td{font-weight:bold;}' +
+            '.kas-doc .kas-signs{margin-top:20px;display:flex;justify-content:space-between;gap:36px;font-size:10.5pt;}' +
+            '.kas-doc .kas-sign{flex:1;text-align:center;} .kas-doc .kas-sign p{margin:0;line-height:1.55;}' +
+            '.kas-doc .kas-sign .sig{height:68px;} .kas-doc .kas-sign .name{font-weight:bold;} .kas-doc .kas-sign .nip{font-size:10pt;}' +
+            '@page{size:A4 portrait;margin:12mm;}';
+    }
+
+    document.getElementById('btnCetak').addEventListener('click', function () {
+        if (!DATA) { toast('Data belum dimuat.'); return; }
+        renderDoc();
+        setTimeout(function () { window.print(); }, 60);
+    });
+
+    document.getElementById('btnTampilkan').addEventListener('click', loadData);
+
+    document.getElementById('btnBulanIni').addEventListener('click', function () {
+        document.getElementById('fDari').value = awalBulanIni();
+        document.getElementById('fSampai').value = tanggalHariIni();
+        loadData();
+    });
+
+    document.getElementById('btnReset').addEventListener('click', function () {
+        document.getElementById('fDari').value = '';
+        document.getElementById('fSampai').value = '';
+        document.getElementById('fSaldoAwal').value = '';
+        disentuh.fSaldoAwal = false;   // saldo awal kembali otomatis dari API
+        loadData();
+    });
+
+    document.getElementById('fSaldoAwal').addEventListener('input', function () {
+        disentuh.fSaldoAwal = true;
+        renderDoc();
+    });
+    document.getElementById('fSaldoAwal').addEventListener('change', function () {
+        // Rapikan format ribuan (0 / kosong = mode otomatis dari mutasi sebelumnya)
+        var n = angkaMentah(this.value);
+        this.value = (!isNaN(n) && n !== 0) ? fmtAngka(n) : '';
+        loadData();
+    });
+    document.getElementById('fDari').addEventListener('change', loadData);
+    document.getElementById('fSampai').addEventListener('change', loadData);
+
+    document.getElementById('btnKirimTtd').addEventListener('click', function () {
+        var btn = this;
+        if (!DATA) { toast('Data belum dimuat.'); return; }
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+        renderDoc();
+        var periode = (document.getElementById('fDari').value && document.getElementById('fSampai').value)
+            ? (fmtTglPanjang(document.getElementById('fDari').value) + ' s.d. ' + fmtTglPanjang(document.getElementById('fSampai').value))
+            : 'Seluruh Periode';
+        var body = new URLSearchParams({
+            jenis: 'Buku Kas Penerimaan dan Pengeluaran (BUD)',
+            nomor: '',
+            judul: 'Buku Kas Penerimaan dan Pengeluaran - ' + periode,
+            tanggal: document.getElementById('fSampai').value || tanggalHariIni(),
+            konten_html: '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Buku Kas Penerimaan dan Pengeluaran</title><style>' +
+                cssCetak() + '</style></head><body style="margin:0;background:#fff;">' +
+                document.getElementById('kasDoc').innerHTML + '</body></html>'
+        });
+        body.append('penandatangan', JSON.stringify([
+            { user: 'self', urutan: 1, jabatan: 'Bendahara Umum Daerah', nama: META.bendahara || '' }
+        ]));
+
+        fetch(urlAksi('dokumen_kirim'), { method: 'POST', body: body })
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (d && d.success) {
+                    toast(d.message || 'Dokumen terkirim ke antrean tanda tangan.');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                    setTimeout(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan'; }, 3000);
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                    toast((d && d.message) || 'Gagal mengirim dokumen.');
+                }
+            })
+            .catch(function () {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim ke Tanda Tangan';
+                toast('Gagal terhubung ke server API.');
+            });
+    });
+
+    pasangIsianManual();
+    loadData();
+})();
+    </script>
+</body>
+</html>

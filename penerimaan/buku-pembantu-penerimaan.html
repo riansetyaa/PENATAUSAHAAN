@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Pembantu Penerimaan - SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== Toolbar cetak ===== */
+        .print-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .print-toolbar .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .print-toolbar .filter-group label { font-size: 13px; color: #0f172a; font-weight: 600; }
+        .print-toolbar .filter-group select {
+            padding: 6px 10px;
+            border: 1px solid #d7dde5;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fff;
+            min-width: 120px;
+        }
+
+        /* ===== Dokumen Buku Pembantu (format resmi Permendagri 55/2008) ===== */
+        .bpp-sheet {
+            max-width: 900px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d7dde5;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+            color: #000;
+            font-family: "Times New Roman", Times, serif;
+        }
+        .bpp-head { text-align: center; font-size: 14px; }
+        .bpp-head p { margin: 0; font-weight: 700; text-transform: uppercase; }
+        .bpp-ident { font-size: 13px; margin: 14px 0 4px; }
+        .bpp-ident .row { display: flex; margin: 2px 0; }
+        .bpp-ident .lbl { display: inline-block; width: 170px; font-weight: 700; flex-shrink: 0; }
+        .bpp-hal { text-align: right; font-size: 13px; font-weight: 700; margin: 2px 0 6px; }
+        .bpp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12px;
+            color: #000;
+            table-layout: fixed;
+        }
+        .bpp-table th, .bpp-table td {
+            border: 1pt solid #000;
+            padding: 4px 6px;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        .bpp-table th { text-align: center; font-weight: 700; }
+        .bpp-table td.c { text-align: center; }
+        .bpp-table td.r { text-align: right; }
+        .bpp-table tr.data td { border-bottom-style: dotted; }
+        .bpp-table tr.total td { font-weight: 700; border-bottom-style: solid; }
+        .bpp-sign {
+            margin-top: 24px;
+            margin-left: auto;
+            width: 320px;
+            text-align: center;
+        }
+        .bpp-sign p { margin: 0; line-height: 1.7; }
+        .bpp-sign .space { height: 64px; }
+        .bpp-sign .name { text-decoration: underline; }
+
+        @page { size: A4 portrait; margin: 14mm; }
+
+        @media print {
+            .sidebar, .topbar, .footer, .overlay, .print-toolbar, .page-header { display: none !important; }
+            .main-wrapper { margin-left: 0 !important; }
+            .content { padding: 0 !important; margin: 0 !important; }
+            body { background: #ffffff !important; }
+            .bpp-sheet {
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- ================= OVERLAY (mobile) ================= -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="main-wrapper">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-toggle" id="topbarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Penerimaan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Laporan</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Buku Pembantu Penerimaan</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-item notification">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="topbar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate">--</span>
+                </div>
+                <div class="topbar-item user">
+                    <div class="user-avatar small">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span id="topbarUserName">Admin Dinas</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Buku Pembantu Penerimaan</h1>
+                    <p class="page-subtitle">Buku Pembantu per Rincian Obyek Penerimaan (Permendagri 55/2008)</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline" onclick="history.back();"><i class="fas fa-arrow-left"></i> Kembali</button>
+                </div>
+            </div>
+
+            <div class="print-toolbar">
+                <div class="filter-group">
+                    <label for="tahun">Tahun Anggaran</label>
+                    <select id="tahun"></select>
+                    <label for="bulan">Bulan</label>
+                    <select id="bulan"></select>
+                    <label for="kode">Kode Rekening</label>
+                    <select id="kode" style="min-width:280px;"></select>
+                    <button type="button" class="btn btn-outline" id="btnTampilkan"><i class="fas fa-sync-alt"></i> Tampilkan</button>
+                </div>
+                <div class="filter-group">
+                    <button type="button" class="btn btn-primary" id="btnKirimTtd"><i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan</button>
+                    <button type="button" class="btn btn-dark" id="btnCetak"><i class="fas fa-print"></i> Cetak</button>
+                </div>
+            </div>
+
+            <div class="bpp-sheet" id="bppSheet">
+                <div class="bpp-head">
+                    <p id="headInstansi">PEMERINTAH KABUPATEN CIMAHI</p>
+                    <p>BUKU PEMBANTU</p>
+                    <p>PER RINCIAN OBYEK PENERIMAAN</p>
+                </div>
+                <div class="bpp-ident">
+                    <div class="row"><span class="lbl">SKPD</span>: <span id="identSkpd">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></div>
+                    <div class="row"><span class="lbl">KODE REKENING</span>: <span id="identKode">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></div>
+                    <div class="row"><span class="lbl">NAMA REKENING</span>: <span id="identNama">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></div>
+                    <div class="row"><span class="lbl">JUMLAH ANGGARAN</span>: <span id="identAnggaran">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></div>
+                    <div class="row"><span class="lbl">TAHUN ANGGARAN</span>: <span id="identTahun">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></div>
+                </div>
+                <div class="bpp-hal">(Hal <span id="halNo">1</span>)</div>
+                <table class="bpp-table">
+                    <colgroup>
+                        <col style="width:8%">
+                        <col style="width:14%">
+                        <col style="width:20%">
+                        <col style="width:32%">
+                        <col style="width:26%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>No<br>Urut</th>
+                            <th>No. BPP</th>
+                            <th>Tanggal Setor</th>
+                            <th>No. STS &amp; Bukti<br>Penerimaan Lainnya</th>
+                            <th>Jumlah (Rp)</th>
+                        </tr>
+                        <tr>
+                            <td class="c">1</td>
+                            <td class="c">2</td>
+                            <td class="c">3</td>
+                            <td class="c">4</td>
+                            <td class="c">5</td>
+                        </tr>
+                    </thead>
+                    <tbody id="bppBody"></tbody>
+                    <tfoot>
+                        <tr class="total">
+                            <td colspan="4" class="lbl-col">Jumlah Bulan ini</td>
+                            <td class="r" id="totBulanIni">0,-</td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="4" class="lbl-col">Jumlah s.d Bulan Lalu</td>
+                            <td class="r" id="totSdBulanLalu">0,-</td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="4" class="lbl-col">Jumlah s.d Bulan ini</td>
+                            <td class="r" id="totSdBulanIni">0,-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="bpp-sign">
+                    <p><span id="signKota">Cimahi</span>, <span id="signTanggal">-</span></p>
+                    <p>Bendahara Penerimaan</p>
+                    <div class="space"></div>
+                    <p class="name" id="signNamaBendahara">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</p>
+                    <p>NIP. <span data-nip-ttd="nilai">&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</span></p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>&copy; 2026 SIM-TKD - Sistem Informasi Manajemen Tata Kelola Daerah (Modul Edukasi) | Politeknik Negeri Bandung</span>
+        </footer>
+    </div>
+
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/ttd-nip.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var BLN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        var lastData = null;
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = String(str == null ? '' : str);
+            return div.innerHTML;
+        }
+
+        function formatRp(n) {
+            n = Number(n) || 0;
+            var neg = n < 0;
+            var s = Math.abs(n).toFixed(2).replace(/\.00$/, '');
+            var parts = s.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            s = parts.join(',');
+            return (neg ? '-' : '') + s + ',-';
+        }
+
+        function formatTanggal(s) {
+            if (!s) return '-';
+            var p = String(s).split('-');
+            if (p.length < 3) return s;
+            return parseInt(p[2], 10) + ' ' + BLN[parseInt(p[1], 10) - 1] + ' ' + p[0];
+        }
+
+        function getKode()  { return document.getElementById('kode').value; }
+        function getBulan() { return parseInt(document.getElementById('bulan').value, 10); }
+        function getTahun() { return parseInt(document.getElementById('tahun').value, 10); }
+
+        // ---------- Isi dropdown Tahun & Bulan ----------
+        function initFilter() {
+            var now = new Date();
+            var y = now.getFullYear();
+            var selT = document.getElementById('tahun');
+            for (var i = y + 1; i >= y - 5; i--) {
+                var o = document.createElement('option');
+                o.value = i;
+                o.textContent = i;
+                if (i === y) o.selected = true;
+                selT.appendChild(o);
+            }
+            var selB = document.getElementById('bulan');
+            for (var b = 1; b <= 12; b++) {
+                var ob = document.createElement('option');
+                ob.value = b;
+                ob.textContent = BLN[b - 1];
+                if (b === now.getMonth() + 1) ob.selected = true;
+                selB.appendChild(ob);
+            }
+        }
+
+        // ---------- Muat daftar rincian obyek penerimaan ----------
+        function loadObyek() {
+            var sel = document.getElementById('kode');
+            sel.innerHTML = '<option value="">Memuat...</option>';
+            fetch('../api/laporan.php?action=obyek_penerimaan&tahun=' + encodeURIComponent(getTahun()))
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    sel.innerHTML = '';
+                    if (!d || !d.success || !(d.obyek || []).length) {
+                        sel.innerHTML = '<option value="">(Belum ada data rincian obyek / anggaran)</option>';
+                        return;
+                    }
+                    d.obyek.forEach(function (o) {
+                        var op = document.createElement('option');
+                        op.value = o.kode_akun;
+                        op.textContent = o.kode_akun + ' - ' + (o.nama_akun || '');
+                        op.setAttribute('data-nama', o.nama_akun || '');
+                        op.setAttribute('data-anggaran', o.anggaran || 0);
+                        sel.appendChild(op);
+                    });
+                    loadBuku();
+                })
+                .catch(function () {
+                    sel.innerHTML = '<option value="">(Gagal memuat)</option>';
+                });
+        }
+
+        // ---------- Muat data Buku Pembantu ----------
+        function loadBuku() {
+            var kode = getKode();
+            if (!kode) { renderKosong(); return; }
+            var qs = '?action=buku_pembantu&kode_akun=' + encodeURIComponent(kode) +
+                     '&bulan=' + getBulan() + '&tahun=' + getTahun();
+            fetch('../api/laporan.php' + qs)
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (!d || !d.success) {
+                        alert((d && d.message) || 'Gagal memuat data buku pembantu.');
+                        return;
+                    }
+                    lastData = d;
+                    renderBuku();
+                })
+                .catch(function () { alert('Gagal memuat (jaringan).'); });
+        }
+
+        // ---------- Render dokumen ----------
+        function renderBuku() {
+            var d = lastData || {};
+            var rows = d.rows || [];
+            var body = document.getElementById('bppBody');
+            var html = '';
+            var no = 0;
+
+            rows.forEach(function (r) {
+                no++;
+                html += '<tr class="data">' +
+                    '<td class="c">' + no + '</td>' +
+                    '<td class="c">' + escapeHtml(r.no_bpp || '-') + '</td>' +
+                    '<td class="c">' + escapeHtml(formatTanggal(r.tanggal_setor)) + '</td>' +
+                    '<td class="c">' + escapeHtml(r.no_sts || '-') + '</td>' +
+                    '<td class="r">' + formatRp(r.jumlah) + '</td>' +
+                    '</tr>';
+            });
+
+            // Baris pengisi agar tabel tampak penuh (min. 8 baris)
+            var filler = Math.max(0, 8 - no);
+            for (var f = 0; f < filler; f++) {
+                html += '<tr class="data"><td class="c">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+            }
+            body.innerHTML = html;
+
+            // Rekap bawah
+            document.getElementById('totBulanIni').textContent    = formatRp(d.jumlah_bulan_ini || 0);
+            document.getElementById('totSdBulanLalu').textContent = formatRp(d.jumlah_sd_bulan_lalu || 0);
+            document.getElementById('totSdBulanIni').textContent  = formatRp(d.jumlah_sd_bulan_ini || 0);
+
+            // Header identitas
+            var skpd = d.skpd || '';
+            document.getElementById('headInstansi').textContent =
+                ('PEMERINTAH ' + (skpd || 'KABUPATEN')).toUpperCase();
+            document.getElementById('identSkpd').textContent      = skpd || '…………………';
+            document.getElementById('identKode').textContent      = d.kode_akun || '…………………';
+            document.getElementById('identNama').textContent      = (d.nama_akun || '…………………');
+            document.getElementById('identAnggaran').textContent  = 'Rp. ' + formatRp(d.anggaran || 0);
+            document.getElementById('identTahun').textContent     = d.tahun || getTahun();
+            document.getElementById('halNo').textContent          = '1';
+
+            // Blok tanda tangan (tanggal akhir bulan terpilih)
+            var bln = getBulan(), thn = getTahun();
+            var akhirBulan = new Date(thn, bln, 0).getDate();
+            document.getElementById('signKota').textContent =
+                (skpd || 'Cimahi').replace(/^KABUPATEN\s*/i, '') || 'Cimahi';
+            document.getElementById('signTanggal').textContent = akhirBulan + ' ' + BLN[bln - 1] + ' ' + thn;
+            document.getElementById('signNamaBendahara').textContent =
+                (d.bendahara || '…………………');
+        }
+
+        function renderKosong() {
+            lastData = null;
+            var body = document.getElementById('bppBody');
+            var html = '';
+            for (var f = 0; f < 8; f++) {
+                html += '<tr class="data"><td class="c">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+            }
+            body.innerHTML = html;
+            document.getElementById('totBulanIni').textContent    = formatRp(0);
+            document.getElementById('totSdBulanLalu').textContent = formatRp(0);
+            document.getElementById('totSdBulanIni').textContent  = formatRp(0);
+        }
+
+        // ---------- Nama penandatangan (buang placeholder titik-titik) ----------
+        function bersihNama(v) {
+            v = String(v || '').trim();
+            return /^[.…\u2026]+$/.test(v) ? '' : v;
+        }
+
+        // ---------- Kirim ke antrean tanda tangan (doc.simtkd.com) ----------
+        function kirimTtd() {
+            var btn = document.getElementById('btnKirimTtd');
+            var sheet = document.getElementById('bppSheet');
+            if (!btn || !sheet) return;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+            var bln = getBulan(), thn = getTahun();
+            var judul = 'Buku Pembantu per Rincian Obyek Penerimaan - ' +
+                (lastData ? (lastData.kode_akun + ' - ' + (lastData.nama_akun || '')) : '-') +
+                ' - ' + BLN[bln - 1] + ' ' + thn;
+
+            var cssText = '';
+            try {
+                var linkCss = document.querySelector('link[href*="dashboard.css"]');
+                var req = new XMLHttpRequest();
+                req.open('GET', linkCss ? linkCss.getAttribute('href') : '../css/dashboard.css', false);
+                req.send();
+                if (req.status >= 200 && req.status < 300) cssText += req.responseText;
+            } catch (e) { /* abaikan */ }
+            document.querySelectorAll('style').forEach(function (st) { cssText += '\n' + st.textContent; });
+            cssText += '\n.bpp-sheet{position:relative;}\n@page{size:A4 portrait;margin:14mm;}\n';
+
+            var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml(judul) + '</title><style>' + cssText + '</style></head>' +
+                '<body style="margin:0;background:#fff;"><div id="docArea">' + sheet.outerHTML + '</div></body></html>';
+
+            var body = new URLSearchParams();
+            body.append('action', 'kirim');
+            body.append('jenis', 'Buku Pembantu Penerimaan');
+            body.append('ref_id', '');
+            body.append('nomor', '');
+            body.append('judul', judul);
+            body.append('tanggal', thn + '-' + String(bln).padStart(2, '0') + '-' +
+                String(new Date(thn, bln, 0).getDate()).padStart(2, '0'));
+            body.append('konten_html', html);
+            var namaB = bersihNama(lastData ? lastData.bendahara : '');
+            if (namaB) {
+                body.append('penandatangan', JSON.stringify([
+                    { user: 'self', urutan: 1, jabatan: 'Bendahara Penerimaan', nama: namaB }
+                ]));
+            }
+
+            fetch('../api/dokumen.php', { method: 'POST', body: body })
+                .then(function (res) { return res.json(); })
+                .then(function (d) {
+                    if (d && d.success) {
+                        btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                        var t = document.createElement('div');
+                        t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0e2140;color:#fff;padding:12px 18px;border-radius:8px;z-index:9999;font:13px -apple-system,system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25)';
+                        t.textContent = d.message || 'Dokumen terkirim ke antrean tanda tangan.';
+                        document.body.appendChild(t);
+                        setTimeout(function () { t.remove(); }, 4000);
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                        alert((d && d.message) || 'Gagal mengirim dokumen.');
+                    }
+                })
+                .catch(function () {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                    alert('Gagal mengirim (jaringan).');
+                });
+        }
+
+        // ---------- Event ----------
+        document.getElementById('btnTampilkan').addEventListener('click', function () {
+            loadObyek(); // reload obyek utk tahun terpilih, lalu loadBuku()
+        });
+        document.getElementById('btnCetak').addEventListener('click', function () { window.print(); });
+        document.getElementById('btnKirimTtd').addEventListener('click', kirimTtd);
+        document.getElementById('kode').addEventListener('change', loadBuku);
+        document.getElementById('bulan').addEventListener('change', loadBuku);
+        document.getElementById('tahun').addEventListener('change', loadObyek);
+
+        // ---------- Init: sesi + filter default ----------
+        initFilter();
+        renderKosong();
+        fetch('../api/session.php')
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+                if (!d.success) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+                if (d.user && d.user.nama_lengkap) {
+                    document.getElementById('sidebarUserName').textContent = d.user.nama_lengkap;
+                    document.getElementById('topbarUserName').textContent  = d.user.nama_lengkap;
+                }
+                if (d.user && d.user.instansi) {
+                    document.getElementById('sidebarUserRole').textContent = d.user.instansi;
+                }
+                loadObyek();
+            })
+            .catch(function () { /* biarkan */ });
+    })();
+    </script>
+</body>
+</html>
+

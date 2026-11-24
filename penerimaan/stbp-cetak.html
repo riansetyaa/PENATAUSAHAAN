@@ -2,8 +2,10 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak STBP - SIM-TKD</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -147,7 +149,8 @@
         .stbp-footer {
             margin-top: 44px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            gap: 40px;
         }
         .stbp-sign {
             text-align: center;
@@ -329,135 +332,7 @@
 <body>
 
     <!-- ================= SIDEBAR ================= -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <img src="../img/Logo Polban.png" alt="Logo POLBAN">
-                <div class="sidebar-title">
-                    <span class="title-main">SIM-TKD</span>
-                    <span class="title-sub">Modul Edukasi</span>
-                </div>
-            </div>
-            <button class="sidebar-toggle" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        <div class="sidebar-user">
-            <div class="user-avatar">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <div class="user-info">
-                <span class="user-name" id="sidebarUserName">Admin Dinas</span>
-                <span class="user-role" id="sidebarUserRole">Dinas Kepemudaan dan Olahraga</span>
-            </div>
-        </div>
-
-        <nav class="sidebar-menu">
-            <span class="menu-label">MENU UTAMA</span>
-
-            <a href="../dashboard/dashboard.html" class="menu-item">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </a>
-
-            <!-- Penerimaan (dropdown utama) -->
-            <div class="menu-group open" data-menu="penerimaan">
-                <a href="#" class="menu-item has-submenu active">
-                    <i class="fas fa-arrow-down"></i>
-                    <span>Penerimaan</span>
-                    <i class="fas fa-chevron-down submenu-arrow"></i>
-                </a>
-                <div class="submenu">
-                    <!-- Rekening -->
-                    <div class="menu-group" data-menu="rekening">
-                        <a href="#" class="menu-item has-submenu">
-                            <i class="fas fa-university"></i>
-                            <span>Rekening</span>
-                            <i class="fas fa-chevron-down submenu-arrow"></i>
-                        </a>
-                        <div class="submenu">
-                            <a href="permohonan.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>Permohonan</span></a>
-                        </div>
-                    </div>
-
-                    <!-- STBP (aktif) -->
-                    <a href="stbp-pembuatan.html" class="menu-item active">
-                        <i class="fas fa-file-invoice"></i>
-                        <span>STBP</span>
-                    </a>
-
-                    <a href="sts-pembuatan.html" class="menu-item">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        <span>STS</span>
-                    </a>
-
-                    <!-- Laporan -->
-                    <div class="menu-group" data-menu="laporan">
-                        <a href="#" class="menu-item has-submenu">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Laporan</span>
-                            <i class="fas fa-chevron-down submenu-arrow"></i>
-                        </a>
-                        <div class="submenu">
-                            <a href="bku-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Penerimaan</span></a>
-                            <a href="#" class="menu-item submenu-item"><i class="fas fa-clipboard-list"></i><span>Register</span></a>
-                            <a href="#" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>LPJ</span></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="menu-group" data-menu="belanja">
-                <a href="#" class="menu-item has-submenu">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>Belanja</span>
-                    <i class="fas fa-chevron-down submenu-arrow"></i>
-                </a>
-                <div class="submenu">
-                    <a href="../belanja/index.html" class="menu-item submenu-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-                    <a href="../belanja/rekanan.html" class="menu-item submenu-item"><i class="fas fa-handshake"></i><span>Daftar Rekanan</span></a>
-                    <a href="../belanja/rekening.html" class="menu-item submenu-item"><i class="fas fa-university"></i><span>Rekening Bank SKPD</span></a>
-                    <a href="../belanja/spd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice"></i><span>SPD</span></a>
-                    <a href="../belanja/spp.html" class="menu-item submenu-item"><i class="fas fa-file-signature"></i><span>SPP</span></a>
-                    <a href="../belanja/spm.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>SPM</span></a>
-                    <a href="../belanja/sp2d.html" class="menu-item submenu-item"><i class="fas fa-money-check-alt"></i><span>SP2D</span></a>
-                    <a href="../belanja/lpj.html" class="menu-item submenu-item"><i class="fas fa-clipboard-check"></i><span>LPJ</span></a>
-                    <a href="../belanja/pengajuan-tu.html" class="menu-item submenu-item"><i class="fas fa-paper-plane"></i><span>Pengajuan TU</span></a>
-                    <a href="../belanja/npd.html" class="menu-item submenu-item"><i class="fas fa-file-invoice-dollar"></i><span>NPD</span></a>
-                    <a href="../belanja/besaran-up.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Besaran UP</span></a>
-                    <a href="../belanja/kebijakan-spd.html" class="menu-item submenu-item"><i class="fas fa-gavel"></i><span>Kebijakan SPD</span></a>
-                    <a href="../belanja/bku-belanja.html" class="menu-item submenu-item"><i class="fas fa-book"></i><span>BKU Belanja</span></a>
-                </div>
-            </div>
-            <a href="../api/aklap_go.php" class="menu-item">
-                <i class="fas fa-book"></i>
-                <span>Akuntansi</span>
-            </a>
-
-            <!-- Pengaturan -->
-            <div class="menu-group" data-menu="pengaturan">
-                <a href="#" class="menu-item has-submenu">
-                    <i class="fas fa-cog"></i>
-                    <span>Pengaturan</span>
-                    <i class="fas fa-chevron-down submenu-arrow"></i>
-                </a>
-                <div class="submenu">
-                    <a href="../pengaturan/akun-penerimaan.html" class="menu-item submenu-item"><i class="fas fa-coins"></i><span>Akun Penerimaan</span></a>
-                </div>
-            </div>
-
-            <span class="menu-label">AKUN</span>
-            <a href="../api/logout.php" class="menu-item menu-logout" id="logoutLink">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Keluar</span>
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <span>&copy; 2026 SIM-TKD POLBAN</span>
-        </div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
 
     <!-- ================= OVERLAY (mobile) ================= -->
     <div class="overlay" id="overlay"></div>
@@ -485,7 +360,6 @@
             <div class="topbar-right">
                 <div class="topbar-item notification">
                     <i class="fas fa-bell"></i>
-                    <span class="badge">3</span>
                 </div>
                 <div class="topbar-item">
                     <i class="fas fa-calendar-alt"></i>
@@ -505,6 +379,7 @@
             <div class="print-toolbar">
                 <button class="btn btn-outline" onclick="history.back();"><i class="fas fa-arrow-left"></i> Kembali</button>
                 <button class="btn btn-success" id="btnCetak" onclick="window.print();"><i class="fas fa-print"></i> Cetak Sekarang</button>
+                <button class="btn btn-primary" id="btnKirimTtd"><i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan</button>
             </div>
 
             <!-- ===== Pengaturan Kertas PDF ===== -->
@@ -654,6 +529,7 @@
                 <div class="stbp-field"><span class="flabel">e. Sebesar</span><span class="fval amount" id="fSebesar">-</span></div>
                 <div class="stbp-field"><span class="flabel">f. Terbilang</span><span class="fval stbp-words" id="fTerbilang">-</span></div>
                 <div class="stbp-field"><span class="flabel">g. Sebagai Pembayaran</span><span class="fval" id="fUraian">-</span></div>
+                <div class="stbp-field" id="skpField"><span class="flabel">h. Nomor SKP Daerah</span><span class="fval" id="fSkp">-</span></div>
 
                 <div class="stbp-rincian-title">Dengan rincian penerimaan sebagai berikut:</div>
                 <table class="stbp-table">
@@ -679,7 +555,14 @@
                 <div class="stbp-footer">
                     <div class="stbp-sign">
                         <div class="role">Bendahara Penerimaan,<br><span id="signRole">Dinas Kepemudaan dan Olahraga</span></div>
+                        <div class="ttd-slot" data-urut="2"></div>
                         <div class="name" id="signName">(______________________)</div>
+                        <div class="name" data-nip-ttd style="font-weight:400;font-size:12px;">NIP. ..............................</div>
+                    </div>
+                    <div class="stbp-sign">
+                        <div class="role">Penyetor/Pembayar,</div>
+                        <div class="ttd-slot" data-urut="1"></div>
+                        <div class="name" id="signNamePenyetor">(______________________)</div>
                     </div>
                 </div>
             </div>
@@ -691,7 +574,10 @@
         </footer>
     </div>
 
+    <script src="../js/popup.js"></script>
+    <script src="../js/sidebar-menu.js"></script>
     <script src="../js/dashboard.js"></script>
+    <script src="../js/ttd-nip.js"></script>
     <script>
         // ==========================================
         // Halaman Cetak STBP
@@ -733,12 +619,75 @@
                     if (x < 1000000000000) return urai(Math.floor(x / 1000000000)) + ' miliar ' + urai(x % 1000000000);
                     return urai(Math.floor(x / 1000000000000)) + ' triliun ' + urai(x % 1000000000000);
                 }
-                const words = urai(Math.floor(Number(n || 0))).replace(/\s+/g, ' ').trim();
-                return words === 'nol' ? 'nol rupiah' : words + ' rupiah';
+                const raw = Number(n);
+                const absRaw = Math.floor(Math.abs(isFinite(raw) ? raw : 0));
+                const words = urai(absRaw).replace(/\s+/g, ' ').trim();
+                const teks = (!words || words === 'nol') ? 'nol rupiah' : words + ' rupiah';
+                return (raw < 0 ? 'minus ' + teks : teks);
             }
 
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
+
+            // ==== Kirim ke antrean tanda tangan (doc.simtkd.com) ====
+            var metaTtd = { jenis: 'STBP', refId: id, nomor: '', tanggal: '', judul: '', penandatangan: [] };
+
+            function kirimTtd() {
+                var btn = document.getElementById('btnKirimTtd');
+                var sheet = document.getElementById('stbpSheet');
+                if (!btn || !sheet) return;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+                // Bangun HTML mandiri (CSS tertanam) agar bisa ditandatangani
+                var cssText = '';
+                try {
+                    var linkCss = document.querySelector('link[href*="dashboard.css"]');
+                    var req = new XMLHttpRequest();
+                    req.open('GET', linkCss ? linkCss.getAttribute('href') : '../css/dashboard.css', false);
+                    req.send();
+                    if (req.status >= 200 && req.status < 300) cssText += req.responseText;
+                } catch (e) { /* abaikan */ }
+                document.querySelectorAll('style').forEach(function (st) { cssText += '\n' + st.textContent; });
+                cssText += '\n.stbp-sheet{position:relative;}\n#docArea .ttd-slot img{max-width:200px;max-height:64px;display:block;}\n';
+
+                var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml(metaTtd.judul) + '</title><style>' + cssText + '</style></head>' +
+                    '<body style="margin:0;background:#fff;"><div id="docArea">' + sheet.outerHTML + '</div></body></html>';
+
+                var body = new URLSearchParams();
+                body.append('action', 'kirim');
+                body.append('jenis', metaTtd.jenis);
+                body.append('ref_id', String(metaTtd.refId || ''));
+                body.append('nomor', metaTtd.nomor || '');
+                body.append('judul', metaTtd.judul || '');
+                body.append('tanggal', metaTtd.tanggal || '');
+                body.append('konten_html', html);
+                if (metaTtd.penandatangan && metaTtd.penandatangan.length) {
+                    body.append('penandatangan', JSON.stringify(metaTtd.penandatangan));
+                }
+
+                fetch('../api/dokumen.php', { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        if (d && d.success) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Terkirim ke TTD';
+                            var t = document.createElement('div');
+                            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0e2140;color:#fff;padding:12px 18px;border-radius:8px;z-index:9999;font:13px -apple-system,system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25)';
+                            t.textContent = d.message || 'Dokumen terkirim ke antrean tanda tangan.';
+                            document.body.appendChild(t);
+                            setTimeout(function () { t.remove(); }, 4000);
+                        } else {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                            alert((d && d.message) || 'Gagal mengirim dokumen.');
+                        }
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-pen-nib"></i> Kirim ke Tanda Tangan';
+                        alert('Gagal mengirim (jaringan).');
+                    });
+            }
 
             function showNotFound() {
                 document.getElementById('stbpNotFound').style.display = 'block';
@@ -763,6 +712,9 @@
 
                     document.getElementById('docInstansi').textContent = (s.skpd || 'PEMERINTAH DAERAH').toUpperCase();
                     document.getElementById('docNomor').textContent = 'Nomor: ' + (s.nomor_stbp || '-');
+                    metaTtd.nomor = s.nomor_stbp || '';
+                    metaTtd.tanggal = s.tanggal || '';
+                    metaTtd.judul = 'STBP - ' + (s.nomor_stbp || id);
                     document.getElementById('fDari').textContent = p.nama_penyetor || '-';
                     document.getElementById('fTanggal').textContent = formatTanggal(s.tanggal);
                     document.getElementById('fBank').textContent = p.bank || '-';
@@ -771,8 +723,23 @@
                     document.getElementById('fTerbilang').textContent = terbilang(s.jumlah);
                     document.getElementById('fUraian').textContent = s.uraian ||
                         ('Penerimaan ' + (s.akun_nama || '') + ' pada ' + (s.skpd || ''));
+                    // Nomor SKP Daerah (data STBP merujuk/konsisten dengan SKP)
+                    if (s.nomor_skp) {
+                        document.getElementById('skpField').style.display = '';
+                        document.getElementById('fSkp').textContent =
+                            s.nomor_skp +
+                            (s.jenis_pajak ? ' (' + s.jenis_pajak + (s.skp_akun_kode ? ' — ' + s.skp_akun_kode + ')' : ')') : '');
+                    } else {
+                        document.getElementById('skpField').style.display = 'none';
+                    }
+                    // Dua penandatangan: Bendahara Penerimaan (kiri) dan Penyetor/Pembayar (kanan, tanpa nama dinas)
                     document.getElementById('signRole').textContent = s.skpd || 'Dinas';
                     document.getElementById('signName').textContent = s.dibuat_oleh || '(______________________)';
+                    document.getElementById('signNamePenyetor').textContent = p.nama_penyetor || '(______________________)';
+                    metaTtd.penandatangan = [
+                        { user: '', urutan: 1, jabatan: 'Penyetor', nama: p.nama_penyetor || '' },
+                        { user: 'self', urutan: 2, jabatan: 'Bendahara Penerimaan', nama: s.dibuat_oleh || '' }
+                    ];
 
                     const tbody = document.getElementById('rincianBody');
                     if (!rows.length) {
@@ -848,7 +815,7 @@
                 reader.onload = function (ev) {
                     sheet.style.setProperty('--sf-watermark', 'url("' + ev.target.result + '")');
                     sheet.classList.add('watermarked');
-                    wmText.innerHTML = 'File: <b>' + file.name + '</b>';
+                    wmText.textContent = 'File: ' + file.name;
                     wmClear.style.display = 'inline-flex';
                 };
                 reader.readAsDataURL(file);
@@ -874,6 +841,10 @@
                 wmDrop.classList.remove('drag');
                 if (e.dataTransfer.files && e.dataTransfer.files[0]) setWatermark(e.dataTransfer.files[0]);
             });
+
+            // ==== Kirim ke Tanda Tangan ====
+            var btnTtd = document.getElementById('btnKirimTtd');
+            if (btnTtd) btnTtd.addEventListener('click', kirimTtd);
         })();
     </script>
 </body>

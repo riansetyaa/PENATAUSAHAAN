@@ -14,11 +14,39 @@
     const topbarToggle = document.getElementById('topbarToggle');
     const overlay = document.getElementById('overlay');
     const currentDateEl = document.getElementById('currentDate');
-    const toolBtns = document.querySelectorAll('.tool-btn');
     const menuItems = document.querySelectorAll('.menu-item');
 
     // Token API user (diisi saat sesi berhasil) -> untuk link modul AKLAP
     let SESSION_API_TOKEN = '';
+
+    // Menu khusus admin/dosen (mis. Monitoring Pengguna) disembunyikan
+    // untuk akun biasa setelah data sesi diketahui.
+    function aturMenuAdmin(user) {
+        var peran = (user && user.peran) ? String(user.peran) : '';
+        var username = (user && user.username) ? String(user.username) : '';
+        var boleh = ['Super Admin', 'Admin Dinas', 'Kepala Dinas', 'Dosen'].indexOf(peran) !== -1
+            || username === 'admin';
+
+        document.querySelectorAll('[data-admin-only]').forEach(function (el) {
+            el.style.display = boleh ? '' : 'none';
+        });
+    }
+
+    // ==========================================
+    // Sidebar collapsed state (persisten antar halaman)
+    // ==========================================
+    const SIDEBAR_KEY = 'simtkd_sidebar_collapsed';
+    function sidebarSimpan() {
+        try {
+            localStorage.setItem(SIDEBAR_KEY, sidebar.classList.contains('collapsed') ? '1' : '0');
+        } catch (e) { /* localStorage tidak tersedia */ }
+    }
+    function sidebarMuat() {
+        try {
+            if (localStorage.getItem(SIDEBAR_KEY) === '1') sidebar.classList.add('collapsed');
+        } catch (e) { /* localStorage tidak tersedia */ }
+    }
+    sidebarMuat(); // terapkan segera agar sidebar tidak "melebar lagi" saat pindah halaman
 
     // ==========================================
     // Format Date (Indonesian)
@@ -43,6 +71,7 @@
     // ==========================================
     sidebarToggle.addEventListener('click', function () {
         sidebar.classList.toggle('collapsed');
+        sidebarSimpan();
         // Remove open state if any
         sidebar.classList.remove('open');
         overlay.classList.remove('show');
@@ -62,6 +91,7 @@
             openMobileSidebar();
         } else {
             sidebar.classList.toggle('collapsed');
+            sidebarSimpan();
         }
     });
 
@@ -119,33 +149,19 @@
     });
 
     // ==========================================
-    // Chart Tool Buttons
-    // ==========================================
-    toolBtns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            toolBtns.forEach(function (b) {
-                b.classList.remove('active');
-            });
-            this.classList.add('active');
-            // Could update chart data per year here
-            updateChart(this.textContent.trim());
-        });
-    });
-
-    // ==========================================
     // APBD Chart
     // ==========================================
     let apbdChart = null;
 
-    // Data grafik dari backend (window.SIMTKD_CHART)
-    const backendChartData = window.SIMTKD_CHART || null;
-
-    function formatRupiah(value) {
-        return 'Rp ' + value.toLocaleString('id-ID');
-    }
+    // Data terakhir dari /api/summary.php (dipakai tombol Cetak/Ekspor/Lihat Semua)
+    let LAST_SUMMARY = null;
+    let LAST_KEGIATAN = [];
 
     // Bangun data chart dari backend (per tahun). Mengembalikan null jika kosong.
+    // Dibaca ulang dari window.SIMTKD_CHART setiap kali, karena data baru
+    // diisi setelah /api/summary.php selesai dimuat.
     function buildChartData() {
+        const backendChartData = window.SIMTKD_CHART;
         if (backendChartData && Object.keys(backendChartData).length > 0) {
             const labels = Object.keys(backendChartData).sort();
             return {
@@ -210,6 +226,15 @@
 
         hideChartEmpty();
 
+        // Tahun terpilih ditonjolkan agar tombol tahun grafik terlihat
+        // benar-benar mengubah tampilan (bukan sekadar ganti label).
+        const aktif = String(year || window.SIMTKD_TAHUN || '');
+        const warna = function (selected, muted) {
+            return data.labels.map(function (y) {
+                return String(y) === aktif ? selected : muted;
+            });
+        };
+
         apbdChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -218,7 +243,7 @@
                     {
                         label: 'Pagu',
                         data: data.pagu,
-                        backgroundColor: 'rgba(26, 58, 107, 0.85)',
+                        backgroundColor: warna('rgba(26, 58, 107, 0.9)', 'rgba(26, 58, 107, 0.28)'),
                         borderColor: '#1a3a6b',
                         borderWidth: 1,
                         borderRadius: 4,
@@ -228,7 +253,7 @@
                     {
                         label: 'Realisasi',
                         data: data.realisasi,
-                        backgroundColor: 'rgba(245, 130, 32, 0.85)',
+                        backgroundColor: warna('rgba(245, 130, 32, 0.9)', 'rgba(245, 130, 32, 0.28)'),
                         borderColor: '#f58220',
                         borderWidth: 1,
                         borderRadius: 4,
@@ -284,10 +309,6 @@
         });
     }
 
-    function updateChart(year) {
-        initChart(year);
-    }
-
     // ==========================================
     // Toast Notification
     // ==========================================
@@ -299,7 +320,13 @@
             error: 'fa-times-circle',
             warning: 'fa-exclamation-triangle'
         };
-        toast.innerHTML = '<i class="fas ' + (icons[type] || icons.success) + '"></i><span>' + message + '</span>';
+        const span = document.createElement('span');
+        // textContent (bukan innerHTML) agar pesan dari API tidak bisa menyuntik HTML (XSS)
+        span.textContent = message;
+        const icon = document.createElement('i');
+        icon.className = 'fas ' + (icons[type] || icons.success);
+        toast.appendChild(icon);
+        toast.appendChild(span);
         document.body.appendChild(toast);
         setTimeout(function () {
             toast.remove();
@@ -309,12 +336,8 @@
     // ==========================================
     // Notification click
     // ==========================================
-    const notifBtn = document.querySelector('.topbar-item.notification');
-    if (notifBtn) {
-        notifBtn.addEventListener('click', function () {
-            showToast('Anda memiliki 3 notifikasi baru.', 'warning');
-        });
-    }
+    // Ditangani oleh js/notifikasi-dokumen.js (daftar dokumen yang belum
+    // dikirim ke Tanda Tangan Dokumen), bukan lagi toast statis.
 
     // ==========================================
     // Logout (konfirmasi)
@@ -354,6 +377,9 @@
         const summary = data.summary || {};
         const tahun = data.tahun || new Date().getFullYear();
         const persen = summary.persen || 0;
+
+        LAST_SUMMARY = data;
+        LAST_KEGIATAN = data.kegiatan || [];
 
         // Info pengguna
         if (user.nama) {
@@ -426,7 +452,8 @@
         // Tabel
         const tableTitleYear = document.getElementById('tableTitleYear');
         if (tableTitleYear) tableTitleYear.textContent = tahun;
-        populateKegiatanTable(data.kegiatan || []);
+        populateKegiatanTable(LAST_KEGIATAN);
+        perbaruiTombolLihatSemua(false);
 
         // Grafik
         window.SIMTKD_CHART = data.chart || null;
@@ -482,17 +509,163 @@
             return '<button type="button" class="' + cls + '" data-tahun="' + y + '">' + y + '</button>';
         }).join('');
 
-        container.querySelectorAll('.tool-btn').forEach(function (btn) {
+        container.querySelectorAll('.tool-btn[data-tahun]').forEach(function (btn) {
             btn.addEventListener('click', function () {
+                const tahun = parseInt(this.getAttribute('data-tahun'), 10);
+                if (!tahun || (LAST_SUMMARY && parseInt(LAST_SUMMARY.tahun, 10) === tahun)) return;
                 container.querySelectorAll('.tool-btn').forEach(function (b) { b.classList.remove('active'); });
                 this.classList.add('active');
+                // Muat ulang ringkasan, tabel, dan grafik untuk tahun tersebut.
+                muatRingkasan(tahun);
             });
         });
     }
 
     // ==========================================
+    // Tombol "Lihat Semua" pada tabel kegiatan
+    // ==========================================
+    function perbaruiTombolLihatSemua(semua) {
+        const btn = document.getElementById('btnLihatSemuaKegiatan');
+        if (!btn) return;
+        btn.innerHTML = semua
+            ? 'Tampilkan Sedikit <i class="fas fa-arrow-up"></i>'
+            : 'Lihat Semua <i class="fas fa-arrow-right"></i>';
+        btn.setAttribute('data-semua', semua ? '1' : '0');
+    }
+
+    function toggleSemuaKegiatan() {
+        const btn = document.getElementById('btnLihatSemuaKegiatan');
+        if (!btn) return;
+        const semua = btn.getAttribute('data-semua') === '1';
+        const tahun = LAST_SUMMARY ? LAST_SUMMARY.tahun : new Date().getFullYear();
+        btn.disabled = true;
+        fetch('../api/summary.php?semua=' + (semua ? '0' : '1') + '&tahun=' + encodeURIComponent(tahun))
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data || !data.success) throw new Error((data && data.message) || 'Gagal memuat kegiatan.');
+                LAST_KEGIATAN = data.kegiatan || [];
+                populateKegiatanTable(LAST_KEGIATAN);
+                perbaruiTombolLihatSemua(!semua);
+            })
+            .catch(function (err) {
+                showToast(err.message || 'Gagal memuat daftar kegiatan.', 'error');
+            })
+            .finally(function () { btn.disabled = false; });
+    }
+
+    // ==========================================
+    // Cetak & Ekspor dashboard
+    // ==========================================
+    function cetakDashboard() {
+        window.print();
+    }
+
+    function namaFileEkspor() {
+        const tahun = LAST_SUMMARY ? LAST_SUMMARY.tahun : new Date().getFullYear();
+        return 'ringkasan-apbd-' + tahun + '.csv';
+    }
+
+    function selCsv(value) {
+        var s = String(value == null ? '' : value);
+        return '"' + s.replace(/"/g, '""') + '"';
+    }
+
+    function eksporDashboard() {
+        if (!LAST_SUMMARY) {
+            showToast('Data dashboard belum selesai dimuat.', 'warning');
+            return;
+        }
+        const summary = LAST_SUMMARY.summary || {};
+        const baris = [
+            ['Ringkasan APBD', LAST_SUMMARY.tahun || ''],
+            [],
+            ['Keterangan', 'Nilai (Rp)'],
+            ['Total Pagu', Number(summary.total_pagu || 0)],
+            ['Total Realisasi', Number(summary.total_realisasi || 0)],
+            ['Persentase Realisasi', Number(summary.persen || 0) + '%'],
+            ['Jumlah Kegiatan', Number(summary.jumlah_kegiatan || 0)],
+            [],
+            ['No', 'Nama Kegiatan', 'Tahun', 'Pagu (Rp)', 'Realisasi (Rp)', '% Realisasi', 'Status']
+        ];
+        (LAST_KEGIATAN || []).forEach(function (k, i) {
+            const pagu = Number(k.pagu || 0);
+            const realisasi = Number(k.realisasi || 0);
+            baris.push([
+                i + 1,
+                k.nama_kegiatan || '',
+                k.tahun || '',
+                pagu,
+                realisasi,
+                pagu > 0 ? ((realisasi / pagu) * 100).toFixed(2) : '0.00',
+                k.status || ''
+            ]);
+        });
+
+        const csv = '﻿' + baris.map(function (row) {
+            return row.map(selCsv).join(';');
+        }).join('\r\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = namaFileEkspor();
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    // ==========================================
     // Muat data dashboard (cek sesi + ringkasan)
     // ==========================================
+
+    // Tampilkan kegagalan API secara eksplisit; jangan biarkan kartu
+    // menampilkan "Rp 0" seolah-olah datanya benar-benar nol.
+    function tampilkanErrorDashboard(pesan) {
+        var isDashboard = !!document.getElementById('cardBelanjaValue');
+        if (isDashboard) {
+            ['cardBelanjaValue', 'cardPaguValue', 'cardStbpValue', 'cardStsValue', 'cardSp2dValue', 'statPagu']
+                .forEach(function (id) {
+                    var el = document.getElementById(id);
+                    if (el) el.textContent = '—';
+                });
+            var cardKegiatan = document.getElementById('cardKegiatanValue');
+            if (cardKegiatan) cardKegiatan.textContent = '—';
+            var subtitle = document.getElementById('pageSubtitle');
+            if (subtitle) subtitle.textContent = 'Gagal memuat data dashboard';
+            var tbody = document.getElementById('kegiatanTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#b91c1c;">' +
+                    escapeHtml(pesan || 'Gagal memuat data dashboard.') + '</td></tr>';
+            }
+            showToast(pesan || 'Gagal memuat data dashboard.', 'error');
+        } else {
+            console.warn('[SIM-TKD] Gagal memuat ringkasan dashboard:', pesan);
+        }
+    }
+
+    function muatRingkasan(tahun, semua) {
+        var q = [];
+        if (tahun) q.push('tahun=' + encodeURIComponent(tahun));
+        if (semua) q.push('semua=1');
+        return fetch('../api/summary.php' + (q.length ? '?' + q.join('&') : ''))
+            .then(function (res) {
+                if (!res.ok) throw new Error('Server mengembalikan status ' + res.status + '.');
+                return res.json();
+            })
+            .then(function (data) {
+                if (!data || !data.success) {
+                    throw new Error((data && data.message) || 'Data ringkasan tidak tersedia.');
+                }
+                populateSummary(data);
+                return data;
+            })
+            .catch(function (err) {
+                tampilkanErrorDashboard(err && err.message ? err.message : 'Gagal memuat data dashboard.');
+            });
+    }
+
     function loadDashboard() {
         // 1. Cek sesi terlebih dahulu
         fetch('../api/session.php')
@@ -502,25 +675,24 @@
                     window.location.href = '../login.html';
                     return null;
                 }
+                aturMenuAdmin(sessionData.user);
+
                 // Kirim token API user ke link modul AKLAP (multi-tenant)
                 var apiToken = sessionData.user && sessionData.user.api_token;
                 SESSION_API_TOKEN = apiToken || '';
                 if (SESSION_API_TOKEN) {
-                    document.querySelectorAll('a[href*="peta.simtkd.com"]').forEach(function (a) {
+                    document.querySelectorAll('a[href*="peta.simtkd.com"], a[href*="api/aklap_go.php"]').forEach(function (a) {
+                        if (a.href.indexOf('token=') !== -1) return;
                         var sep = (a.href.indexOf('?') === -1) ? '?' : '&';
                         a.href = a.href + sep + 'token=' + encodeURIComponent(SESSION_API_TOKEN);
                     });
                 }
                 // 2. Ambil data ringkasan
-                return fetch('../api/summary.php').then(function (res) { return res.json(); });
-            })
-            .then(function (data) {
-                if (data && data.success) {
-                    populateSummary(data);
-                }
+                return muatRingkasan();
             })
             .catch(function (err) {
-                console.warn('Gagal memuat data backend. Pastikan diakses via http://localhost (XAMPP):', err);
+                tampilkanErrorDashboard('Gagal menghubungi server. Pastikan aplikasi diakses via http://localhost.');
+                console.warn('Gagal memuat data backend:', err);
             });
     }
 
@@ -535,6 +707,14 @@
 
         // Muat data dari backend (cek sesi + ringkasan)
         loadDashboard();
+
+        // Tombol aksi dashboard
+        var btnCetak = document.getElementById('btnCetakDashboard');
+        if (btnCetak) btnCetak.addEventListener('click', cetakDashboard);
+        var btnEkspor = document.getElementById('btnEksporDashboard');
+        if (btnEkspor) btnEkspor.addEventListener('click', eksporDashboard);
+        var btnSemua = document.getElementById('btnLihatSemuaKegiatan');
+        if (btnSemua) btnSemua.addEventListener('click', toggleSemuaKegiatan);
 
         // Jaring pengaman: tambahkan token saat link AKLAP diklik
         // bila belum sempat disisipkan saat halaman dimuat.

@@ -2,12 +2,14 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jurnal Approve - AKLAP</title>
+    <title>Jurnal Biasa - AKLAP</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ============================================================
-           AKLAP - Jurnal Approve (Belanja)
+           AKLAP - Jurnal Biasa (Pendapatan)
            Halaman standalone (domain terpisah dari SIM-TKD).
            ============================================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -259,7 +261,21 @@
         #toast.show { opacity: 1; transform: translateY(0); }
 
         /* ---------- Responsive ---------- */
-        .sidebar-toggle { display: none; }
+        .sidebar-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid rgba(255,255,255,.25);
+            background: rgba(255,255,255,.08);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: background .2s ease;
+        }
+        .sidebar-toggle:hover { background: rgba(255,255,255,.2); }
         @media (max-width: 1024px) {
             .filter-grid { grid-template-columns: repeat(3, 1fr); }
         }
@@ -296,58 +312,25 @@
     <div class="body-wrap">
 
         <!-- ================= SIDEBAR ================= -->
-        <aside class="sidebar" id="sidebar">
-            <div class="side-title">Menu Utama</div>
-            <a href="index.html" class="side-link"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a href="#" class="side-link"><i class="fas fa-file-import"></i> Input Transaksi Non Anggaran</a>
-            <a href="#" class="side-link"><i class="fas fa-book"></i> Jurnal Umum</a>
-            <div class="side-group open" id="sideGroupToApprove">
-                <a href="#" class="side-link active" id="sideLinkToApprove"><i class="fas fa-check-double"></i> Jurnal To Approve <i class="fas fa-chevron-right side-arrow"></i></a>
-                <div class="side-sub open" id="sideSubToApprove">
-                    <a href="#" class="side-link"><i class="fas fa-coins"></i> Anggaran</a>
-                    <a href="#" class="side-link active"><i class="fas fa-arrow-down"></i> Pendapatan</a>
-                    <a href="#" class="side-link"><i class="fas fa-arrow-up"></i> Belanja</a>
-                    <a href="#" class="side-link"><i class="fas fa-file-import"></i> Transaksi Non Anggaran</a>
-                    <a href="#" class="side-link"><i class="fas fa-list"></i> Umum</a>
-                    <a href="#" class="side-link"><i class="fas fa-rotate-left"></i> Pembalik</a>
-                    <a href="#" class="side-link"><i class="fas fa-lock"></i> Penutup</a>
-                </div>
-            </div>
-            <a href="#" class="side-link"><i class="fas fa-book-open"></i> Buku Jurnal</a>
-            <a href="#" class="side-link"><i class="fas fa-table-list"></i> Buku Besar</a>
-            <a href="#" class="side-link"><i class="fas fa-right-left"></i> Laporan Mutasi Rekening</a>
-            <a href="#" class="side-link"><i class="fas fa-building-columns"></i> Buku Besar Pembantu Bank</a>
-            <a href="#" class="side-link"><i class="fas fa-scale-balanced"></i> Neraca Saldo</a>
-            <div class="side-group" id="sideGroupKeuangan">
-                <a href="#" class="side-link" id="sideLinkKeuangan"><i class="fas fa-chart-line"></i> Laporan Keuangan <i class="fas fa-chevron-right side-arrow"></i></a>
-                <div class="side-sub" id="sideSubKeuangan">
-                    <a href="#" class="side-link"><i class="fas fa-scale-balanced"></i> Neraca</a>
-                    <a href="lra.html" class="side-link"><i class="fas fa-chart-column"></i> LRA</a>
-                    <a href="#" class="side-link"><i class="fas fa-chart-pie"></i> LO</a>
-                    <a href="#" class="side-link"><i class="fas fa-wallet"></i> LPE</a>
-                    <a href="#" class="side-link"><i class="fas fa-bullseye"></i> Prognosis</a>
-                    <a href="#" class="side-link"><i class="fas fa-layer-group"></i> LRA Per Program</a>
-                </div>
-            </div>
-        </aside>
+        <aside class="sidebar" id="sidebar"></aside>
 
         <!-- ================= MAIN ================= -->
         <main class="main">
             <div class="breadcrumb-bar">
                 <div class="crumb">
                     <i class="fas fa-house"></i> <a href="index.html">Home</a>
-                    <i class="fas fa-chevron-right"></i> Jurnal Approve
+                    <i class="fas fa-chevron-right"></i> Jurnal Biasa
                     <i class="fas fa-chevron-right"></i> <span class="current">Pendapatan</span>
                 </div>
-                <a href="https://simtkd.com/dashboard/dashboard.html" class="btn-back"><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
+                <a href="https://simtkd.com/dashboard.html" class="btn-back" data-back-main><i class="fas fa-arrow-left"></i> Kembali ke Penatausahaan</a>
             </div>
 
             <div class="content">
                 <!-- Judul -->
                 <div class="page-head">
                     <div>
-                        <h1>Jurnal Approve</h1>
-                        <p>Persetujuan jurnal transaksi penerimaan (STBP), penyetoran (STS), dan pengeluaran/belanja (SP2D) yang masuk ke akuntansi.</p>
+                        <h1>Jurnal Biasa</h1>
+                        <p>Input jurnal pendapatan secara manual dengan nomor dokumen dan nomor akun agar catatan akun &amp; dokumen tetap rapi.</p>
                     </div>
                 </div>
 
@@ -371,15 +354,6 @@
                                 </select>
                             </div>
                             <div class="filter-field">
-                                <label>Status</label>
-                                <select id="fStatus">
-                                    <option>Semua Status</option>
-                                    <option>Sudah Approve</option>
-                                    <option>Belum Approve</option>
-                                    <option>Ditolak</option>
-                                </select>
-                            </div>
-                            <div class="filter-field">
                                 <label>Tanggal Awal</label>
                                 <input type="date" id="fTglAwal">
                             </div>
@@ -390,9 +364,10 @@
                             <div class="filter-field">
                                 <label>Filter By Keyword</label>
                                 <select id="fKeywordType">
-                                    <option>No. Jurnal</option>
-                                    <option>No. Dokumen</option>
-                                    <option>Keterangan</option>
+                                    <option value="">Semua Kolom</option>
+                                    <option value="jurnal">No. Jurnal</option>
+                                    <option value="dokumen">No. Dokumen</option>
+                                    <option value="keterangan">Keterangan</option>
                                 </select>
                             </div>
                             <div class="filter-field">
@@ -401,7 +376,46 @@
                             </div>
                             <div class="filter-actions">
                                 <button class="btn btn-primary" id="btnTerapkan"><i class="fas fa-magnifying-glass"></i> Terapkan</button>
-                                <button class="btn btn-success" id="btnApprove"><i class="fas fa-check"></i> Approve</button>
+                                <button class="btn btn-success" id="btnTambahJurnal"><i class="fas fa-plus"></i> Tambah Jurnal</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Input Jurnal Manual (tersembunyi sampai tombol Tambah diklik) -->
+                <div class="card" id="formJurnalCard" style="display:none;">
+                    <div class="card-head"><i class="fas fa-pen-to-square"></i> Input Jurnal Baru</div>
+                    <div class="card-body">
+                        <div class="filter-grid">
+                            <div class="filter-field">
+                                <label>Nomor Dokumen <span style="color:#dc2626;">*</span></label>
+                                <input type="text" id="jNoDok" list="dokList" placeholder="Klik / ketik untuk mencari STBP atau STS" autocomplete="off">
+                                <datalist id="dokList"></datalist>
+                            </div>
+                            <div class="filter-field">
+                                <label>Nomor Akun <span style="color:#dc2626;">*</span></label>
+                                <input type="text" id="jKodeAkun" list="akunList" placeholder="cth: 4.1.1.01.01" autocomplete="off">
+                                <datalist id="akunList"></datalist>
+                            </div>
+                            <div class="filter-field" style="grid-column: span 2;">
+                                <label>Nama Akun (otomatis)</label>
+                                <input type="text" id="jNamaAkun" readonly placeholder="Terisi otomatis dari nomor akun">
+                            </div>
+                            <div class="filter-field">
+                                <label>Tanggal</label>
+                                <input type="date" id="jTanggal">
+                            </div>
+                            <div class="filter-field">
+                                <label>Jumlah (Rp) <span style="color:#dc2626;">*</span></label>
+                                <input type="number" id="jJumlah" min="1" step="0.01" placeholder="0">
+                            </div>
+                            <div class="filter-field" style="grid-column: 1 / -1;">
+                                <label>Keterangan / Uraian</label>
+                                <input type="text" id="jUraian" placeholder="Uraian transaksi jurnal">
+                            </div>
+                            <div class="filter-actions">
+                                <button class="btn btn-success" id="btnSimpanJurnal"><i class="fas fa-floppy-disk"></i> Simpan Jurnal</button>
+                                <button class="btn" id="btnBatalJurnal" style="background:#e5e7eb;color:#374151;">Batal</button>
                             </div>
                         </div>
                     </div>
@@ -414,14 +428,14 @@
                         <table id="tblJurnal">
                             <thead>
                                 <tr>
-                                    <th style="width:34px;" class="c"><input type="checkbox" id="checkAll"></th>
                                     <th>Nomor Jurnal</th>
                                     <th>Nomor Dokumen</th>
+                                    <th>Kode Akun</th>
+                                    <th>Nama Akun</th>
                                     <th>Tanggal</th>
                                     <th class="num">Jumlah</th>
                                     <th>Keterangan</th>
-                                    <th>Status</th>
-                                    <th style="width:90px;" class="c">Aksi</th>
+                                    <th style="width:80px;" class="c">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyJurnal">
@@ -441,6 +455,8 @@
     <div id="toast"></div>
 
     <script src="js/config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/sidebar.js"></script>
     <script>
         // Profil akun dari database (pendaftaran) - tanpa dropdown
         (function () {
@@ -504,23 +520,18 @@
                     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9aa4b2;padding:28px;">Tidak ada data yang cocok dengan filter.</td></tr>';
                 } else {
                     tbody.innerHTML = filtered.map(function (r) {
-                        var st = r.status;
-                        var badgeCls = st === 'Sudah Approve' ? 'badge-approved' : (st === 'Ditolak' ? 'badge-rejected' : 'badge-pending');
-                        var locked = st !== 'Belum Approve';
-                        return '<tr data-status="' + st + '">' +
-                            '<td class="c"><input type="checkbox" class="row-check" ' + (locked ? 'disabled' : '') + '></td>' +
-                            '<td>' + esc(r.no) + '</td>' +
-                            '<td>' + esc(r.dok) + '</td>' +
-                            '<td>' + fmtTglRange(r.tgl, r.tglAkhir) + '</td>' +
-                            '<td class="num">' + fmtRp(r.nilai) + '</td>' +
-                            '<td>' + esc(r.ket) + '</td>' +
-                            '<td><span class="badge ' + badgeCls + '">' + st + '</span></td>' +
+                        return '<tr>' +
+                            '<td>' + esc(r.nomor_jurnal || '-') + '</td>' +
+                            '<td>' + esc(r.nomor_dokumen || '-') + '</td>' +
+                            '<td class="c">' + esc(r.kode_akun || '-') + '</td>' +
+                            '<td>' + esc(r.nama_akun || '-') + '</td>' +
+                            '<td class="c">' + (r.tanggal ? fmtTgl(r.tanggal) : '-') + '</td>' +
+                            '<td class="num">' + fmtRp(r.jumlah) + '</td>' +
+                            '<td>' + esc(r.uraian || '-') + '</td>' +
                             '<td class="c"><div class="dropdown">' +
-                                '<button class="aksi-btn" data-drop="' + esc(r.no) + '"><i class="fas fa-ellipsis-vertical"></i></button>' +
-                                '<div class="dropdown-menu" id="dm-' + esc(r.no) + '">' +
-                                    '<button class="dropdown-item" data-act="lihat"><i class="fas fa-eye"></i> Lihat</button>' +
-                                    '<button class="dropdown-item approve" data-act="approve"><i class="fas fa-check"></i> Approve</button>' +
-                                    '<button class="dropdown-item danger" data-act="reject"><i class="fas fa-xmark"></i> Reject</button>' +
+                                '<button class="aksi-btn" data-drop="' + esc(r.id) + '"><i class="fas fa-ellipsis-vertical"></i></button>' +
+                                '<div class="dropdown-menu" id="dm-' + esc(r.id) + '">' +
+                                    '<button class="dropdown-item danger" data-act="hapus" data-id="' + esc(r.id) + '" data-no="' + esc(r.nomor_jurnal || '') + '"><i class="fas fa-trash"></i> Hapus</button>' +
                                 '</div>' +
                             '</div></td>' +
                         '</tr>';
@@ -532,20 +543,16 @@
             function applyFilter() {
                 var kw = document.getElementById('fKeyword').value.trim().toLowerCase();
                 var kwType = document.getElementById('fKeywordType').value;
-                var status = document.getElementById('fStatus').value;
-                var transaksi = document.getElementById('fTransaksi').value;
                 var tAwal = document.getElementById('fTglAwal').value;
                 var tAkhir = document.getElementById('fTglAkhir').value;
 
                 var filtered = DATA.filter(function (r) {
-                    if (r.transaksi !== transaksi) return false;
-                    if (status !== 'Semua Status' && r.status !== status) return false;
-                    if (tAwal && r.tgl < tAwal) return false;
-                    if (tAkhir && r.tgl > tAkhir) return false;
+                    if (tAwal && (r.tanggal || '') < tAwal) return false;
+                    if (tAkhir && (r.tanggal || '') > tAkhir) return false;
                     if (kw) {
-                        var field = kwType === 'No. Jurnal' ? r.no :
-                                    kwType === 'No. Dokumen' ? r.dok : r.ket;
-                        if (String(field).toLowerCase().indexOf(kw) === -1) return false;
+                        var field = kwType === 'jurnal' ? r.nomor_jurnal :
+                                    kwType === 'dokumen' ? r.nomor_dokumen : r.uraian;
+                        if (String(field || '').toLowerCase().indexOf(kw) === -1) return false;
                     }
                     return true;
                 });
@@ -563,49 +570,116 @@
             // Tombol Terapkan
             document.getElementById('btnTerapkan').addEventListener('click', applyFilter);
 
-            function setRowStatus(tr, no, status) {
-                DATA.forEach(function (d) { if (d.no === no) d.status = status; });
-                var badgeCls = status === 'Sudah Approve' ? 'badge badge-approved' : (status === 'Ditolak' ? 'badge badge-rejected' : 'badge badge-pending');
-                tr.querySelector('.badge').className = badgeCls;
-                tr.querySelector('.badge').textContent = status;
-                tr.setAttribute('data-status', status);
-                var cb = tr.querySelector('.row-check');
-                if (cb) { cb.checked = false; cb.disabled = true; }
+            // ---------- Form Input Jurnal Manual ----------
+            var formCard = document.getElementById('formJurnalCard');
+
+            function bukaForm() {
+                formCard.style.display = '';
+                var now = new Date().toISOString().slice(0, 10);
+                if (!document.getElementById('jTanggal').value) {
+                    document.getElementById('jTanggal').value = now;
+                }
+                document.getElementById('jNoDok').focus();
+            }
+            function tutupForm() {
+                formCard.style.display = 'none';
+                ['jNoDok', 'jKodeAkun', 'jNamaAkun', 'jJumlah', 'jUraian'].forEach(function (id) {
+                    document.getElementById(id).value = '';
+                });
             }
 
-            // Approve/Reject ke server (persisten, bukan client-side) lalu muat ulang
-            function callApprove(items, act) {
-                var action = act === 'reject' ? 'reject' : 'approve';
-                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) +
-                          '&action=' + action + '&items=' + encodeURIComponent(items.join(','));
+            document.getElementById('btnTambahJurnal').addEventListener('click', function () {
+                if (formCard.style.display === 'none') bukaForm(); else tutupForm();
+            });
+            document.getElementById('btnBatalJurnal').addEventListener('click', tutupForm);
+
+            // Saran nomor akun (datalist) dari daftar akun penerimaan
+            (function muatAkun() {
+                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=akun_list';
                 fetch(url)
                     .then(function (res) { return res.json(); })
                     .then(function (d) {
-                        toast((d && d.message) || (d && d.success ? 'Berhasil.' : 'Gagal.'));
-                        if (d && d.success) loadData();
+                        var list = (d && d.data) || [];
+                        list.forEach(function (a) { AKUN_MAP[a.kode] = a.nama; });
+                        document.getElementById('akunList').innerHTML = list.map(function (a) {
+                            return '<option value="' + esc(a.kode) + '">' + esc(a.nama) + '</option>';
+                        }).join('');
                     })
-                    .catch(function () { toast('Gagal terhubung ke server API.'); });
-            }
+                    .catch(function () { /* saran kosong, input tetap manual */ });
+            })();
 
-            // Approve massal (baris yang dicentang) - tersimpan di server
-            document.getElementById('btnApprove').addEventListener('click', function () {
-                var checks = tbody.querySelectorAll('.row-check:checked');
-                if (!checks.length) { toast('Pilih minimal satu jurnal yang belum di-approve.'); return; }
-                var items = [];
-                checks.forEach(function (c) {
-                    var tr = c.closest('tr');
-                    var no = tr.children[1].textContent;
-                    var d = DATA.filter(function (x) { return x.no === no; })[0];
-                    if (d) items.push(d.sumber + ':' + d.id);
-                });
-                callApprove(items, 'approve');
+            // Isi nama akun otomatis saat nomor akun diketik/dipilih
+            var AKUN_MAP = {};
+            var DOK_MAP = {}; // nomor dokumen -> data dokumen dari SIM-TKD (STBP/STS)
+
+            // Saran nomor dokumen (datalist) dari dokumen asli SIM-TKD
+            (function muatDokumen() {
+                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=dokumen_list';
+                fetch(url)
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        var list = (d && d.data) || [];
+                        list.forEach(function (doc) { DOK_MAP[doc.nomor] = doc; });
+                        document.getElementById('dokList').innerHTML = list.map(function (doc) {
+                            return '<option value="' + esc(doc.nomor) + '">' +
+                                esc(doc.jenis + ' · ' + doc.tanggal + ' · Rp ' + Number(doc.jumlah).toLocaleString('id-ID')) +
+                                '</option>';
+                        }).join('');
+                    })
+                    .catch(function () { /* saran kosong, input tetap manual */ });
+            })();
+
+            // Pilih/ketik nomor dokumen -> isi otomatis tanggal, jumlah, uraian & akun
+            document.getElementById('jNoDok').addEventListener('input', function () {
+                var doc = DOK_MAP[this.value.trim()];
+                if (!doc) return;
+                if (doc.tanggal) document.getElementById('jTanggal').value = doc.tanggal;
+                if (doc.jumlah > 0) document.getElementById('jJumlah').value = doc.jumlah;
+                if (doc.uraian && !document.getElementById('jUraian').value) {
+                    document.getElementById('jUraian').value = doc.uraian;
+                }
+                if (doc.akun_kode) {
+                    document.getElementById('jKodeAkun').value = doc.akun_kode;
+                    document.getElementById('jNamaAkun').value = doc.akun_nama || (AKUN_MAP[doc.akun_kode] || '');
+                }
             });
 
-            // Check all
-            document.getElementById('checkAll').addEventListener('change', function (e) {
-                tbody.querySelectorAll('.row-check:not(:disabled)').forEach(function (c) {
-                    c.checked = e.target.checked;
+            document.getElementById('jKodeAkun').addEventListener('input', function () {
+                var kode = this.value.trim();
+                var nama = AKUN_MAP[kode] || '';
+                document.getElementById('jNamaAkun').value = nama;
+            });
+
+            // Simpan jurnal baru (persisten via API)
+            document.getElementById('btnSimpanJurnal').addEventListener('click', function () {
+                var btn = this;
+                var body = new URLSearchParams({
+                    nomor_dokumen: document.getElementById('jNoDok').value.trim(),
+                    kode_akun: document.getElementById('jKodeAkun').value.trim(),
+                    nama_akun: document.getElementById('jNamaAkun').value.trim(),
+                    tanggal: document.getElementById('jTanggal').value,
+                    uraian: document.getElementById('jUraian').value.trim(),
+                    jumlah: document.getElementById('jJumlah').value
                 });
+                if (!body.get('nomor_dokumen') || !body.get('kode_akun')) {
+                    toast('Nomor dokumen dan nomor akun wajib diisi.'); return;
+                }
+                if (!(parseFloat(body.get('jumlah')) > 0)) {
+                    toast('Jumlah harus lebih besar dari nol.'); return;
+                }
+                btn.disabled = true;
+                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=jurnal_biasa';
+                fetch(url, { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        btn.disabled = false;
+                        toast((d && d.message) || (d && d.success ? 'Tersimpan.' : 'Gagal menyimpan.'));
+                        if (d && d.success) { tutupForm(); loadData(); }
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        toast('Gagal terhubung ke server API.');
+                    });
             });
 
             // Tabs (pindah sub-modul)
@@ -614,26 +688,6 @@
                     document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.remove('active'); });
                     b.classList.add('active');
                     toast('Modul "' + b.textContent + '" dipilih.');
-                });
-            });
-
-            // Sidebar submenu "Jurnal To Approve"
-            document.getElementById('sideLinkToApprove').addEventListener('click', function (e) {
-                e.preventDefault();
-                document.getElementById('sideGroupToApprove').classList.toggle('open');
-                document.getElementById('sideSubToApprove').classList.toggle('open');
-            });
-            document.getElementById('sideLinkKeuangan').addEventListener('click', function (e) {
-                e.preventDefault();
-                document.getElementById('sideGroupKeuangan').classList.toggle('open');
-                document.getElementById('sideSubKeuangan').classList.toggle('open');
-            });
-            document.querySelectorAll('#sideSubToApprove .side-link').forEach(function (l) {
-                l.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    document.querySelectorAll('#sideSubToApprove .side-link').forEach(function (x) { x.classList.remove('active'); });
-                    l.classList.add('active');
-                    toast('Jurnal Approve > "' + l.textContent.trim() + '" dipilih.');
                 });
             });
 
@@ -648,18 +702,33 @@
                     return;
                 }
                 if (item) {
-                    var tr = item.closest('tr');
-                    var no = tr.children[1].textContent;
                     var act = item.getAttribute('data-act');
-                    if (act === 'approve' || act === 'reject') {
-                        var d = DATA.filter(function (x) { return x.no === no; })[0];
-                        if (d) callApprove([d.sumber + ':' + d.id], act);
+                    var id = item.getAttribute('data-id');
+                    var no = item.getAttribute('data-no') || '';
+                    if (act === 'hapus' && id) {
+                        if (!confirm('Hapus jurnal ' + (no || 'ini') + '?')) return;
+                        hapusJurnal(id);
                     } else if (act === 'lihat') {
                         toast('Lihat jurnal "' + no + '".');
                     }
                     document.querySelectorAll('.dropdown-menu.open').forEach(function (m) { m.classList.remove('open'); });
                 }
             });
+
+            // Hapus entri jurnal manual via API
+            function hapusJurnal(id) {
+                var body = new URLSearchParams({ subaksi: 'hapus', id: id });
+                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=jurnal_biasa';
+                fetch(url, { method: 'POST', body: body })
+                    .then(function (res) { return res.json(); })
+                    .then(function (d) {
+                        toast((d && d.message) || (d && d.success ? 'Jurnal dihapus.' : 'Gagal menghapus.'));
+                        if (d && d.success) loadData();
+                    })
+                    .catch(function () {
+                        toast('Gagal terhubung ke server API.');
+                    });
+            }
 
             // Tutup dropdown saat klik di luar menu atau tekan Escape
             document.addEventListener('click', function (e) {
@@ -673,9 +742,9 @@
                 }
             });
 
-            // Muat data asli dari API (dilindungi token), lalu render
+            // Muat data jurnal biasa dari API (dilindungi token), lalu render
             function loadData() {
-                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=jurnal';
+                var url = SIMTKD_API.endpoint + '?token=' + encodeURIComponent(SIMTKD_API.getToken()) + '&action=jurnal_biasa';
                 fetch(url)
                     .then(function (res) { return res.json(); })
                     .then(function (data) {

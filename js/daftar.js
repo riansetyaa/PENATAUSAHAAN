@@ -204,7 +204,13 @@
             error: 'fa-times-circle',
             warning: 'fa-exclamation-triangle'
         };
-        toast.innerHTML = '<i class="fas ' + (icons[type] || icons.success) + '"></i><span>' + message + '</span>';
+        const span = document.createElement('span');
+        // textContent (bukan innerHTML) agar pesan dari API tidak bisa menyuntik HTML (XSS)
+        span.textContent = message;
+        const icon = document.createElement('i');
+        icon.className = 'fas ' + (icons[type] || icons.success);
+        toast.appendChild(icon);
+        toast.appendChild(span);
         toastContainer.appendChild(toast);
 
         setTimeout(function () {
@@ -231,6 +237,14 @@
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     }
 
+    // Pendaftaran hanya diizinkan via email domain POLBAN
+    const ALLOWED_EMAIL_DOMAIN = 'polban.ac.id';
+
+    function isAllowedEmailDomain(value) {
+        const at = value.lastIndexOf('@');
+        return at !== -1 && value.slice(at + 1).toLowerCase() === ALLOWED_EMAIL_DOMAIN;
+    }
+
     // ==========================================
     // Form Submission
     // ==========================================
@@ -254,6 +268,7 @@
         clearError(email, document.getElementById('errEmail'));
         clearError(password, document.getElementById('errPassword'));
         clearError(confirmPassword, document.getElementById('errConfirm'));
+        clearError(instansi, document.getElementById('errInstansi'));
         document.getElementById('errTerms').textContent = '';
 
         let hasError = false;
@@ -282,6 +297,18 @@
             hasError = true;
         } else if (!isValidEmail(mail)) {
             setError(email, document.getElementById('errEmail'), 'Format email tidak valid.');
+            hasError = true;
+        } else if (!isAllowedEmailDomain(mail)) {
+            setError(email, document.getElementById('errEmail'), 'Pendaftaran hanya menggunakan email @polban.ac.id.');
+            hasError = true;
+        }
+
+        // Validate instansi (kunci pemisahan data multi-dinas)
+        if (!inst) {
+            setError(instansi, document.getElementById('errInstansi'), 'Nama instansi wajib diisi.');
+            hasError = true;
+        } else if (inst.length < 3) {
+            setError(instansi, document.getElementById('errInstansi'), 'Nama instansi minimal 3 karakter.');
             hasError = true;
         }
 
@@ -370,17 +397,15 @@
             btnRegister.disabled = false;
 
             if (data.success) {
-                showToast(data.message || 'Pendaftaran berhasil!', 'success');
+                showToast(data.message || 'Pendaftaran berhasil! Silakan verifikasi kode OTP.', 'success');
 
-                // Tampilkan peringatan bahwa akun menunggu verifikasi
+                // Akun berstatus PENDING -> arahkan ke halaman Aktivasi Akun
+                // (email dibawa lewat query string agar tidak perlu diketik ulang)
+                const tujuan = data.aktivasi
+                    || ('aktivasi.html?email=' + encodeURIComponent(mail));
                 setTimeout(function () {
-                    showToast('Akun Anda menunggu verifikasi administrator.', 'warning');
-                }, 1500);
-
-                // Redirect ke halaman login (frontend vanilla HTML)
-                setTimeout(function () {
-                    window.location.href = 'login.html';
-                }, 3000);
+                    window.location.href = tujuan;
+                }, 2000);
             } else {
                 showToast(data.message || 'Pendaftaran gagal. Silakan coba lagi.', 'error');
 

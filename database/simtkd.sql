@@ -22,7 +22,7 @@ CREATE TABLE users (
     email         VARCHAR(100)  NOT NULL UNIQUE,
     password      VARCHAR(255)  NOT NULL,
     instansi      VARCHAR(150)  DEFAULT NULL,
-    peran         ENUM('Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Pengguna Umum')
+    peran         ENUM('Super Admin','Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Dosen','Pengguna Umum')
                   DEFAULT 'Pengguna Umum',
     status        ENUM('pending','aktif','nonaktif') DEFAULT 'pending',
     created_at    TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
