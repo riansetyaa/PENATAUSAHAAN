@@ -349,6 +349,15 @@
         el('statLogin7').textContent = angka(r.login_7hari);
         el('statBelum').textContent = angka(r.belum_login);
         el('statRata').textContent = angka(r.rata_rata_progres) + '%';
+
+        // Jelaskan dasar rata-rata: hanya akun non-admin/dosen yang dihitung.
+        var hintRata = el('statRataHint');
+        if (hintRata) {
+            var n = Number(r.jumlah_mahasiswa) || 0;
+            hintRata.textContent = n > 0
+                ? 'dari ' + angka(n) + ' akun mahasiswa'
+                : 'belum ada akun mahasiswa';
+        }
     }
 
     // ------------------------------------------------------------
@@ -804,7 +813,7 @@
                 var u = sesi.user || {};
                 SAYA = u;
 
-                var boleh = ['Admin Dinas', 'Kepala Dinas', 'Dosen'].indexOf(u.peran) !== -1
+                var boleh = ['Super Admin', 'Admin Dinas', 'Kepala Dinas', 'Dosen'].indexOf(u.peran) !== -1
                     || u.username === 'admin';
 
                 if (!boleh) {
@@ -812,7 +821,8 @@
                     return null;
                 }
 
-                BISA_UBAH_PERAN = u.peran === 'Admin Dinas' || u.username === 'admin';
+                BISA_UBAH_PERAN = ['Super Admin', 'Admin Dinas'].indexOf(u.peran) !== -1
+                    || u.username === 'admin';
 
                 return fetch('../api/monitoring.php', { cache: 'no-store' })
                     .then(function (res) { return res.json(); });

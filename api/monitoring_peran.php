@@ -6,12 +6,15 @@
  * Pengaturan -> Monitoring Pengguna.
  *
  * Hak ubah peran LEBIH KETAT daripada hak melihat monitoring:
- * hanya Admin Dinas atau username "admin". Kepala Dinas/Dosen tetap
- * dapat melihat data, tetapi tidak dapat mengubah peran.
+ * hanya Super Admin, Admin Dinas, atau username "admin". Kepala
+ * Dinas/Dosen tetap dapat melihat data, tetapi tidak dapat mengubah peran.
  *
  * Pengaman:
  *   - Admin Dinas hanya dapat mengubah peran akun di instansinya sendiri
- *     (username "admin" tetap lintas instansi).
+ *     (Super Admin dan username "admin" tetap lintas instansi).
+ *   - Peran Super Admin hanya dapat diberikan oleh Super Admin. Admin
+ *     Dinas tidak boleh menaikkan akun (termasuk dirinya sendiri) menjadi
+ *     Super Admin, dan tidak boleh mengubah/menurunkan akun Super Admin.
  *   - Peran akun sendiri tidak dapat diubah (mencegah lockout).
  *   - Akun superuser "admin" tidak dapat diubah dari halaman ini.
  *   - Peran harus termasuk ENUM users.peran yang tersedia.
@@ -51,14 +54,17 @@ $stmt = $pdo->prepare("
 $stmt->execute([$aktorId]);
 $aktor = $stmt->fetch();
 
+$aktorSuper = $aktor
+    && ($aktor['peran'] === 'Super Admin' || $aktor['username'] === 'admin');
+
 $boleh = $aktor
     && $aktor['status'] === 'aktif'
-    && ($aktor['peran'] === 'Admin Dinas' || $aktor['username'] === 'admin');
+    && ($aktor['peran'] === 'Admin Dinas' || $aktorSuper);
 
 if (!$boleh) {
     jsonResponse(
         false,
-        'Akses ditolak. Hanya Admin Dinas yang dapat mengubah peran pengguna.',
+        'Akses ditolak. Hanya Super Admin atau Admin Dinas yang dapat mengubah peran pengguna.',
         [],
         403
     );
@@ -75,6 +81,16 @@ if ($peranBaru === '') {
 }
 if (!in_array($peranBaru, daftarPeran($pdo), true)) {
     jsonResponse(false, 'Peran yang dipilih tidak tersedia.', [], 422);
+}
+// Jangan sampai Admin Dinas menaikkan akun apa pun (termasuk dirinya
+// sendiri) menjadi Super Admin — itu akan melampaui lingkup instansinya.
+if ($peranBaru === 'Super Admin' && !$aktorSuper) {
+    jsonResponse(
+        false,
+        'Akses ditolak. Hanya Super Admin yang dapat memberikan peran Super Admin.',
+        [],
+        403
+    );
 }
 if ($targetId === $aktorId) {
     jsonResponse(
@@ -99,8 +115,8 @@ if (!$target) {
 }
 
 // Admin Dinas hanya boleh mengubah peran akun di instansinya sendiri.
-// Username "admin" (superuser) tetap lintas instansi.
-$aktorLintas = ($aktor['username'] === 'admin');
+// Super Admin / username "admin" (superuser) tetap lintas instansi.
+$aktorLintas = $aktorSuper;
 $samaInstansi = strcasecmp(
     trim((string) ($aktor['instansi'] ?? '')),
     trim((string) ($target['instansi'] ?? ''))
@@ -117,6 +133,15 @@ if ($target['username'] === 'admin') {
     jsonResponse(
         false,
         'Akun admin utama tidak dapat diubah perannya dari halaman ini.',
+        [],
+        403
+    );
+}
+// Admin Dinas tidak boleh menurunkan/mengubah akun Super Admin lain.
+if ($target['peran'] === 'Super Admin' && !$aktorSuper) {
+    jsonResponse(
+        false,
+        'Akses ditolak. Peran akun Super Admin tidak dapat diubah oleh Admin Dinas.',
         [],
         403
     );

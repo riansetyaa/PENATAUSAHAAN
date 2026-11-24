@@ -17,9 +17,10 @@
  *   GET ?user_id=N&dokumen_id=M
  *       -> isi HTML satu dokumen untuk pratinjau (read-only).
  *
- * Otorisasi: Admin Dinas / Kepala Dinas / Dosen (atau username "admin"),
- * sama persis dengan api/monitoring.php. Dosen/superuser boleh lintas
- * instansi; Admin Dinas & Kepala Dinas hanya untuk akun di instansinya.
+ * Otorisasi: Super Admin / Admin Dinas / Kepala Dinas / Dosen (atau
+ * username "admin"), sama persis dengan api/monitoring.php.
+ * Super Admin/Dosen/superuser boleh lintas instansi; Admin Dinas &
+ * Kepala Dinas hanya untuk akun di instansinya.
  */
 
 declare(strict_types=1);
@@ -34,12 +35,13 @@ if (!isLoggedIn()) {
 
 $peran    = (string) ($_SESSION['peran'] ?? '');
 $username = (string) ($_SESSION['username'] ?? '');
-$boleh    = in_array($peran, ['Admin Dinas', 'Kepala Dinas', 'Dosen'], true)
+$boleh    = in_array($peran, ['Super Admin', 'Admin Dinas', 'Kepala Dinas', 'Dosen'], true)
             || $username === 'admin';
 
-// Lingkup: Dosen & superuser boleh lintas instansi; Admin/Kepala Dinas
-// hanya akun di instansinya sendiri (lihat pengecekan setelah data target).
-$lintasInstansi = ($peran === 'Dosen') || ($username === 'admin');
+// Lingkup: Super Admin, Dosen & superuser boleh lintas instansi;
+// Admin/Kepala Dinas hanya akun di instansinya sendiri (lihat
+// pengecekan setelah data target).
+$lintasInstansi = in_array($peran, ['Super Admin', 'Dosen'], true) || ($username === 'admin');
 $instansiAktor  = trim((string) ($_SESSION['instansi'] ?? ''));
 
 if (!$boleh) {

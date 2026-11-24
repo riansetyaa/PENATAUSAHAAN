@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS users (
     otp_terkirim_at DATETIME    DEFAULT NULL,            -- waktu kirim OTP terakhir (jeda 60 detik)
     otp_percobaan TINYINT UNSIGNED NOT NULL DEFAULT 0,   -- jumlah kode OTP salah
     otp_verifikasi_at DATETIME  DEFAULT NULL,            -- waktu akun berhasil diverifikasi
-    peran         ENUM('Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Dosen','Pengguna Umum')
+    peran         ENUM('Super Admin','Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Dosen','Pengguna Umum')
                   DEFAULT 'Pengguna Umum',
     status        ENUM('pending','aktif','nonaktif') DEFAULT 'pending',  -- aktif setelah verifikasi OTP
     created_at    TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,

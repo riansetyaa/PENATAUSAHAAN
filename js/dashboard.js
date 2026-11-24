@@ -24,8 +24,8 @@
     function aturMenuAdmin(user) {
         var peran = (user && user.peran) ? String(user.peran) : '';
         var username = (user && user.username) ? String(user.username) : '';
-        var boleh = peran === 'Admin Dinas' || peran === 'Kepala Dinas'
-            || peran === 'Dosen' || username === 'admin';
+        var boleh = ['Super Admin', 'Admin Dinas', 'Kepala Dinas', 'Dosen'].indexOf(peran) !== -1
+            || username === 'admin';
 
         document.querySelectorAll('[data-admin-only]').forEach(function (el) {
             el.style.display = boleh ? '' : 'none';

@@ -12,7 +12,7 @@
  * information_schema / SELECT 1), sehingga boleh dijalankan berulang.
  *
  * Cara pakai:
- *   - Web (harus login sebagai Admin Dinas):  https://HOST/api/skp_migrate.php?run=1
+ *   - Web (harus login sebagai Super Admin/Admin Dinas): https://HOST/api/skp_migrate.php?run=1
  *   - CLI (tanpa login):                      php api/skp_migrate.php
  */
 
@@ -33,7 +33,7 @@ if (!$isCli) {
     }
     $peran    = (string) ($_SESSION['peran'] ?? '');
     $username = (string) ($_SESSION['username'] ?? '');
-    if ($peran !== 'Admin Dinas' && $username !== 'admin') {
+    if (!in_array($peran, ['Super Admin', 'Admin Dinas'], true) && $username !== 'admin') {
         echo json_encode(['success' => false, 'message' => 'Akses hanya untuk admin.'], JSON_UNESCAPED_UNICODE);
         exit;
     }

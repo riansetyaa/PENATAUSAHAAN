@@ -410,6 +410,9 @@ function ensureUsersColumns(PDO $pdo): void
     // Peran "Dosen" dipakai manual book & halaman Monitoring Pengguna,
     // tetapi ENUM lama belum memuatnya sehingga tidak bisa dipilih.
     ensurePeranDosen($pdo);
+
+    // Peran "Super Admin" untuk akun pengelola utama (username `admin`).
+    ensurePeranSuperAdmin($pdo);
 }
 
 /**
@@ -443,11 +446,62 @@ function ensurePeranDosen(PDO $pdo): void
 
         $pdo->exec(
             "ALTER TABLE `users` MODIFY COLUMN `peran` "
-            . "ENUM('Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Dosen','Pengguna Umum') "
+            . "ENUM('Super Admin','Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Dosen','Pengguna Umum') "
             . "DEFAULT 'Pengguna Umum'"
         );
     } catch (Throwable $e) {
         error_log('[SIM-TKD] ensurePeranDosen: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Pastikan ENUM `users.peran` memuat "Super Admin" dan akun `admin`
+ * memakai peran tersebut.
+ * -------------------------------------------
+ * Super Admin adalah peran pengelola utama: lintas instansi, boleh mengubah
+ * peran, dan tidak dibatasi isolasi SKPD. Akun dengan username `admin`
+ * selalu dipromosikan agar perilaku lama (superuser berdasarkan username)
+ * tetap konsisten dan tidak bisa terkunci karena ENUM lama.
+ *
+ * Aman dijalankan berulang: ALTER hanya dilakukan bila "Super Admin" belum
+ * ada, dan UPDATE hanya menyentuh akun `admin`.
+ */
+function ensurePeranSuperAdmin(PDO $pdo): void
+{
+    static $sudahDicek = false;
+    if ($sudahDicek) {
+        return;
+    }
+    $sudahDicek = true;
+
+    try {
+        $row = $pdo->query("SHOW COLUMNS FROM `users` LIKE 'peran'")->fetch();
+        if (!$row) {
+            return;
+        }
+        $type = (string) ($row['Type'] ?? '');
+
+        if (stripos($type, "'Super Admin'") === false) {
+            $pdo->exec(
+                "ALTER TABLE `users` MODIFY COLUMN `peran` "
+                . "ENUM('Super Admin','Admin Dinas','Operator','Bendahara','Verifikator','Kepala Dinas','Dosen','Pengguna Umum') "
+                . "DEFAULT 'Pengguna Umum'"
+            );
+        }
+
+        // Hanya UPDATE bila memang berbeda. Tanpa cek ini, kolom updated_at
+        // (ON UPDATE CURRENT_TIMESTAMP) akan terus berubah setiap request
+        // dan merusak tampilan "aktivitas terakhir" di Monitoring Pengguna.
+        $stmt = $pdo->prepare("SELECT `peran` FROM `users` WHERE `username` = 'admin' LIMIT 1");
+        $stmt->execute();
+        $peranAdmin = $stmt->fetchColumn();
+
+        if ($peranAdmin !== false && $peranAdmin !== 'Super Admin') {
+            $pdo->prepare("UPDATE `users` SET `peran` = 'Super Admin' WHERE `username` = 'admin'")
+                ->execute();
+        }
+    } catch (Throwable $e) {
+        error_log('[SIM-TKD] ensurePeranSuperAdmin: ' . $e->getMessage());
     }
 }
 
@@ -464,6 +518,7 @@ function ensurePeranDosen(PDO $pdo): void
  *   - "Operator" boleh membuat/mengubah, tetapi tidak menyetujui;
  *   - "Dosen" boleh menyiapkan data induk dan memverifikasi AKLAP
  *     (lihat manual book), sehingga termasuk peran operasional & penyetuju;
+ *   - "Super Admin" boleh semua operasi & persetujuan (pengelola utama);
  *   - Admin Dinas / Bendahara / Verifikator / Kepala Dinas boleh menyetujui
  *     (verifikasi, otorisasi, validasi, approve) sesuai alur simulasi;
  *   - username "admin" (superuser) selalu boleh.
@@ -490,6 +545,16 @@ function peranPengguna(?array $user = null): array
     ];
 }
 
+/**
+ * Apakah akun adalah Super Admin (pengelola utama lintas instansi).
+ * Username `admin` tetap dianggap Super Admin demi kompatibilitas data lama.
+ */
+function adalahSuperAdmin(?array $user = null): bool
+{
+    [$peran, $username] = peranPengguna($user);
+    return $username === 'admin' || $peran === 'Super Admin';
+}
+
 /** Apakah peran/username boleh mengubah data modul. */
 function bolehOperasi(?array $user = null): bool
 {
@@ -500,6 +565,7 @@ function bolehOperasi(?array $user = null): bool
     }
 
     return in_array($peran, [
+        'Super Admin',
         'Admin Dinas',
         'Operator',
         'Bendahara',
@@ -519,6 +585,7 @@ function bolehSetujui(?array $user = null): bool
     }
 
     return in_array($peran, [
+        'Super Admin',
         'Admin Dinas',
         'Bendahara',
         'Verifikator',
@@ -569,7 +636,7 @@ function daftarPeran(PDO $pdo): array
         return $cache;
     }
 
-    $bawaan = ['Admin Dinas', 'Operator', 'Bendahara', 'Verifikator', 'Kepala Dinas', 'Dosen', 'Pengguna Umum'];
+    $bawaan = ['Super Admin', 'Admin Dinas', 'Operator', 'Bendahara', 'Verifikator', 'Kepala Dinas', 'Dosen', 'Pengguna Umum'];
 
     try {
         $row = $pdo->query("SHOW COLUMNS FROM `users` LIKE 'peran'")->fetch();

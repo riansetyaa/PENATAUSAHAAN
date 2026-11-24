@@ -29,7 +29,7 @@ if (!isLoggedIn()) {
 }
 $peran = (string) ($_SESSION['peran'] ?? '');
 $username = (string) ($_SESSION['username'] ?? '');
-if ($peran !== 'Admin Dinas' && $username !== 'admin') {
+if (!in_array($peran, ['Super Admin', 'Admin Dinas'], true) && $username !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Akses hanya untuk admin.'], JSON_UNESCAPED_UNICODE);
     exit;
 }

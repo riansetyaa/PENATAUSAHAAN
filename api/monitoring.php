@@ -3,9 +3,10 @@
  * SIM-TKD - API Monitoring Pengguna (Admin/Dosen)
  * ============================================
  * Menampilkan daftar akun beserta status login dan progres pengerjaan.
- * Wajib login DAN berperan Admin Dinas / Kepala Dinas / Dosen (atau
- * username "admin"). Dosen/superuser melihat lintas instansi; Admin Dinas
- * dan Kepala Dinas dibatasi pada instansinya sendiri (lihat $whereLingkup).
+ * Wajib login DAN berperan Super Admin / Admin Dinas / Kepala Dinas /
+ * Dosen (atau username "admin"). Super Admin/Dosen/superuser melihat
+ * lintas instansi; Admin Dinas dan Kepala Dinas dibatasi pada instansinya
+ * sendiri (lihat $whereLingkup).
  * Karena itu endpoint ini tidak memakai requireInstansi(), tetapi tetap
  * menerapkan filter instansi secara eksplisit.
  *
@@ -29,7 +30,7 @@ if (!isLoggedIn()) {
 
 $peran    = (string) ($_SESSION['peran'] ?? '');
 $username = (string) ($_SESSION['username'] ?? '');
-$boleh    = in_array($peran, ['Admin Dinas', 'Kepala Dinas', 'Dosen'], true)
+$boleh    = in_array($peran, ['Super Admin', 'Admin Dinas', 'Kepala Dinas', 'Dosen'], true)
             || $username === 'admin';
 
 if (!$boleh) {
@@ -51,7 +52,7 @@ ensureUsersColumns($pdo);
 // Endpoint ini tetap tidak memakai requireInstansi() agar dosen dapat
 // melihat semua OPD, tetapi admin OPD tidak boleh melihat OPD lain.
 // ------------------------------------------------------------------
-$lintasInstansi = ($peran === 'Dosen') || ($username === 'admin');
+$lintasInstansi = in_array($peran, ['Super Admin', 'Dosen'], true) || ($username === 'admin');
 $instansiAktor  = trim((string) ($_SESSION['instansi'] ?? ''));
 
 if (!$lintasInstansi && $instansiAktor === '') {
@@ -256,9 +257,9 @@ foreach ($penggunaMentah as $u) {
 
     $pengguna[] = $baris;
 
-    // Rata-rata hanya dari akun mahasiswa (bukan admin/dosen).
+    // Rata-rata hanya dari akun mahasiswa (bukan admin/dosen/super admin).
     if ($baris['username'] !== 'admin'
-        && !in_array($baris['peran'], ['Admin Dinas', 'Kepala Dinas', 'Dosen'], true)) {
+        && !in_array($baris['peran'], ['Super Admin', 'Admin Dinas', 'Kepala Dinas', 'Dosen'], true)) {
         $totalProgresMahasiswa += $persenTotal;
         $jumlahMahasiswa++;
     }
@@ -272,11 +273,23 @@ $ringkasanOut = [
     'sudah_login'       => (int) ($ringkasan['sudah_login'] ?? 0),
     'login_7hari'       => (int) ($ringkasan['login_7hari'] ?? 0),
     'belum_login'       => 0,
+    'jumlah_mahasiswa'  => $jumlahMahasiswa,
     'rata_rata_progres' => $jumlahMahasiswa > 0
         ? (int) round($totalProgresMahasiswa / $jumlahMahasiswa)
         : 0,
 ];
 $ringkasanOut['belum_login'] = max(0, $ringkasanOut['total'] - $ringkasanOut['sudah_login']);
+
+// Super Admin boleh memberikan peran Super Admin; Admin Dinas tidak,
+// agar tidak terjadi eskalasi hak akses dari dalam instansinya.
+$superAdmin = adalahSuperAdmin();
+$peranTersedia = daftarPeran($pdo);
+if (!$superAdmin) {
+    $peranTersedia = array_values(array_filter(
+        $peranTersedia,
+        static fn(string $p): bool => $p !== 'Super Admin'
+    ));
+}
 
 jsonResponse(true, 'OK', [
     'ringkasan' => $ringkasanOut,
@@ -286,8 +299,8 @@ jsonResponse(true, 'OK', [
         'ada_kolom_login'  => $adaKolomLogin,
         'batas_baris'      => 1000,
         'jumlah_langkah'   => count($definisi),
-        'peran_tersedia'   => daftarPeran($pdo),
-        'bisa_ubah_peran'  => ($peran === 'Admin Dinas' || $username === 'admin'),
+        'peran_tersedia'   => $peranTersedia,
+        'bisa_ubah_peran'  => ($superAdmin || $peran === 'Admin Dinas'),
         'lingkup'          => $lintasInstansi ? 'lintas_instansi' : 'instansi',
         'instansi'         => $lintasInstansi ? '' : $instansiAktor,
     ],
